@@ -1,5 +1,6 @@
 flask
 transformers
-webull
 torch
 waitress
+alpaca-trade-api
+python-dotenv
