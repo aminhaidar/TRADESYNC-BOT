@@ -50,7 +50,7 @@ def index():
 def favicon():
     return send_from_directory('static', 'favicon.ico', mimetype='image/x-icon')
 
-# Webhook endpoint (unchanged)
+# Webhook endpoint
 @app.route('/webhook', methods=['POST'])
 def webhook():
     data = request.get_json()
@@ -87,19 +87,20 @@ def webhook():
                 time_in_force="gtc"
             )
             logger.info(f"Sell order placed for AAPL: {order.id}")
-            response = {"status": "success", "action": "sell", "order_id": order.id, "timestamp": timestamp)
+            response = {"status": "success", "action": "sell", "order_id": order.id, "timestamp": timestamp}
         except Exception as e:
             logger.error(f"Sell order failed: {e}")
-            response = {"status": "error", "action": "sell", "error": str(e), "timestamp": timestamp)
+            response = {"status": "error", "action": "sell", "error": str(e), "timestamp": timestamp}
 
     return jsonify(response), 200
 
 # Run the app with Waitress
 if __name__ == "__main__":
     from waitress import serve
-    logger.info("Starting Flask app with Waitress on 0.0.0.0:5000")
+    port = int(os.getenv("PORT", 5000))
+    logger.info(f"Starting Flask app with Waitress on 0.0.0.0:{port}")
     try:
-        serve(app, host="0.0.0.0", port=5000)
+        serve(app, host="0.0.0.0", port=port)
     except Exception as e:
         logger.error(f"Server failed to start: {e}")
         exit(1)
