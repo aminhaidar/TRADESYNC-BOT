@@ -50,6 +50,44 @@ def index():
 def favicon():
     return send_from_directory('static', 'favicon.ico', mimetype='image/x-icon')
 
+# API endpoint for portfolio data
+@app.route('/api/portfolio', methods=['GET'])
+def get_portfolio():
+    try:
+        account = api.get_account()
+        positions = api.list_positions()
+        total_value = float(account.portfolio_value)
+        cash = float(account.cash)
+        daily_pl = ((total_value - float(account.last_equity)) / float(account.last_equity) * 100) if float(account.last_equity) > 0 else 0
+        return jsonify({
+            "total_value": total_value,
+            "daily_pl": round(daily_pl, 2),
+            "positions": len(positions)
+        })
+    except Exception as e:
+        logger.error(f"Failed to fetch portfolio: {e}")
+        return jsonify({"error": str(e)}), 500
+
+# API endpoint for recent trades
+@app.route('/api/trades', methods=['GET'])
+def get_trades():
+    try:
+        orders = api.list_orders(status='all', limit=10)
+        trades = [
+            {
+                "symbol": o.symbol,
+                "type": o.side,
+                "qty": o.qty,
+                "price": o.filled_avg_price if o.filled_avg_price else "Pending",
+                "time": o.submitted_at.strftime('%Y-%m-%d %H:%M')
+            }
+            for o in orders
+        ]
+        return jsonify(trades)
+    except Exception as e:
+        logger.error(f"Failed to fetch trades: {e}")
+        return jsonify({"error": str(e)}), 500
+
 # Webhook endpoint
 @app.route('/webhook', methods=['POST'])
 def webhook():
