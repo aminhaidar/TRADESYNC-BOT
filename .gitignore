@@ -2,3 +2,5 @@
 __pycache__/
 *.pyc
 did.bin
+generate_token.py
+test_alpaca.py
