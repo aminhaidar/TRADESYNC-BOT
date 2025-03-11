@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 import os
 import logging
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from alpaca_trade_api.rest import REST
 
 # Load environment variables from ***REMOVED*** file
@@ -39,6 +39,16 @@ try:
 except Exception as e:
     logger.error(f"Failed to connect to Alpaca: {e}")
     exit(1)
+
+# Root health check route
+@app.route('/', methods=['GET'])
+def health_check():
+    return jsonify({"status": "healthy"}), 200
+
+# Favicon route
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory('static', 'favicon.ico', mimetype='image/x-icon')
 
 # Webhook endpoint
 @app.route('/webhook', methods=['POST'])
