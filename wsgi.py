@@ -1,9 +1,9 @@
-from app import app, socketio
+from app import app
 
-# For Flask-SocketIO, we simply return the app when using Gunicorn
-# The socketio instance is already attached to the app
+# For Flask-SocketIO with Gunicorn, we use the application directly
+# This is the WSGI entry point
 application = app
 
-# Callable for Gunicorn
-def create_app():
-    return application
+# Instead of returning the application from a function,
+# we can just assign the application to a variable
+# and Gunicorn will use it directly
