@@ -1,13 +1,19 @@
 #!/bin/bash
 
-# Ensure the script exits immediately on error
+# Ensure script exits on failure
 set -e
 
-# Update package list and install required system dependencies
-apt-get update && apt-get install -y build-essential python3-dev
+# Install necessary system dependencies for building Python packages
+apt-get update && apt-get install -y \
+    python3-dev \
+    gcc \
+    g++ \
+    libssl-dev \
+    libffi-dev \
+    build-essential
 
-# Ensure pip is up to date
+# Ensure pip and setuptools are up to date
 pip install --upgrade pip setuptools wheel
 
-# Install project dependencies from requirements.txt
+# Install dependencies
 pip install -r requirements.txt
