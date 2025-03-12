@@ -15,8 +15,8 @@ logger = logging.getLogger(__name__)
 logger.info(f"ALPACA_API_KEY from env: {os.getenv('ALPACA_API_KEY')}")
 logger.info(f"ALPACA_SECRET_KEY from env: {os.getenv('ALPACA_SECRET_KEY')}")
 
-# Initialize Flask app
-app = Flask(__name__)
+# Initialize Flask app with custom template folder
+app = Flask(__name__, template_folder='frontend')
 
 # Retrieve Alpaca API credentials
 ALPACA_API_KEY = os.getenv("ALPACA_API_KEY")
@@ -40,7 +40,7 @@ except Exception as e:
     logger.error(f"Failed to connect to Alpaca: {e}")
     exit(1)
 
-# Root route to render index.html from templates
+# Root route to render index.html from frontend folder
 @app.route('/', methods=['GET'])
 def index():
     return render_template('index.html')
