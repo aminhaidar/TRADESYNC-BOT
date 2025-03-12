@@ -53,12 +53,11 @@ login_manager.init_app(app)
 login_manager.login_view = "login"
 
 # Google OAuth Configuration
-# IMPORTANT: Set redirect_url to the EXACT URL you will use as your callback
-GOOGLE_CALLBACK_URL = "https://tradesync-bot-service.onrender.com/google_login_callback" # Define it here for consistency
+GOOGLE_CALLBACK_URL = "https://tradesync-bot-service.onrender.com/google_login_callback"
 google_bp = make_google_blueprint(
     client_id=os.getenv("GOOGLE_CLIENT_ID"),
     client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
-    redirect_url=GOOGLE_CALLBACK_URL, # Use the defined variable
+    redirect_url=GOOGLE_CALLBACK_URL,
     scope=["profile", "email"]
 )
 app.register_blueprint(google_bp, url_prefix="/auth")
@@ -81,63 +80,32 @@ def load_user(user_id):
     return User(user_data['id'], user_data['name'], user_data['email'])
 
 def check_dependencies():
-    """Check if required dependencies are available and log versions."""
     try:
         import aiohttp
         logger.info(f"aiohttp version: {aiohttp.__version__}")
-
-        # Check alpaca version
         check_alpaca_version()
-
         return True
     except ImportError as e:
         logger.error(f"Dependency error: {str(e)}")
         return False
 
 def check_alpaca_version():
-    """Check alpaca version and log details for debugging."""
     try:
         import alpaca_trade_api as tradeapi
         logger.info(f"Using alpaca-trade-api version: {tradeapi.__version__}")
-        # Log available API methods for debugging
         logger.info(f"Available API methods: {[m for m in dir(tradeapi) if not m.startswith('_')]}")
         return True
     except Exception as e:
         logger.error(f"Error importing alpaca-trade-api: {str(e)}")
         return False
 
-# Database setup
 def setup_database():
     try:
-        # Create logs directory if it doesn't exist
         os.makedirs('logs', exist_ok=True)
-
         conn = sqlite3.connect('trades.db')
         cursor = conn.cursor()
-
-        # Create alerts table if it doesn't exist
-        cursor.execute('''
-        CREATE TABLE IF NOT EXISTS alerts (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            alert TEXT NOT NULL,
-            timestamp TEXT NOT NULL,
-            parsed_data TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-        ''')
-
-        # Create stock_data table if it doesn't exist
-        cursor.execute('''
-        CREATE TABLE IF NOT EXISTS stock_data (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            symbol TEXT NOT NULL,
-            price REAL,
-            change_percent REAL,
-            volume INTEGER,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-        ''')
-
+        cursor.execute('''CREATE TABLE IF NOT EXISTS alerts (id INTEGER PRIMARY KEY AUTOINCREMENT, alert TEXT NOT NULL, timestamp TEXT NOT NULL, parsed_data TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
+        cursor.execute('''CREATE TABLE IF NOT EXISTS stock_data (id INTEGER PRIMARY KEY AUTOINCREMENT, symbol TEXT NOT NULL, price REAL, change_percent REAL, volume INTEGER, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
         conn.commit()
         conn.close()
         logger.info("Database initialized")
@@ -145,16 +113,13 @@ def setup_database():
         logger.error(f"Database initialization error: {str(e)}")
         traceback.print_exc()
 
-# Get database connection
 def get_db_connection():
     conn = sqlite3.connect('trades.db')
     conn.row_factory = sqlite3.Row
     return conn
 
-# Initialize database on startup
 setup_database()
 
-# Main routes
 @app.route('/')
 def index():
     if current_user.is_authenticated:
@@ -173,14 +138,12 @@ def register():
 def google_login():
     return redirect(url_for('google.login'))
 
-# Google Login Callback Route - IMPORTANT: Keep only ONE callback route for simplicity
-@app.route('/google_login_callback') # Use the same path as GOOGLE_CALLBACK_URL
+@app.route('/google_login_callback')
 def google_login_callback():
     logger.info("Received Google login callback")
     if not google.authorized:
         logger.warning("Google authorization failed")
         return redirect(url_for('login'))
-
     try:
         resp = google.get('/oauth2/v1/userinfo')
         if resp.ok:
@@ -202,7 +165,6 @@ def google_login_callback():
         traceback.print_exc()
         return redirect(url_for('login'))
 
-
 @app.route('/logout')
 def logout():
     logout_user()
@@ -214,35 +176,31 @@ def logout():
 def dashboard():
     return render_template('dashboard.html', user_name=current_user.name)
 
-# Webhook endpoint to receive Discord notifications from IFTTT
 @app.route('/webhook', methods=['POST'])
 def discord_webhook():
     try:
         data = request.json
         logger.info(f"Received webhook data: {data}")
 
-        # Extract data from IFTTT format
+        if not data:
+            logger.error("Invalid webhook data: No JSON data received")
+            return jsonify({"error": "Invalid webhook data: No JSON data"}), 400
+
         alert_text = data.get("alert", "")
         timestamp = data.get("time", datetime.datetime.now().isoformat())
 
         if not alert_text:
             logger.error("Invalid alert data: No alert text")
-            return jsonify({"error": "Invalid alert data"}), 400
+            return jsonify({"error": "Invalid alert data: No alert text"}), 400
 
-        # Parse alert using GenAI
         structured_alert = parse_alert_with_ai(alert_text)
         logger.info(f"Structured alert: {structured_alert}")
 
-        # Save to database
         conn = get_db_connection()
-        conn.execute(
-            "INSERT INTO alerts (alert, timestamp, parsed_data) VALUES (?, ?, ?)",
-            (alert_text, timestamp, json.dumps(structured_alert))
-        )
+        conn.execute("INSERT INTO alerts (alert, timestamp, parsed_data) VALUES (?, ?, ?)", (alert_text, timestamp, json.dumps(structured_alert)))
         conn.commit()
         conn.close()
 
-        # Add stock data if symbol is present
         if structured_alert.get("symbol"):
             try:
                 stock_data = fetch_stock_data(structured_alert["symbol"])
@@ -251,7 +209,6 @@ def discord_webhook():
                 logger.error(f"Error fetching stock data: {str(e)}")
                 structured_alert["stock_data"] = {"error": str(e)}
 
-        # Create alert object with ID for frontend
         alert_object = {
             "id": get_last_insert_id(),
             "alert": alert_text,
@@ -263,19 +220,20 @@ def discord_webhook():
         socketio.emit("new_alert", alert_object)
 
         return jsonify({"status": "success", "data": structured_alert})
+    except json.JSONDecodeError:
+        logger.error("Invalid webhook data: Invalid JSON format")
+        return jsonify({"error": "Invalid webhook data: Invalid JSON format"}), 400
     except Exception as e:
         logger.error(f"Error processing webhook: {str(e)}")
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
-# Get last inserted row id
 def get_last_insert_id():
     conn = get_db_connection()
     last_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
     conn.close()
     return last_id
 
-# Function to parse alert using GenAI (OpenAI API)
 def parse_alert_with_ai(alert_text):
     try:
         if OPENAI_API_KEY:
@@ -300,7 +258,6 @@ def parse_alert_with_ai(alert_text):
             "error": str(e)
         }
 
-# Parse alert using OpenAI
 def parse_alert_with_openai(alert_text):
     import openai
 
@@ -343,11 +300,16 @@ def parse_alert_with_openai(alert_text):
             result = result.replace("```", "").strip()
 
         return json.loads(result)
+    except openai.APIError as e:
+        logger.error(f"OpenAI API error: {str(e)}")
+        raise
+    except json.JSONDecodeError as e:
+        logger.error(f"OpenAI JSON decode error: {str(e)}")
+        raise
     except Exception as e:
         logger.error(f"OpenAI parsing error: {str(e)}")
         raise
 
-# Parse alert using Claude (Anthropic API)
 def parse_alert_with_claude(alert_text):
     try:
         import anthropic
@@ -391,11 +353,16 @@ def parse_alert_with_claude(alert_text):
             result = result.replace("```", "").strip()
 
         return json.loads(result)
+    except anthropic.APIError as e:
+        logger.error(f"Claude API error: {str(e)}")
+        raise
+    except json.JSONDecodeError as e:
+        logger.error(f"Claude JSON decode error: {str(e)}")
+        raise
     except Exception as e:
         logger.error(f"Claude parsing error: {str(e)}")
         raise
 
-# Fallback parser using regex and heuristics
 def fallback_alert_parser(alert_text):
     import re
 
@@ -458,10 +425,8 @@ def fallback_alert_parser(alert_text):
         except ValueError:
             # If date parsing fails, keep the original string
             parsed_data["expiration"] = expiry_str
-
     return parsed_data
 
-# Function to fetch stock data
 @backoff.on_exception(backoff.expo, (requests.exceptions.RequestException, aiohttp.ClientError), max_tries=3)
 def fetch_stock_data(symbol):
     try:
@@ -469,9 +434,7 @@ def fetch_stock_data(symbol):
         url = f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
 
         response = requests.get(url, timeout=10)  # Add timeout
-        if not response.ok:
-            logger.warning(f"Yahoo Finance API returned status code {response.status_code}")
-            response.raise_for_status()
+        response.raise_for_status()  # Raise HTTPError for bad responses
 
         data = response.json()
 
@@ -479,6 +442,10 @@ def fetch_stock_data(symbol):
         result = data.get('chart', {}).get('result', [{}])[0]
         meta = result.get('meta', {})
         quote = result.get('indicators', {}).get('quote', [{}])[0]
+
+        if not result or not meta or not quote:
+            logger.warning(f"Incomplete data from Yahoo Finance for {symbol}")
+            return {"symbol": symbol, "error": "Incomplete data"}
 
         current_price = meta.get('regularMarketPrice', 0)
         previous_close = meta.get('previousClose', 0)
@@ -502,12 +469,13 @@ def fetch_stock_data(symbol):
             "change_percent": round(change_percent, 2),
             "volume": volume
         }
-
+    except requests.exceptions.HTTPError as e:
+        logger.error(f"HTTP error fetching stock data for {symbol}: {e.response.status_code} - {e.response.text}")
+        return {"symbol": symbol, "error": f"HTTP error: {e.response.status_code}"}
     except Exception as e:
         logger.error(f"Error fetching stock data for {symbol}: {str(e)}")
         return {"symbol": symbol, "error": str(e)}
 
-# API route to get all alerts
 @app.route('/api/alerts', methods=['GET'])
 def get_alerts():
     try:
@@ -515,14 +483,16 @@ def get_alerts():
         alerts = conn.execute('SELECT * FROM alerts ORDER BY id DESC LIMIT 50').fetchall()
         conn.close()
 
-        # Convert to list of dicts
-        result = []
+        result =
         for alert in alerts:
             alert_dict = dict(alert)
-            # Parse the stored JSON string
             try:
                 alert_dict['parsed_data'] = json.loads(alert_dict['parsed_data'])
-            except:
+            except json.JSONDecodeError:
+                logger.warning(f"Error decoding parsed_data for alert ID: {alert_dict['id']}")
+                alert_dict['parsed_data'] = {"error": "Failed to parse"}
+            except Exception as e:
+                logger.error(f"Unexpected error parsing parsed_data for alert ID: {alert_dict['id']}: {str(e)}")
                 alert_dict['parsed_data'] = {"error": "Failed to parse"}
             result.append(alert_dict)
 
@@ -531,17 +501,16 @@ def get_alerts():
         logger.error(f"Error fetching alerts: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
-# API route to get market indices (VIX, SPX, NDX, DJI, RUT)
 @app.route('/api/indices', methods=['GET'])
 def get_indices():
     try:
         # Fetch major indices
         indices = {
             "VIX": fetch_stock_data("^VIX"),
-            "SPX": fetch_stock_data("^GSPC"),  # S&P 500
-            "NDX": fetch_stock_data("^NDX"),   # NASDAQ-100
-            "DJI": fetch_stock_data("^DJI"),   # Dow Jones Industrial Average
-            "RUT": fetch_stock_data("^RUT")    # Russell 2000
+            "SPX": fetch_stock_data("^GSPC"),
+            "NDX": fetch_stock_data("^NDX"),
+            "DJI": fetch_stock_data("^DJI"),
+            "RUT": fetch_stock_data("^RUT")
         }
 
         # Emit via WebSocket too for real-time updates
@@ -552,17 +521,15 @@ def get_indices():
         logger.error(f"Error fetching indices: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
-# Get Alpaca data with version-agnostic approach
 def get_alpaca_data():
-    """Gets Alpaca API data with version-agnostic approach."""
     try:
         if not ALPACA_API_KEY or not ALPACA_SECRET_KEY:
             logger.warning("Alpaca API keys not configured")
             return {
                 "error": "Alpaca API not configured",
                 "account": {},
-                "positions": [],
-                "recent_orders": []
+                "positions":,
+                "recent_orders":
             }
 
         headers = {
@@ -577,23 +544,26 @@ def get_alpaca_data():
                 headers=headers,
                 timeout=10
             )
+            account_response.raise_for_status()
             positions_response = requests.get(
                 "https://paper-api.alpaca.markets/v2/positions",
                 headers=headers,
                 timeout=10
             )
+            positions_response.raise_for_status()
             orders_response = requests.get(
                 "https://paper-api.alpaca.markets/v2/orders?status=all&limit=10",
                 headers=headers,
                 timeout=10
             )
+            orders_response.raise_for_status()
 
             return {
                 "account": account_response.json(),
                 "positions": positions_response.json(),
                 "recent_orders": orders_response.json()
             }
-        except Exception as e:
+        except requests.exceptions.RequestException as e:
             logger.error(f"Error with direct API calls: {str(e)}")
 
             # Second attempt: Use the alpaca-trade-api library
@@ -608,12 +578,12 @@ def get_alpaca_data():
                 # Convert objects to dictionaries depending on the version
                 account_dict = account._raw if hasattr(account, '_raw') else vars(account)
 
-                positions_list = []
+                positions_list =
                 for position in positions:
                     pos_dict = position._raw if hasattr(position, '_raw') else vars(position)
                     positions_list.append(pos_dict)
 
-                orders_list = []
+                orders_list =
                 for order in orders:
                     order_dict = order._raw if hasattr(order, '_raw') else vars(order)
                     orders_list.append(order_dict)
@@ -628,19 +598,18 @@ def get_alpaca_data():
                 return {
                     "error": f"Failed to retrieve Alpaca data: {str(e)} and {str(nested_e)}",
                     "account": {},
-                    "positions": [],
-                    "recent_orders": []
+                    "positions":,
+                    "recent_orders":
                 }
     except Exception as e:
         logger.error(f"Overall error in get_alpaca_data: {str(e)}")
         return {
             "error": str(e),
             "account": {},
-            "positions": [],
-            "recent_orders": []
+            "positions":,
+            "recent_orders":
         }
 
-# API route to get Alpaca portfolio details
 @app.route('/api/portfolio', methods=['GET'])
 @login_required
 def get_portfolio():
@@ -669,7 +638,6 @@ def get_portfolio():
         logger.error(f"Error fetching Alpaca data: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
-# WebSocket event handlers
 @socketio.on('connect')
 def handle_connect():
     logger.info('Client connected')
@@ -682,7 +650,7 @@ def handle_connect():
         alerts = conn.execute('SELECT * FROM alerts ORDER BY id DESC LIMIT 20').fetchall()
         conn.close()
 
-        alert_list = []
+        alert_list =
         for alert in alerts:
             try:
                 parsed_data = json.loads(alert['parsed_data'])
@@ -693,7 +661,10 @@ def handle_connect():
                     "parsed_data": parsed_data
                 }
                 alert_list.append(alert_data)
-            except:
+            except json.JSONDecodeError:
+                logger.warning(f"Error decoding parsed_data for alert ID: {alert['id']}")
+            except Exception as e:
+                logger.error(f"Error sending initial data: {str(e)}")
                 continue
 
         emit('initial_alerts', alert_list)
