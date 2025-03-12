@@ -4,139 +4,147 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TradeSync Bot</title>
+    <!-- Tailwind CSS (Static File) -->
+    <link href="/static/tailwind.css" rel="stylesheet">
+    <!-- Google Fonts for Roboto -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
+        /* Custom styles for enhanced UX */
+        .nav-link:hover, .nav-link.active {
+            background-color: #2F2F2F;
+            color: #1E90FF;
         }
-        body {
-            background: linear-gradient(135deg, #0f1c2e, #1a2a44);
-            color: #e0e7ff;
-            min-height: 100vh;
-            padding: 20px;
-            line-height: 1.6;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        h1 {
-            font-size: 32px;
-            color: #00c4ff;
-            text-align: center;
-            margin-bottom: 20px;
-            text-shadow: 0 0 10px rgba(0, 196, 255, 0.5);
-        }
-        h2 {
-            font-size: 22px;
-            color: #a3bffa;
-            margin-bottom: 15px;
-            padding-left: 10px;
-            border-left: 4px solid #00c4ff;
-        }
-        .section {
-            background: rgba(15, 28, 46, 0.9);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            transition: transform 0.3s ease;
-        }
-        .section:hover {
-            transform: translateY(-5px);
-        }
-        .card {
-            background: #1e2a44;
+        .chart-placeholder {
+            height: 200px;
+            background: linear-gradient(45deg, #1E1E1E, #2F2F2F);
             border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-left: 3px solid #00c4ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #A0A0A0;
         }
-        .card p {
-            color: #b0c4de;
-            font-size: 14px;
-            line-height: 1.8;
+        /* Sidebar toggle animation */
+        .sidebar {
+            transition: transform 0.3s ease-in-out;
         }
-        .card.highlight {
-            background: #2a4066;
-            border-left-color: #00ffcc;
+        .sidebar-hidden {
+            transform: translateX(-100%);
         }
-        @media (min-width: 768px) {
-            .container {
-                flex-direction: row;
-                flex-wrap: wrap;
-                justify-content: space-between;
-            }
-            .section {
-                flex: 1;
-                min-width: 300px;
-                margin: 10px;
-            }
+        .sidebar-overlay {
+            transition: opacity 0.3s ease-in-out;
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>TradeSync Bot</h1>
-
-        <!-- Live Market Data -->
-        <div class="section">
-            <h2>Live Market Data</h2>
-            <div class="card">
-                <p>AAPL: <span id="aapl-price">$220.84</span> <span id="aapl-time">[Last Updated: 19:45 EDT]</span></p>
-                <p>TSLA: <span id="tsla-price">$230.58</span> <span id="tsla-time">[Last Updated: 19:45 EDT]</span></p>
-                <p>NVDA: <span id="nvda-price">$108.76</span> <span id="nvda-time">[Last Updated: 19:45 EDT]</span></p>
+<body class="bg-[#121212] text-[#EAEAEA] font-['Roboto',sans-serif]">
+    <div class="flex min-h-screen">
+        <!-- Header -->
+        <header class="fixed top-0 left-0 w-full bg-[#121212] border-b border-[#2F2F2F] flex justify-between items-center px-4 py-2 z-20 shadow-md">
+            <div class="flex items-center">
+                <button id="toggle-sidebar" class="md:hidden text-[#1E90FF] mr-4">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                    </svg>
+                </button>
+                <h1 class="text-xl font-bold text-[#1E90FF]">TradeSync Bot</h1>
             </div>
-        </div>
-
-        <!-- Discord Raw Alerts -->
-        <div class="section">
-            <h2>Discord Raw Alerts</h2>
-            <div class="card highlight" id="discord-alerts">
-                <p>No alerts received yet</p>
+            <div class="w-10 h-10 bg-[#2F2F2F] rounded-full flex items-center justify-center text-[#A0A0A0] font-semibold">
+                A <!-- Profile Placeholder -->
             </div>
-        </div>
+        </header>
 
-        <!-- Portfolio Overview -->
-        <div class="section">
-            <h2>Portfolio Overview</h2>
-            <div class="card">
-                <p>Total Value: <span id="total-value">$50,234.12</span></p>
-                <p>Daily P&L: <span id="daily-pnl" style="color: #00ffcc;">+$123.45</span></p>
-                <p>Positions: <span id="positions">AAPL (40), TSLA (30), Cash</span></p>
-            </div>
-        </div>
+        <!-- Sidebar Menu -->
+        <aside id="sidebar" class="sidebar fixed top-0 md:top-14 w-64 bg-[#1E1E1E] border-r border-[#2F2F2F] h-full md:h-[calc(100%-56px)] overflow-y-auto z-10 md:sidebar-hidden">
+            <nav class="mt-14 md:mt-4">
+                <ul class="space-y-2">
+                    <li>
+                        <a href="#" class="nav-link active block px-4 py-2 text-[#A0A0A0] hover:bg-[#2F2F2F] hover:text-[#1E90FF]">Dashboard</a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link block px-4 py-2 text-[#A0A0A0] hover:bg-[#2F2F2F] hover:text-[#1E90FF]">Portfolio</a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link block px-4 py-2 text-[#A0A0A0] hover:bg-[#2F2F2F] hover:text-[#1E90FF]">Trades</a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link block px-4 py-2 text-[#A0A0A0] hover:bg-[#2F2F2F] hover:text-[#1E90FF]">Alerts</a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link block px-4 py-2 text-[#A0A0A0] hover:bg-[#2F2F2F] hover:text-[#1E90FF]">Settings</a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
 
-        <!-- Recent Trades -->
-        <div class="section">
-            <h2>Recent Trades</h2>
-            <div class="card" id="trades">
-                <p>No recent trades</p>
+        <!-- Sidebar Overlay (for mobile) -->
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-0 hidden md:hidden sidebar-overlay"></div>
+
+        <!-- Main Content -->
+        <main id="main-content" class="md:ml-64 mt-14 p-4 flex-1 overflow-y-auto transition-all duration-300">
+            <!-- User-Centric Dashboard -->
+            <div class="bg-[#1E1E1E] border border-[#2F2F2F] rounded-lg p-6 mb-6">
+                <h2 class="text-lg font-semibold text-[#1E90FF] mb-4">Dashboard</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div class="bg-[#1E1E1E] p-4 rounded-lg border border-[#2F2F2F]">
+                        <p class="text-sm text-[#A0A0A0]">Account Balance</p>
+                        <p id="total-value" class="text-xl text-[#EAEAEA]">$50,234.12</p>
+                    </div>
+                    <div class="bg-[#1E1E1E] p-4 rounded-lg border border-[#2F2F2F]">
+                        <p class="text-sm text-[#A0A0A0]">Daily P&L</p>
+                        <p id="daily-pnl" class="text-xl text-[#00D1A0]">+$123.45</p>
+                    </div>
+                    <div class="bg-[#1E1E1E] p-4 rounded-lg border border-[#2F2F2F]">
+                        <p class="text-sm text-[#A0A0A0]">Positions</p>
+                        <p id="positions" class="text-xl text-[#EAEAEA]">AAPL (40), TSLA (30)</p>
+                    </div>
+                </div>
+                <div class="quick-actions flex flex-col md:flex-row gap-4">
+                    <button class="bg-[#1E90FF] text-white px-4 py-2 rounded-lg hover:bg-opacity-80 transition">Initiate Trade</button>
+                    <button class="bg-[#1E90FF] text-white px-4 py-2 rounded-lg hover:bg-opacity-80 transition">View Portfolio</button>
+                    <button class="bg-[#1E90FF] text-white px-4 py-2 rounded-lg hover:bg-opacity-80 transition">Analytics</button>
+                </div>
             </div>
-        </div>
+
+            <!-- Detailed Analytics Section -->
+            <div class="bg-[#1E1E1E] border border-[#2F2F2F] rounded-lg p-6 mb-6">
+                <h2 class="text-lg font-semibold text-[#1E90FF] mb-4">Analytics</h2>
+                <div class="chart-placeholder mb-4">Performance Chart Placeholder</div>
+                <div class="chart-placeholder">AI Insights Placeholder</div>
+            </div>
+
+            <!-- Discord Raw Alerts -->
+            <div class="bg-[#1E1E1E] border border-[#2F2F2F] rounded-lg p-6 mb-6">
+                <h2 class="text-lg font-semibold text-[#1E90FF] mb-4">Discord Raw Alerts</h2>
+                <div id="discord-alerts" class="space-y-2 text-[#A0A0A0]">
+                    <p>No alerts received yet</p>
+                </div>
+            </div>
+
+            <!-- Recent Trades -->
+            <div class="bg-[#1E1E1E] border border-[#2F2F2F] rounded-lg p-6">
+                <h2 class="text-lg font-semibold text-[#1E90FF] mb-4">Recent Trades</h2>
+                <div id="trades" class="space-y-2 text-[#A0A0A0]">
+                    <p>No recent trades</p>
+                </div>
+            </div>
+        </main>
     </div>
 
     <script>
-        // Fetch live market data every 10 seconds
-        function updateMarketData() {
-            fetch('/api/market_data')
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('aapl-price').innerText = `$${data.AAPL.price.toFixed(2)}`;
-                    document.getElementById('tsla-price').innerText = `$${data.TSLA.price.toFixed(2)}`;
-                    document.getElementById('nvda-price').innerText = `$${data.NVDA.price.toFixed(2)}`;
-                    const time = new Date(data.AAPL.time).toLocaleTimeString('en-US', { timeZone: 'America/New_York' });
-                    document.getElementById('aapl-time').innerText = `[Last Updated: ${time} EDT]`;
-                    document.getElementById('tsla-time').innerText = `[Last Updated: ${time} EDT]`;
-                    document.getElementById('nvda-time').innerText = `[Last Updated: ${time} EDT]`;
-                });
-        }
-        setInterval(updateMarketData, 10000);
-        updateMarketData();
+        // Sidebar toggle for mobile
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebar-overlay');
+        const mainContent = document.getElementById('main-content');
+        const toggleButton = document.getElementById('toggle-sidebar');
+
+        toggleButton.addEventListener('click', () => {
+            sidebar.classList.toggle('sidebar-hidden');
+            sidebarOverlay.classList.toggle('hidden');
+        });
+
+        sidebarOverlay.addEventListener('click', () => {
+            sidebar.classList.add('sidebar-hidden');
+            sidebarOverlay.classList.add('hidden');
+        });
 
         // Fetch Discord raw alerts
         fetch('/api/discord_trades')
@@ -146,7 +154,8 @@
                 discordAlertsDiv.innerHTML = data.map(alert => 
                     `<p>${alert.alert} [${alert.time}] (${alert.source})</p>`
                 ).join('') || '<p>No alerts received yet</p>';
-            });
+            })
+            .catch(error => console.error('Error fetching Discord trades:', error));
 
         // Fetch portfolio
         fetch('/api/portfolio')
@@ -155,7 +164,8 @@
                 document.getElementById('total-value').innerText = data.total_value;
                 document.getElementById('daily-pnl').innerText = data.daily_pnl;
                 document.getElementById('positions').innerText = data.positions;
-            });
+            })
+            .catch(error => console.error('Error fetching portfolio:', error));
 
         // Fetch recent trades
         fetch('/api/trades')
@@ -165,7 +175,8 @@
                 tradesDiv.innerHTML = data.map(trade => 
                     `<p>${trade.symbol} - ${trade.type} ${trade.quantity} shares @ $${trade.price} [${trade.time}]</p>`
                 ).join('') || '<p>No recent trades</p>';
-            });
+            })
+            .catch(error => console.error('Error fetching trades:', error));
     </script>
 </body>
 </html>
