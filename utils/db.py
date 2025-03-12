@@ -42,7 +42,8 @@ class Database:
             quantity INTEGER NOT NULL,
             trade_type TEXT NOT NULL,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-            source TEXT
+            source TEXT,
+            user_id INTEGER
         )
         ''')
         
@@ -53,6 +54,17 @@ class Database:
             content TEXT NOT NULL,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
             processed BOOLEAN DEFAULT 0
+        )
+        ''')
+        
+        # Create users table
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
         ''')
         

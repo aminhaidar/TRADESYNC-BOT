@@ -1,8 +1,9 @@
 import os
+import secrets
 
 class Config:
     # Secret key for session management
-    SECRET_KEY = os***REMOVED***iron.get('SECRET_KEY') or 'your-super-secret-key-change-this-in-production'
+    SECRET_KEY = os***REMOVED***iron.get('SECRET_KEY') or secrets.token_hex(16)
     
     # Debug mode
     DEBUG = os***REMOVED***iron.get('DEBUG') or True
