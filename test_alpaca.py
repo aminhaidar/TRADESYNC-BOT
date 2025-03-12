@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 import os
 from alpaca_trade_api.rest import REST
 
-# Load environment variables from ***REMOVED*** file
+# Load environment variables from .env file
 load_dotenv()
 
 # Retrieve API keys
@@ -10,7 +10,7 @@ API_KEY = os.getenv("ALPACA_API_KEY")
 SECRET_KEY = os.getenv("ALPACA_SECRET_KEY")
 
 if not API_KEY or not SECRET_KEY:
-    print("API keys not set correctly in ***REMOVED*** file")
+    print("API keys not set correctly in .env file")
     exit(1)
 
 # Initialize REST client for paper trading

@@ -14,10 +14,10 @@ from dotenv import load_dotenv
 from oauthlib.oauth2.rfc6749.errors import OAuth2Error
 
 # Fix OAuth scope warnings
-os***REMOVED***iron['OAUTHLIB_RELAX_TOKEN_SCOPE'] = '1'
-os***REMOVED***iron['OAUTHLIB_IGNORE_SCOPE_CHANGE'] = '1'
+os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = '1'
+os.environ['OAUTHLIB_IGNORE_SCOPE_CHANGE'] = '1'
 # Allow insecure transport for development
-os***REMOVED***iron['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 # Load environment variables
 load_dotenv()
