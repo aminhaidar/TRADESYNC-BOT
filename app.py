@@ -56,7 +56,7 @@ login_manager.login_view = "login"
 google_bp = make_google_blueprint(
     client_id=os.getenv("GOOGLE_CLIENT_ID"),
     client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
-    redirect_to="google_login_callback",
+    redirect_url="/auth/google/callback",  # Changed from redirect_to
     scope=["profile", "email"]
 )
 app.register_blueprint(google_bp, url_prefix="/auth")
@@ -171,7 +171,7 @@ def register():
 def google_login():
     return redirect(url_for('google.login'))
 
-@app.route('/google_login_callback')
+@app.route('/auth/google/callback')
 def google_login_callback():
     if not google.authorized:
         logger.warning("Google authorization failed")
