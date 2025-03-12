@@ -9,3 +9,4 @@ eventlet==0.33.3
 google-auth==2.23.0
 google-auth-oauthlib==1.0.0
 flask-cors==4.0.0
+flask-login==0.6.2
