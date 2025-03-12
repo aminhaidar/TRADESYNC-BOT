@@ -1,1 +1,438 @@
 2025-03-11 23:24:35,226 - app - ERROR - Error getting trades: SQLite objects created in a thread can only be used in that same thread. The object was created in thread id 8629030784 and this is thread id 6165049344.
+2025-03-12 00:47:05,117 - app - INFO - Database initialized successfully
+2025-03-12 00:48:58,119 - app - INFO - Database initialized successfully
+2025-03-12 00:48:58,461 - app - INFO - Database initialized successfully
+2025-03-12 00:50:30,029 - app - INFO - Database initialized successfully
+2025-03-12 00:50:44,271 - app - INFO - Database initialized successfully
+2025-03-12 00:50:44,535 - app - INFO - Database initialized successfully
+2025-03-12 00:50:54,849 - app - ERROR - Error getting market indices: No module named 'services.api.market_data'
+2025-03-12 00:50:54,849 - app - ERROR - Error getting multiple stock quotes: No module named 'services.api.market_data'
+2025-03-12 00:51:55,340 - app - ERROR - Error getting multiple stock quotes: No module named 'services.api.market_data'
+2025-03-12 00:51:55,341 - app - ERROR - Error getting market indices: No module named 'services.api.market_data'
+2025-03-12 00:52:55,340 - app - ERROR - Error getting market indices: No module named 'services.api.market_data'
+2025-03-12 00:52:55,341 - app - ERROR - Error getting multiple stock quotes: No module named 'services.api.market_data'
+2025-03-12 00:53:13,750 - app - INFO - Database initialized successfully
+2025-03-12 00:53:55,353 - app - ERROR - Error getting market indices: No module named 'services.api.market_data'
+2025-03-12 00:53:55,354 - app - ERROR - Error getting multiple stock quotes: No module named 'services.api.market_data'
+2025-03-12 00:54:55,341 - app - ERROR - Error getting market indices: No module named 'services.api.market_data'
+2025-03-12 00:54:55,341 - app - ERROR - Error getting multiple stock quotes: No module named 'services.api.market_data'
+2025-03-12 00:55:55,341 - app - ERROR - Error getting market indices: No module named 'services.api.market_data'
+2025-03-12 00:55:55,341 - app - ERROR - Error getting multiple stock quotes: No module named 'services.api.market_data'
+2025-03-12 00:56:55,342 - app - ERROR - Error getting market indices: No module named 'services.api.market_data'
+2025-03-12 00:56:55,344 - app - ERROR - Error getting multiple stock quotes: No module named 'services.api.market_data'
+2025-03-12 00:58:00,080 - app - INFO - Database initialized successfully
+2025-03-12 00:58:00,417 - app - INFO - Database initialized successfully
+2025-03-12 00:58:05,960 - app - ERROR - Error getting market indices: No module named 'services.api.market_data'
+2025-03-12 00:58:05,960 - app - ERROR - Error getting multiple stock quotes: No module named 'services.api.market_data'
+2025-03-12 00:59:06,352 - app - ERROR - Error getting market indices: No module named 'services.api.market_data'
+2025-03-12 00:59:06,352 - app - ERROR - Error getting multiple stock quotes: No module named 'services.api.market_data'
+2025-03-12 00:59:56,423 - app - ERROR - Error getting multiple stock quotes: No module named 'services.api.market_data'
+2025-03-12 00:59:56,425 - app - ERROR - Error getting market indices: No module named 'services.api.market_data'
+2025-03-12 01:00:57,351 - app - ERROR - Error getting market indices: No module named 'services.api.market_data'
+2025-03-12 01:00:57,353 - app - ERROR - Error getting multiple stock quotes: No module named 'services.api.market_data'
+2025-03-12 01:01:24,168 - app - INFO - Database initialized successfully
+2025-03-12 01:01:24,456 - app - INFO - Database initialized successfully
+2025-03-12 01:01:30,113 - app - ERROR - Error getting market indices: No module named 'services.api.market_data'
+2025-03-12 01:01:30,113 - app - ERROR - Error getting multiple stock quotes: No module named 'services.api.market_data'
+2025-03-12 01:01:36,288 - app - ERROR - Error getting market indices: No module named 'services.api.market_data'
+2025-03-12 01:01:36,289 - app - ERROR - Error getting multiple stock quotes: No module named 'services.api.market_data'
+2025-03-12 01:07:29,359 - app - INFO - Database initialized successfully
+2025-03-12 01:07:29,903 - app - INFO - Database initialized successfully
+2025-03-12 01:07:35,107 - app - ERROR - Error getting market indices: No module named 'services.api.market_data'
+2025-03-12 01:07:35,107 - app - ERROR - Error getting multiple stock quotes: No module named 'services.api.market_data'
+2025-03-12 01:07:37,542 - app - ERROR - Error getting market indices: No module named 'services.api.market_data'
+2025-03-12 01:07:37,545 - app - ERROR - Error getting multiple stock quotes: No module named 'services.api.market_data'
+2025-03-12 01:08:38,297 - app - ERROR - Error getting multiple stock quotes: No module named 'services.api.market_data'
+2025-03-12 01:08:38,300 - app - ERROR - Error getting market indices: No module named 'services.api.market_data'
+2025-03-12 01:09:24,694 - app - INFO - Database initialized successfully
+2025-03-12 01:09:29,099 - app - ERROR - Error getting market indices: No module named 'services.api.market_data'
+2025-03-12 01:09:29,100 - app - ERROR - Error getting multiple stock quotes: No module named 'services.api.market_data'
+2025-03-12 01:09:50,490 - app - INFO - Database initialized successfully
+2025-03-12 01:09:50,781 - app - INFO - Database initialized successfully
+2025-03-12 01:09:53,727 - app - ERROR - Error getting market indices: No module named 'services.api.market_data'
+2025-03-12 01:09:53,727 - app - ERROR - Error getting multiple stock quotes: No module named 'services.api.market_data'
+2025-03-12 01:09:57,680 - app - ERROR - Error getting market indices: No module named 'services.api.market_data'
+2025-03-12 01:09:57,682 - app - ERROR - Error getting multiple stock quotes: No module named 'services.api.market_data'
+2025-03-12 01:10:58,302 - app - ERROR - Error getting market indices: No module named 'services.api.market_data'
+2025-03-12 01:10:58,304 - app - ERROR - Error getting multiple stock quotes: No module named 'services.api.market_data'
+2025-03-12 01:11:58,295 - app - ERROR - Error getting market indices: No module named 'services.api.market_data'
+2025-03-12 01:11:58,297 - app - ERROR - Error getting multiple stock quotes: No module named 'services.api.market_data'
+2025-03-12 01:12:58,293 - app - ERROR - Error getting market indices: No module named 'services.api.market_data'
+2025-03-12 01:12:58,295 - app - ERROR - Error getting multiple stock quotes: No module named 'services.api.market_data'
+2025-03-12 01:13:58,295 - app - ERROR - Error getting multiple stock quotes: No module named 'services.api.market_data'
+2025-03-12 01:13:58,296 - app - ERROR - Error getting market indices: No module named 'services.api.market_data'
+2025-03-12 10:14:32,027 - __main__ - INFO - Database initialized
+2025-03-12 10:14:32,029 - __main__ - INFO - Starting server on port 5000
+2025-03-12 10:14:32,114 - werkzeug - INFO -  * Restarting with stat
+2025-03-12 10:14:32,493 - __main__ - INFO - Database initialized
+2025-03-12 10:14:32,494 - __main__ - INFO - Starting server on port 5000
+2025-03-12 10:14:32,507 - werkzeug - WARNING -  * Debugger is active!
+2025-03-12 10:14:32,514 - werkzeug - INFO -  * Debugger PIN: 142-251-366
+2025-03-12 10:14:49,634 - flask_dance.consumer.oauth2 - INFO - state not found, redirecting user to login
+2025-03-12 10:20:46,726 - __main__ - INFO - Database initialized
+2025-03-12 10:20:46,727 - __main__ - INFO - Starting server on port 5000
+2025-03-12 10:20:46,749 - werkzeug - INFO -  * Restarting with stat
+2025-03-12 10:20:47,105 - __main__ - INFO - Database initialized
+2025-03-12 10:20:47,107 - __main__ - INFO - Starting server on port 5000
+2025-03-12 10:20:47,119 - werkzeug - WARNING -  * Debugger is active!
+2025-03-12 10:20:47,125 - werkzeug - INFO -  * Debugger PIN: 142-251-366
+2025-03-12 10:20:53,769 - __main__ - INFO - User logged in: haidaramin@gmail.com
+2025-03-12 10:20:54,461 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:20:54,581 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:20:54,730 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:20:54,862 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:20:55,013 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:20:56,974 - __main__ - INFO - Client connected
+2025-03-12 10:21:55,108 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:21:55,251 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:21:55,387 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:21:55,506 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:21:55,649 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:22:39,880 - __main__ - INFO - User logged in: haidaramin@gmail.com
+2025-03-12 10:22:40,509 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:22:40,650 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:22:40,790 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:22:40,928 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:22:41,056 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:22:41,784 - __main__ - INFO - Client connected
+2025-03-12 10:22:55,064 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:22:55,240 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:22:55,381 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:22:55,520 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:22:55,670 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:23:41,091 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:23:41,224 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:23:41,369 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:23:41,497 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:23:41,650 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:23:54,403 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:23:54,595 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:23:54,729 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:23:54,902 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:23:55,078 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:24:31,065 - __main__ - INFO - Client requested data refresh
+2025-03-12 10:24:31,247 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:24:31,388 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:24:31,528 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:24:31,650 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:24:31,814 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:24:32,648 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:24:32,787 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:24:32,959 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:24:33,092 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:24:33,236 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:24:40,555 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:24:40,742 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:24:40,864 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:24:41,001 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:24:41,132 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:24:54,993 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:24:55,149 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:24:55,312 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:24:55,452 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:24:55,589 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:25:41,044 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:25:41,178 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:25:41,322 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:25:41,470 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:25:41,630 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:25:55,068 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:25:55,204 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:25:55,333 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:25:55,471 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:25:55,609 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:26:41,021 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:26:41,172 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:26:41,295 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:26:41,451 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:26:41,591 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:26:55,992 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:26:56,137 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:26:56,267 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:26:56,405 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:26:56,531 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:27:53,061 - werkzeug - INFO -  * Detected change in '/Users/amin.haidar/tradesync-bot/app.py', reloading
+2025-03-12 10:27:53,119 - werkzeug - INFO -  * Restarting with stat
+2025-03-12 10:27:56,270 - __main__ - INFO - Database initialized
+2025-03-12 10:27:56,274 - __main__ - INFO - Starting server on port 5000
+2025-03-12 10:27:56,388 - werkzeug - WARNING -  * Debugger is active!
+2025-03-12 10:27:56,408 - werkzeug - INFO -  * Debugger PIN: 142-251-366
+2025-03-12 10:27:57,873 - __main__ - INFO - Client connected
+2025-03-12 10:27:57,877 - __main__ - INFO - Client connected
+2025-03-12 10:28:10,056 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:28:10,197 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:28:10,377 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:28:10,533 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:28:10,690 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:28:55,093 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:28:55,211 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:28:55,376 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:28:55,507 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:28:55,642 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:29:05,937 - werkzeug - INFO -  * Detected change in '/Users/amin.haidar/tradesync-bot/test_webhook.py', reloading
+2025-03-12 10:29:05,982 - werkzeug - INFO -  * Restarting with stat
+2025-03-12 10:29:06,447 - __main__ - INFO - Database initialized
+2025-03-12 10:29:06,448 - __main__ - INFO - Starting server on port 5000
+2025-03-12 10:29:06,463 - werkzeug - WARNING -  * Debugger is active!
+2025-03-12 10:29:06,468 - werkzeug - INFO -  * Debugger PIN: 142-251-366
+2025-03-12 10:29:06,875 - __main__ - INFO - Client connected
+2025-03-12 10:29:07,485 - __main__ - INFO - Client connected
+2025-03-12 10:29:10,108 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:29:10,233 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:29:10,393 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:29:10,527 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:29:10,649 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:29:54,431 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:29:54,552 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:29:54,672 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:29:54,805 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:29:54,931 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:30:35,668 - __main__ - INFO - Database initialized
+2025-03-12 10:30:35,670 - __main__ - INFO - Starting server on port 5000
+2025-03-12 10:30:35,688 - werkzeug - INFO -  * Restarting with stat
+2025-03-12 10:30:36,059 - __main__ - INFO - Database initialized
+2025-03-12 10:30:36,060 - __main__ - INFO - Starting server on port 5000
+2025-03-12 10:30:36,074 - werkzeug - WARNING -  * Debugger is active!
+2025-03-12 10:30:36,079 - werkzeug - INFO -  * Debugger PIN: 142-251-366
+2025-03-12 10:30:36,862 - __main__ - INFO - Client connected
+2025-03-12 10:30:38,867 - __main__ - INFO - Client connected
+2025-03-12 10:30:39,719 - __main__ - INFO - Client disconnected
+2025-03-12 10:30:40,022 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:30:40,166 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:30:40,290 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:30:40,435 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:30:40,570 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:30:41,273 - __main__ - INFO - Client connected
+2025-03-12 10:30:55,081 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:30:55,270 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:30:55,436 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:30:55,575 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:30:55,743 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:31:40,116 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:31:40,250 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:31:40,373 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:31:40,526 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:31:40,674 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:31:55,155 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:31:55,312 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:31:55,441 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:31:55,594 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:31:55,732 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:32:40,056 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:32:40,192 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:32:40,315 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:32:40,455 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:32:40,595 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:32:56,012 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:32:56,132 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:32:56,272 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:32:56,434 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:32:56,583 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:33:40,047 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:33:40,192 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:33:40,345 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:33:40,477 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:33:40,629 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:33:57,179 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:33:57,314 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:33:57,464 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:33:57,605 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:33:57,738 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:34:37,550 - werkzeug - INFO -  * Detected change in '/Users/amin.haidar/tradesync-bot/test_webhook.py', reloading
+2025-03-12 10:34:37,609 - werkzeug - INFO -  * Restarting with stat
+2025-03-12 10:34:38,102 - __main__ - INFO - Database initialized
+2025-03-12 10:34:38,104 - __main__ - INFO - Starting server on port 5000
+2025-03-12 10:34:38,120 - werkzeug - WARNING -  * Debugger is active!
+2025-03-12 10:34:38,125 - werkzeug - INFO -  * Debugger PIN: 142-251-366
+2025-03-12 10:34:38,869 - __main__ - INFO - Client connected
+2025-03-12 10:34:38,872 - __main__ - INFO - Client connected
+2025-03-12 10:34:40,120 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:34:40,288 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:34:40,424 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:34:40,555 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:34:40,688 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:34:58,034 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:34:58,201 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:34:58,362 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:34:58,518 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:34:58,663 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:35:59,053 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:35:59,235 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:35:59,357 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:35:59,501 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:35:59,644 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:36:10,031 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:36:10,164 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:36:10,307 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:36:10,446 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:36:10,572 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:36:13,804 - __main__ - INFO - Client requested data refresh
+2025-03-12 10:36:13,986 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:36:14,115 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:36:14,256 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:36:14,400 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:36:14,560 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:36:15,479 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:36:15,616 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:36:15,776 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:36:15,919 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:36:16,064 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:36:17,073 - __main__ - INFO - Client disconnected
+2025-03-12 10:36:17,329 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:36:17,476 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:36:17,593 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:36:17,745 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:36:17,900 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:36:18,463 - __main__ - INFO - Client connected
+2025-03-12 10:37:10,056 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:37:10,217 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:37:10,370 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:37:10,508 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:37:10,642 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:37:18,037 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:37:18,177 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:37:18,305 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:37:18,456 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:37:18,576 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:38:05,600 - __main__ - INFO - Database initialized
+2025-03-12 10:38:05,601 - __main__ - INFO - Starting server on port 5000
+2025-03-12 10:38:05,616 - werkzeug - INFO -  * Restarting with stat
+2025-03-12 10:38:05,937 - __main__ - INFO - Database initialized
+2025-03-12 10:38:05,939 - __main__ - INFO - Starting server on port 5000
+2025-03-12 10:38:05,952 - werkzeug - WARNING -  * Debugger is active!
+2025-03-12 10:38:05,957 - werkzeug - INFO -  * Debugger PIN: 142-251-366
+2025-03-12 10:38:06,875 - __main__ - INFO - Client connected
+2025-03-12 10:38:07,871 - __main__ - INFO - Client connected
+2025-03-12 10:38:10,081 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:38:10,234 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:38:10,392 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:38:10,548 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:38:10,679 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:38:18,014 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:38:18,130 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:38:18,272 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:38:18,413 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:38:18,561 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:39:10,036 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:39:10,202 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:39:10,335 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:39:10,468 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:39:10,609 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:39:18,014 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:39:18,133 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:39:18,285 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:39:18,412 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:39:18,548 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:39:26,275 - __main__ - INFO - Client disconnected
+2025-03-12 10:39:26,584 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:39:26,711 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:39:26,860 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:39:26,998 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:39:27,139 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:39:27,741 - __main__ - INFO - Client connected
+2025-03-12 10:39:55,182 - __main__ - INFO - Client disconnected
+2025-03-12 10:40:18,044 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:40:18,194 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:40:18,333 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:40:18,482 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:40:18,634 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:41:08,009 - werkzeug - INFO -  * Detected change in '/Users/amin.haidar/tradesync-bot/test_webhook.py', reloading
+2025-03-12 10:41:08,055 - werkzeug - INFO -  * Restarting with stat
+2025-03-12 10:41:11,344 - __main__ - INFO - Database initialized
+2025-03-12 10:41:11,349 - __main__ - INFO - Starting server on port 5000
+2025-03-12 10:41:11,402 - werkzeug - WARNING -  * Debugger is active!
+2025-03-12 10:41:11,413 - werkzeug - INFO -  * Debugger PIN: 142-251-366
+2025-03-12 10:41:12,887 - __main__ - INFO - Client connected
+2025-03-12 10:41:13,610 - werkzeug - INFO -  * Detected change in '/Users/amin.haidar/tradesync-bot/test_webhook.py', reloading
+2025-03-12 10:41:13,660 - werkzeug - INFO -  * Restarting with stat
+2025-03-12 10:41:13,983 - __main__ - INFO - Database initialized
+2025-03-12 10:41:13,985 - __main__ - INFO - Starting server on port 5000
+2025-03-12 10:41:13,997 - werkzeug - WARNING -  * Debugger is active!
+2025-03-12 10:41:14,001 - werkzeug - INFO -  * Debugger PIN: 142-251-366
+2025-03-12 10:41:14,869 - __main__ - INFO - Client connected
+2025-03-12 10:41:17,436 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:41:17,574 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:41:17,712 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:41:17,867 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:41:18,018 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:41:58,307 - __main__ - INFO - Database initialized
+2025-03-12 10:41:58,308 - __main__ - INFO - Starting server on port 5000
+2025-03-12 10:41:58,328 - werkzeug - INFO -  * Restarting with stat
+2025-03-12 10:41:58,690 - __main__ - INFO - Database initialized
+2025-03-12 10:41:58,691 - __main__ - INFO - Starting server on port 5000
+2025-03-12 10:41:58,704 - werkzeug - WARNING -  * Debugger is active!
+2025-03-12 10:41:58,709 - werkzeug - INFO -  * Debugger PIN: 142-251-366
+2025-03-12 10:42:02,875 - __main__ - INFO - Client connected
+2025-03-12 10:42:18,069 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:42:18,206 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:42:18,337 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:42:18,491 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:42:18,634 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:42:44,959 - werkzeug - INFO -  * Detected change in '/Users/amin.haidar/tradesync-bot/test_webhook.py', reloading
+2025-03-12 10:42:45,008 - werkzeug - INFO -  * Restarting with stat
+2025-03-12 10:42:45,501 - __main__ - INFO - Database initialized
+2025-03-12 10:42:45,503 - __main__ - INFO - Starting server on port 5000
+2025-03-12 10:42:45,517 - werkzeug - WARNING -  * Debugger is active!
+2025-03-12 10:42:45,524 - werkzeug - INFO -  * Debugger PIN: 142-251-366
+2025-03-12 10:42:46,599 - __main__ - INFO - Client connected
+2025-03-12 10:43:17,409 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:43:17,536 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:43:17,687 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:43:17,841 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:43:17,996 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:43:25,406 - __main__ - INFO - Client disconnected
+2025-03-12 10:46:07,320 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:46:07,459 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:46:07,614 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:46:07,738 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:46:07,874 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:46:08,540 - __main__ - INFO - Client connected
+2025-03-12 10:46:27,058 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:46:27,194 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:46:27,333 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:46:27,481 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:46:27,640 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:46:48,838 - __main__ - INFO - Database initialized
+2025-03-12 10:46:48,839 - __main__ - INFO - Starting server on port 5000
+2025-03-12 10:46:48,854 - werkzeug - INFO -  * Restarting with stat
+2025-03-12 10:46:49,207 - __main__ - INFO - Database initialized
+2025-03-12 10:46:49,208 - __main__ - INFO - Starting server on port 5000
+2025-03-12 10:46:49,221 - werkzeug - WARNING -  * Debugger is active!
+2025-03-12 10:46:49,226 - werkzeug - INFO -  * Debugger PIN: 142-251-366
+2025-03-12 10:46:54,156 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:46:54,277 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:46:54,418 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:46:54,555 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:46:54,686 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:46:55,313 - __main__ - INFO - Client connected
+2025-03-12 10:47:03,645 - __main__ - INFO - Client disconnected
+2025-03-12 10:49:28,076 - __main__ - INFO - Database initialized
+2025-03-12 10:49:28,078 - __main__ - INFO - Starting server on port 5000
+2025-03-12 10:49:28,091 - werkzeug - INFO -  * Restarting with stat
+2025-03-12 10:49:28,424 - __main__ - INFO - Database initialized
+2025-03-12 10:49:28,426 - __main__ - INFO - Starting server on port 5000
+2025-03-12 10:49:28,438 - werkzeug - WARNING -  * Debugger is active!
+2025-03-12 10:49:28,444 - werkzeug - INFO -  * Debugger PIN: 142-251-366
+2025-03-12 10:51:31,389 - werkzeug - INFO -  * Detected change in '/Users/amin.haidar/tradesync-bot/test_webhook.py', reloading
+2025-03-12 10:51:31,440 - werkzeug - INFO -  * Restarting with stat
+2025-03-12 10:51:31,800 - __main__ - INFO - Database initialized
+2025-03-12 10:51:31,802 - __main__ - INFO - Starting server on port 5000
+2025-03-12 10:51:31,818 - werkzeug - WARNING -  * Debugger is active!
+2025-03-12 10:51:31,824 - werkzeug - INFO -  * Debugger PIN: 142-251-366
+2025-03-12 10:51:38,223 - __main__ - INFO - Received webhook data: {'alert': '🔥 Sniper just bought 10 contracts AMZN 200C Expiring 3/21 🚀', 'time': '2025-03-12T10:51:37.940894'}
+2025-03-12 10:51:45,507 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-03-12 10:51:45,517 - __main__ - INFO - Structured alert: {'trader': 'Sniper', 'action': 'bought', 'quantity': 10, 'symbol': 'AMZN', 'strike': 200, 'option_type': 'Call', 'expiration': '2021-03-21'}
+2025-03-12 10:51:45,700 - __main__ - ERROR - Error fetching stock data for AMZN: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:53:01,948 - __main__ - INFO - Client connected
+2025-03-12 10:53:03,323 - __main__ - INFO - Client disconnected
+2025-03-12 10:53:03,640 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:53:03,775 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:53:03,900 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:53:04,020 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:53:04,160 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:53:04,723 - __main__ - INFO - Client connected
+2025-03-12 10:54:04,062 - __main__ - ERROR - Error fetching stock data for ^VIX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:54:04,213 - __main__ - ERROR - Error fetching stock data for ^GSPC: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:54:04,353 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:54:04,510 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
+2025-03-12 10:54:04,643 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)

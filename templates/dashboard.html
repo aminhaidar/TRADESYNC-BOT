@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TradeSync Bot - Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.13.5/cdn.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            background-color: #121826;
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+        }
+        .card {
+            background-color: #1e293b;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+        }
+        .stat-card {
+            background-color: #1e293b;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            background-color: #2d3748;
+        }
+        .profit {
+            color: #48bb78;
+        }
+        .loss {
+            color: #f56565;
+        }
+        .nav-item {
+            transition: all 0.2s ease;
+            border-radius: 0.375rem;
+        }
+        .nav-item:hover {
+            background-color: #2d3748;
+        }
+        .nav-item.active {
+            background-color: #2d3748;
+            color: #63b3ed;
+        }
+        .btn-primary {
+            background-color: #4299e1;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #3182ce;
+        }
+        .alert {
+            border-left: 4px solid;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0.375rem;
+        }
+        .alert-success {
+            border-color: #48bb78;
+            background-color: rgba(72, 187, 120, 0.1);
+        }
+        .alert-warning {
+            border-color: #ed8936;
+            background-color: rgba(237, 137, 54, 0.1);
+        }
+        .alert-info {
+            border-color: #4299e1;
+            background-color: rgba(66, 153, 225, 0.1);
+        }
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-success {
+            background-color: rgba(72, 187, 120, 0.2);
+            color: #48bb78;
+        }
+        .badge-warning {
+            background-color: rgba(237, 137, 54, 0.2);
+            color: #ed8936;
+        }
+        .badge-danger {
+            background-color: rgba(245, 101, 101, 0.2);
+            color: #f56565;
+        }
+        .table th {
+            background-color: #2d3748;
+        }
+        .table tr {
+            border-bottom: 1px solid #2d3748;
+        }
+        .table tr:hover {
+            background-color: #2d3748;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a202c;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4a5568;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #718096;
+        }
+        /* Animation for new alerts */
+        @keyframes highlight {
+            0% { background-color: rgba(59, 130, 246, 0.3); }
+            100% { background-color: transparent; }
+        }
+        
+        .highlight-new {
+            animation: highlight 2s ease-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen" x-data="dashboard()">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div class="hidden md:flex md:flex-shrink-0">
+            <div class="flex flex-col w-64">
+                <div class="flex flex-col flex-grow pt-5 pb-4 overflow-y-auto bg-gray-900">
+                    <div class="flex items-center flex-shrink-0 px-4">
+                        <i class="fas fa-robot text-blue-500 text-2xl"></i>
+                        <span class="ml-2 text-xl font-semibold text-white">TradeSync Bot</span>
+                    </div>
+                    <div class="mt-8 flex-grow flex flex-col">
+                        <nav class="flex-1 px-2 space-y-1">
+                            <a href="#" class="nav-item active flex items-center px-2 py-2 text-sm font-medium text-gray-300">
+                                <i class="fas fa-chart-line w-6 h-6 mr-3 text-gray-300"></i>
+                                Dashboard
+                            </a>
+                            <a href="#" class="nav-item flex items-center px-2 py-2 text-sm font-medium text-gray-300">
+                                <i class="fas fa-exchange-alt w-6 h-6 mr-3 text-gray-300"></i>
+                                Trades
+                            </a>
+                            <a href="#" class="nav-item flex items-center px-2 py-2 text-sm font-medium text-gray-300">
+                                <i class="fas fa-robot w-6 h-6 mr-3 text-gray-300"></i>
+                                Bot Settings
+                            </a>
+                            <a href="/logout" class="nav-item flex items-center px-2 py-2 text-sm font-medium text-gray-300 mt-auto">
+                                <i class="fas fa-sign-out-alt w-6 h-6 mr-3 text-gray-300"></i>
+                                Logout
+                            </a>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main content -->
+        <div class="flex flex-col flex-1 overflow-hidden">
+            <!-- Top navigation -->
+            <div class="relative z-10 flex-shrink-0 flex h-16 gradient-bg shadow">
+                <button @click="sidebarOpen = !sidebarOpen" class="md:hidden px-4 text-gray-300 focus:outline-none focus:bg-gray-700 focus:text-white">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <div class="flex-1 px-4 flex justify-between">
+                    <div class="flex-1 flex items-center">
+                        <h1 class="text-xl font-semibold text-white">Dashboard</h1>
+                        <span class="ml-2 text-sm text-gray-400">
+                            Welcome, {{ user_name }}
+                        </span>
+                    </div>
+                    <div class="ml-4 flex items-center md:ml-6">
+                        <button @click="refreshData" class="btn-primary rounded-md px-4 py-2 text-sm font-medium text-white shadow-sm">
+                            <i class="fas fa-sync-alt mr-2"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main content wrapper -->
+            <main class="flex-1 relative overflow-y-auto focus:outline-none p-6">
+                <!-- Mobile sidebar -->
+                <div x-show="sidebarOpen" class="md:hidden fixed inset-0 flex z-40">
+                    <div @click="sidebarOpen = false" x-show="sidebarOpen" class="fixed inset-0">
+                        <div class="absolute inset-0 bg-gray-900 opacity-75"></div>
+                    </div>
+                    <div x-show="sidebarOpen" class="relative flex-1 flex flex-col max-w-xs w-full bg-gray-900">
+                        <div class="absolute top-0 right-0 -mr-12 pt-2">
+                            <button @click="sidebarOpen = false" class="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+                                <i class="fas fa-times text-white"></i>
+                            </button>
+                        </div>
+                        <div class="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
+                            <div class="flex-shrink-0 flex items-center px-4">
+                                <i class="fas fa-robot text-blue-500 text-2xl"></i>
+                                <span class="ml-2 text-xl font-semibold text-white">TradeSync Bot</span>
+                            </div>
+                            <nav class="mt-5 px-2 space-y-1">
+                                <a href="#" class="nav-item active flex items-center px-2 py-2 text-sm font-medium text-gray-300">
+                                    <i class="fas fa-chart-line w-6 h-6 mr-3 text-gray-300"></i>
+                                    Dashboard
+                                </a>
+                                <a href="#" class="nav-item flex items-center px-2 py-2 text-sm font-medium text-gray-300">
+                                    <i class="fas fa-exchange-alt w-6 h-6 mr-3 text-gray-300"></i>
+                                    Trades
+                                </a>
+                                <a href="#" class="nav-item flex items-center px-2 py-2 text-sm font-medium text-gray-300">
+                                    <i class="fas fa-robot w-6 h-6 mr-3 text-gray-300"></i>
+                                    Bot Settings
+                                </a>
+                                <a href="/logout" class="nav-item flex items-center px-2 py-2 text-sm font-medium text-gray-300 mt-auto">
+                                    <i class="fas fa-sign-out-alt w-6 h-6 mr-3 text-gray-300"></i>
+                                    Logout
+                                </a>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status alert -->
+                <div x-show="connectionStatus !== 'connected'" class="mb-6 alert alert-warning">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-circle text-yellow-500"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-yellow-500">Connection Status</h3>
+                            <div class="mt-2 text-sm text-gray-300" x-text="connectionStatus === 'connecting' ? 'Connecting to server...' : 'Disconnected from server. Reconnecting...'"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Market Indices -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-medium text-white mb-4">Market Indices</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                        <!-- FIXED: Changed (index, key) to (value, key) -->
+                        <template x-for="(value, key) in indices" :key="key">
+                            <div class="stat-card p-4">
+                                <div class="flex justify-between">
+                                    <span class="text-sm font-medium text-gray-400" x-text="key"></span>
+                                    <!-- FIXED: Added null check -->
+                                    <span x-show="value && value.change_percent !== null" :class="value.change_percent >= 0 ? 'text-green-500' : 'text-red-500'" class="text-xs">
+                                        <i :class="value.change_percent >= 0 ? 'fa-arrow-up' : 'fa-arrow-down'" class="fas"></i>
+                                        <span x-text="value.change_percent + '%'"></span>
+                                    </span>
+                                </div>
+                                <div class="text-lg font-bold mt-1" x-text="formatNumber(value.price)"></div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Two-column layout for desktop -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Trade Alerts Column -->
+                    <div class="lg:col-span-2">
+                        <div class="card p-6 mb-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-medium text-white">Recent Trade Alerts</h3>
+                                <span class="text-sm text-gray-400" x-text="alerts.length + ' total'"></span>
+                            </div>
+                            
+                            <div class="space-y-4 max-h-96 overflow-y-auto">
+                                <!-- FIXED: Added null check for alerts array -->
+                                <template x-if="alerts.length > 0">
+                                    <div>
+                                        <template x-for="(alert, index) in alerts" :key="alert.id">
+                                            <div class="alert" 
+                                                :class="[getAlertClass(alert), index === 0 && isNewAlert ? 'highlight-new' : '']">
+                                                <div class="flex items-start">
+                                                    <div class="flex-shrink-0 pt-0.5">
+                                                        <i class="fas fa-bolt text-yellow-500"></i>
+                                                    </div>
+                                                    <div class="ml-3 flex-1">
+                                                        <div class="text-sm font-medium">
+                                                            <span x-text="alert.parsed_data.trader"></span>
+                                                            <span x-text="alert.parsed_data.action"></span>
+                                                            <span x-text="alert.parsed_data.quantity"></span>
+                                                            <span x-text="alert.parsed_data.option_type ? 'contracts of' : 'shares of'"></span>
+                                                            <span class="font-bold" x-text="alert.parsed_data.symbol"></span>
+                                                            <template x-if="alert.parsed_data.option_type">
+                                                                <span>
+                                                                    <span x-text="'$' + alert.parsed_data.strike"></span>
+                                                                    <span x-text="alert.parsed_data.option_type"></span>
+                                                                    <span>expiring</span>
+                                                                    <span x-text="formatDate(alert.parsed_data.expiration)"></span>
+                                                                </span>
+                                                            </template>
+                                                        </div>
+                                                        <div class="mt-1 text-xs text-gray-400 flex items-center">
+                                                            <span x-text="timeAgo(alert.timestamp)"></span>
+                                                            <template x-if="alert.parsed_data.stock_data">
+                                                                <span class="ml-2">
+                                                                    <span>Current price:</span>
+                                                                    <span class="font-medium" x-text="'$' + alert.parsed_data.stock_data.price"></span>
+                                                                    <span :class="alert.parsed_data.stock_data.change_percent >= 0 ? 'text-green-500' : 'text-red-500'">
+                                                                        <i :class="alert.parsed_data.stock_data.change_percent >= 0 ? 'fa-arrow-up' : 'fa-arrow-down'" class="fas"></i>
+                                                                        <span x-text="alert.parsed_data.stock_data.change_percent + '%'"></span>
+                                                                    </span>
+                                                                </span>
+                                                            </template>
+                                                        </div>
+                                                    </div>
+                                                    <button @click="fetchStockDetails(alert.parsed_data.symbol)" 
+                                                            class="text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 px-2 py-1 rounded">
+                                                        <i class="fas fa-chart-line mr-1"></i> View Chart
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </template>
+                                
+                                <!-- Placeholder when no alerts -->
+                                <div x-show="alerts.length === 0" class="text-center py-6 text-gray-500">
+                                    <i class="fas fa-bell-slash text-2xl mb-2"></i>
+                                    <p>No trade alerts yet</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Stock Details - FIXED: Added null checks -->
+                        <div x-show="currentSymbol && stockData" class="card p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-medium text-white" x-text="currentSymbol + ' Stock Chart'"></h3>
+                                <div x-show="stockData" class="text-sm">
+                                    <span :class="stockData && stockData.change_percent >= 0 ? 'text-green-500' : 'text-red-500'">
+                                        <span x-text="'$' + formatNumber(stockData.price || 0)"></span>
+                                        <i :class="stockData && stockData.change_percent >= 0 ? 'fa-arrow-up' : 'fa-arrow-down'" class="fas ml-1"></i>
+                                        <span x-text="(stockData ? stockData.change_percent : 0) + '%'"></span>
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div class="h-64">
+                                <canvas id="stock-chart"></canvas>
+                            </div>
+                            
+                            <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4" x-show="stockData">
+                                <div class="bg-gray-800 p-3 rounded">
+                                    <h4 class="text-xs text-gray-400">Open</h4>
+                                    <p class="text-lg font-bold" x-text="'$' + formatNumber(stockData && stockData.open ? stockData.open : 0)"></p>
+                                </div>
+                                <div class="bg-gray-800 p-3 rounded">
+                                    <h4 class="text-xs text-gray-400">High</h4>
+                                    <p class="text-lg font-bold" x-text="'$' + formatNumber(stockData && stockData.high ? stockData.high : 0)"></p>
+                                </div>
+                                <div class="bg-gray-800 p-3 rounded">
+                                    <h4 class="text-xs text-gray-400">Low</h4>
+                                    <p class="text-lg font-bold" x-text="'$' + formatNumber(stockData && stockData.low ? stockData.low : 0)"></p>
+                                </div>
+                                <div class="bg-gray-800 p-3 rounded">
+                                    <h4 class="text-xs text-gray-400">Volume</h4>
+                                    <p class="text-lg font-bold" x-text="formatLargeNumber(stockData && stockData.volume ? stockData.volume : 0)"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Portfolio Column -->
+                    <div class="lg:col-span-1">
+                        <div class="card p-6 mb-6">
+                            <h3 class="text-lg font-medium text-white mb-4">Portfolio Summary</h3>
+                            
+                            <!-- FIXED: Added proper null checks -->
+                            <div x-show="portfolio && portfolio.account" class="space-y-4">
+                                <!-- Account Balance -->
+                                <div class="stat-card p-4">
+                                    <span class="text-sm font-medium text-gray-400">Cash Balance</span>
+                                    <div class="text-xl font-bold mt-1" x-text="formatCurrency(portfolio.account ? portfolio.account.cash : 0)"></div>
+                                </div>
+                                
+                                <!-- Portfolio Value -->
+                                <div class="stat-card p-4">
+                                    <span class="text-sm font-medium text-gray-400">Portfolio Value</span>
+                                    <div class="text-xl font-bold mt-1" x-text="formatCurrency(portfolio.account ? portfolio.account.portfolio_value : 0)"></div>
+                                    <div class="text-xs mt-1" 
+                                         :class="portfolio.account && parseFloat(portfolio.account.profit_loss_pct) >= 0 ? 'text-green-500' : 'text-red-500'">
+                                        <i :class="portfolio.account && parseFloat(portfolio.account.profit_loss_pct) >= 0 ? 'fa-arrow-up' : 'fa-arrow-down'" class="fas"></i>
+                                        <span x-text="formatNumber(portfolio.account ? portfolio.account.profit_loss_pct : 0) + '%'"></span>
+                                        <span>today</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Positions -->
+                                <div class="mt-6">
+                                    <h4 class="text-md font-medium text-white mb-2">Open Positions</h4>
+                                    <div class="space-y-3 max-h-60 overflow-y-auto">
+                                        <template x-if="portfolio.positions && portfolio.positions.length > 0">
+                                            <div>
+                                                <template x-for="position in portfolio.positions" :key="position.symbol">
+                                                    <div class="flex items-center justify-between p-3 bg-gray-800 rounded-md">
+                                                        <div>
+                                                            <div class="font-medium" x-text="position.symbol"></div>
+                                                            <div class="text-xs text-gray-400" x-text="position.qty + ' shares'"></div>
+                                                        </div>
+                                                        <div>
+                                                            <div :class="parseFloat(position.unrealized_pl) >= 0 ? 'text-green-500' : 'text-red-500'" 
+                                                                x-text="formatCurrency(position.unrealized_pl)"></div>
+                                                            <div class="text-xs" 
+                                                                :class="parseFloat(position.unrealized_plpc) >= 0 ? 'text-green-500' : 'text-red-500'"
+                                                                x-text="formatNumber(position.unrealized_plpc * 100) + '%'"></div>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </template>
+                                        
+                                        <!-- No positions placeholder -->
+                                        <div x-show="!portfolio.positions || portfolio.positions.length === 0" 
+                                             class="text-center py-4 text-gray-500">
+                                            <p>No open positions</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Recent Orders -->
+                                <div class="mt-6">
+                                    <h4 class="text-md font-medium text-white mb-2">Recent Orders</h4>
+                                    <div class="space-y-2 max-h-60 overflow-y-auto">
+                                        <template x-if="portfolio.recent_orders && portfolio.recent_orders.length > 0">
+                                            <div>
+                                                <template x-for="order in portfolio.recent_orders" :key="order.id">
+                                                    <div class="p-3 bg-gray-800 rounded-md">
+                                                        <div class="flex justify-between">
+                                                            <span x-text="order.symbol"></span>
+                                                            <span class="badge" 
+                                                                :class="order.side === 'buy' ? 'badge-success' : 'badge-danger'"
+                                                                x-text="order.side.toUpperCase()"></span>
+                                                        </div>
+                                                        <div class="flex justify-between text-xs text-gray-400 mt-1">
+                                                            <span x-text="order.qty + ' @ $' + formatNumber(order.filled_avg_price || 0)"></span>
+                                                            <span x-text="timeAgo(order.filled_at || order.created_at)"></span>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </template>
+                                        
+                                        <!-- No orders placeholder -->
+                                        <div x-show="!portfolio.recent_orders || portfolio.recent_orders.length === 0" 
+                                             class="text-center py-4 text-gray-500">
+                                            <p>No recent orders</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Loading state -->
+                            <div x-show="!portfolio.account" class="text-center py-10">
+                                <i class="fas fa-spinner fa-spin text-blue-500 text-2xl"></i>
+                                <p class="mt-2 text-gray-400">Loading portfolio data...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+</body>
+
+<script>
+    function dashboard() {
+        return {
+            sidebarOpen: false,
+            connectionStatus: 'connecting',
+            alerts: [],
+            // Initialize indices as an object with default values
+            indices: {
+                'VIX': { price: '-', change_percent: null },
+                'SPX': { price: '-', change_percent: null },
+                'NDX': { price: '-', change_percent: null },
+                'DJI': { price: '-', change_percent: null },
+                'RUT': { price: '-', change_percent: null }
+            },
+            // Initialize portfolio with empty/null values
+            portfolio: {
+                account: null,
+                positions: [],
+                recent_orders: []
+            },
+            socket: null,
+            currentSymbol: null,
+            stockData: null,
+            stockChart: null,
+            isNewAlert: false,
+            
+            init() {
+                this.connectWebSocket();
+                this.loadInitialData();
+                
+                // Set up polling for indices data (every 60 seconds)
+                setInterval(() => this.fetchIndices(), 60000);
+            },
+            
+            connectWebSocket() {
+                // Connect to WebSocket
+                const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                const wsUrl = `${protocol}//${window.location.host}`;
+                
+                this.socket = io(wsUrl);
+                
+                // Socket event listeners
+                this.socket.on('connect', () => {
+                    console.log('Connected to WebSocket');
+                    this.connectionStatus = 'connected';
+                });
+                
+                this.socket.on('disconnect', () => {
+                    console.log('Disconnected from WebSocket');
+                    this.connectionStatus = 'disconnected';
+                });
+                
+                this.socket.on('status', (data) => {
+                    console.log('Status update:', data);
+                    this.connectionStatus = data.status;
+                });
+                
+                this.socket.on('initial_alerts', (data) => {
+                    console.log('Initial alerts received:', data);
+                    this.alerts = Array.isArray(data) ? data : [];
+                    
+                    // If we have alerts, display the chart for the most recent one
+                    if (this.alerts && this.alerts.length > 0 && this.alerts[0].parsed_data && this.alerts[0].parsed_data.symbol) {
+                        this.fetchStockDetails(this.alerts[0].parsed_data.symbol);
+                    }
+                });
+                
+                this.socket.on('new_alert', (data) => {
+                    console.log('New alert received:', data);
+                    
+                    // Add to alerts array and limit to 20 items
+                    this.alerts.unshift(data);
+                    if (this.alerts.length > 20) {
+                        this.alerts.pop();
+                    }
+                    
+                    // Mark as new for animation
+                    this.isNewAlert = true;
+                    setTimeout(() => {
+                        this.isNewAlert = false;
+                    }, 2000);
+                    
+                    // Update stock chart if available
+                    if (data.parsed_data && data.parsed_data.symbol) {
+                        this.fetchStockDetails(data.parsed_data.symbol);
+                    }
+                    
+                    // Play notification sound if available
+                    try {
+                        const audio = new Audio('/static/notification.mp3');
+                        audio.play().catch(e => console.log('Error playing notification sound:', e));
+                    } catch (e) {
+                        console.log('Notification sound not available');
+                    }
+                });
+                
+                this.socket.on('indices_update', (data) => {
+                    console.log('Indices update received:', data);
+                    if (data) {
+                        this.indices = data;
+                    }
+                });
+                
+                this.socket.on('portfolio_update', (data) => {
+                    console.log('Portfolio update received:', data);
+                    if (data) {
+                        this.portfolio = data;
+                    }
+                });
+            },
+            
+            loadInitialData() {
+                // Fetch recent alerts
+                fetch('/api/alerts')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (Array.isArray(data)) {
+                            this.alerts = data;
+                            
+                            // If we have alerts, display the chart for the most recent one
+                            if (data && data.length > 0 && data[0].parsed_data && data[0].parsed_data.symbol) {
+                                this.fetchStockDetails(data[0].parsed_data.symbol);
+                            }
+                        }
+                    })
+                    .catch(error => console.error('Error fetching alerts:', error));
+                
+                // Fetch indices
+                this.fetchIndices();
+                
+                // Fetch portfolio
+                this.fetchPortfolio();
+            },
+            
+            fetchIndices() {
+                fetch('/api/indices')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data) {
+                            this.indices = data;
+                        }
+                    })
+                    .catch(error => console.error('Error fetching indices:', error));
+            },
+            
+            fetchPortfolio() {
+                fetch('/api/portfolio')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data) {
+                            this.portfolio = data;
+                        }
+                    })
+                    .catch(error => console.error('Error fetching portfolio:', error));
+            },
+            
+            refreshData() {
+                this.fetchIndices();
+                this.fetchPortfolio();
+                
+                if (this.currentSymbol) {
+                    this.fetchStockDetails(this.currentSymbol);
+                }
+                
+                // Also use socket to request fresh data
+                if (this.socket && this.connectionStatus === 'connected') {
+                    this.socket.emit('refresh_data');
+                }
+            },
+            
+            fetchStockDetails(symbol) {
+                if (!symbol) return;
+                
+                this.currentSymbol = symbol;
+                
+                // Fetch detailed stock data
+                fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1mo`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.chart || !data.chart.result || data.chart.result.length === 0) {
+                            console.error('Invalid data format from Yahoo Finance API');
+                            return;
+                        }
+                        
+                        const result = data.chart.result[0];
+                        const meta = result.meta;
+                        const timestamps = result.timestamp;
+                        const quotes = result.indicators.quote[0];
+                        
+                        // Process stock data
+                        this.stockData = {
+                            price: meta.regularMarketPrice || 0,
+                            change_percent: ((meta.regularMarketPrice - meta.previousClose) / meta.previousClose * 100) || 0,
+                            open: quotes.open ? quotes.open[quotes.open.length - 1] : 0,
+                            high: quotes.high ? quotes.high[quotes.high.length - 1] : 0,
+                            low: quotes.low ? quotes.low[quotes.low.length - 1] : 0,
+                            volume: quotes.volume ? quotes.volume[quotes.volume.length - 1] : 0
+                        };
+                        
+                        // Prepare chart data
+                        const chartData = {
+                            labels: timestamps.map(t => moment.unix(t).format('MM/DD')),
+                            datasets: [{
+                                label: symbol,
+                                data: quotes.close,
+                                borderColor: '#4299e1',
+                                backgroundColor: 'rgba(66, 153, 225, 0.1)',
+                                borderWidth: 2,
+                                fill: true,
+                                tension: 0.1
+                            }]
+                        };
+                        
+                        // Create or update chart
+                        this.createStockChart(chartData);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching stock data:', error);
+                    });
+            },
+            
+            createStockChart(data) {
+                const ctx = document.getElementById('stock-chart').getContext('2d');
+                
+                // Destroy existing chart if it exists
+                if (this.stockChart) {
+                    this.stockChart.destroy();
+                }
+                
+                // Create new chart
+                this.stockChart = new Chart(ctx, {
+                    type: 'line',
+                    data: data,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                },
+                                ticks: {
+                                    color: '#a0aec0'
+                                }
+                            },
+                            y: {
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                },
+                                ticks: {
+                                    color: '#a0aec0'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false,
+                                backgroundColor: '#2d3748',
+                                titleColor: '#e2e8f0',
+                                bodyColor: '#e2e8f0',
+                                borderColor: '#4a5568',
+                                borderWidth: 1
+                            }
+                        }
+                    }
+                });
+            },
+            
+            // Utility functions
+            formatCurrency(value) {
+                if (value === null || value === undefined) return '-';
+                return new Intl.NumberFormat('en-US', { 
+                    style: 'currency', 
+                    currency: 'USD',
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }).format(value);
+            },
+            
+            formatNumber(value) {
+                if (value === null || value === undefined) return '-';
+                return new Intl.NumberFormat('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }).format(value);
+            },
+            
+            formatLargeNumber(value) {
+                if (value === null || value === undefined) return '-';
+                
+                if (value >= 1000000) {
+                    return (value / 1000000).toFixed(2) + 'M';
+                } else if (value >= 1000) {
+                    return (value / 1000).toFixed(2) + 'K';
+                }
+                
+                return value.toLocaleString();
+            },
+            
+            formatDate(dateStr) {
+                if (!dateStr) return '';
+                const date = new Date(dateStr);
+                return new Intl.DateTimeFormat('en-US', { 
+                    month: 'short', 
+                    day: 'numeric',
+                    year: 'numeric'
+                }).format(date);
+            },
+            
+            timeAgo(timestamp) {
+                if (!timestamp) return '';
+                const date = new Date(timestamp);
+                const now = new Date();
+                const seconds = Math.floor((now - date) / 1000);
+                
+                if (seconds < 60) return 'just now';
+                
+                const minutes = Math.floor(seconds / 60);
+                if (minutes < 60) return `${minutes}m ago`;
+                
+                const hours = Math.floor(minutes / 60);
+                if (hours < 24) return `${hours}h ago`;
+                
+                const days = Math.floor(hours / 24);
+                if (days < 7) return `${days}d ago`;
+                
+                return this.formatDate(timestamp);
+            },
+            
+            getAlertClass(alert) {
+                if (!alert || !alert.parsed_data) return 'alert-info';
+                
+                const action = alert.parsed_data.action && alert.parsed_data.action.toLowerCase();
+                if (action === 'bought' || action === 'call') {
+                    return 'alert-success';
+                } else if (action === 'sold' || action === 'put') {
+                    return 'alert-warning';
+                }
+                
+                return 'alert-info';
+            }
+        };
+    }
+</script>
+</html>

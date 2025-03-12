@@ -1,0 +1,117 @@
+:root {
+    --app-bg: #121212;
+    --card-bg: #1E1E1E;
+    --card-bg-hover: #252525;
+    --text-primary: #EAEAEA;
+    --text-secondary: #A0A0A0;
+    --accent-positive: #00D1A0;
+    --accent-negative: #FF4C4C;
+    --accent-interactive: #1E90FF;
+    --accent-interactive-hover: #1A7FE8;
+    --border-color: #2F2F2F;
+}
+
+/* Base styles */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--app-bg);
+    color: var(--text-primary);
+    margin: 0;
+    padding: 0;
+    line-height: 1.5;
+}
+
+/* Layout */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.flex {
+    display: flex;
+}
+
+.flex-col {
+    flex-direction: column;
+}
+
+.flex-1 {
+    flex: 1;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.justify-center {
+    justify-content: center;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.items-start {
+    align-items: flex-start;
+}
+
+.grid {
+    display: grid;
+}
+
+.grid-cols-1 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+.gap-3 {
+    gap: 0.75rem;
+}
+
+.gap-4 {
+    gap: 1rem;
+}
+
+.space-y-1 > * + * {
+    margin-top: 0.25rem;
+}
+
+.space-y-2 > * + * {
+    margin-top: 0.5rem;
+}
+
+/* Add other utility classes you're using */
+
+/* Add the animation and custom component styles */
+.loading-spinner {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    border-top-color: var(--accent-interactive);
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.data-refreshing::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin-right: 6px;
+    background-color: var(--accent-interactive);
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.4; }
+    100% { opacity: 1; }
+}
+
+/* ... other styles from your CSS ... */
