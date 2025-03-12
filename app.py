@@ -61,8 +61,8 @@ google_bp = make_google_blueprint(
 )
 app.register_blueprint(google_bp, url_prefix="/auth")
 
-# Initialize WebSocket
-socketio = SocketIO(app, cors_allowed_origins="*")
+# Initialize WebSocket with explicit async mode for Gunicorn
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet', manage_session=False)
 
 # User class for Flask-Login
 class User(UserMixin):

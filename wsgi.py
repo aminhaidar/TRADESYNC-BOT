@@ -1,7 +1,8 @@
 from app import app, socketio
 
-# This creates a WSGI application that wraps the socketio app
-application = socketio.make_wsgi_app(app)
+# For Flask-SocketIO, we simply return the app when using Gunicorn
+# The socketio instance is already attached to the app
+application = app
 
 # Callable for Gunicorn
 def create_app():
