@@ -1,41 +1,42 @@
 from flask import Flask, request, render_template, jsonify
+import logging
 import os
 import json
 from datetime import datetime
-
 from config import Config
-from services.discord.discord_service import discord_service
-from models.trade import Trade
-from utils.logger import app_logger as logger
+from services.discord_service import process_discord_message
 
 app = Flask(__name__)
 app.config.from_object(Config)
 
+# Set up logging
+logging.basicConfig(
+    filename=Config.LOG_FILE,
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+
 @app.route('/')
 def home():
-    """Render the main dashboard page"""
     return render_template('index.html')
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
-    """Endpoint for receiving Discord webhook messages"""
     try:
         data = request.json
         if not data:
-            logger.warning("Received empty webhook request")
             return jsonify({"status": "error", "message": "No data provided"}), 400
         
         # Process the Discord message
-        result = discord_service.process_message(data)
+        result = process_discord_message(data)
         
-        return jsonify(result), 200
+        return jsonify({"status": "success", "message": "Data received"}), 200
     except Exception as e:
-        logger.error(f"Error processing webhook: {str(e)}")
+        logging.error(f"Error processing webhook: {str(e)}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/api/discord_trades', methods=['GET'])
 def get_discord_trades():
-    """API endpoint for getting Discord trades"""
     try:
         # Try to read from the log file
         trades = []
@@ -61,31 +62,8 @@ def get_discord_trades():
         
         return jsonify(trades)
     except Exception as e:
-        logger.error(f"Error getting discord trades: {str(e)}")
-        return jsonify([]), 500
-
-@app.route('/api/trades', methods=['GET'])
-def get_trades():
-    """API endpoint for getting all trades"""
-    try:
-        db_trades = Trade.get_all(limit=50)
-        trades_json = []
-        
-        for trade in db_trades:
-            trades_json.append({
-                "id": trade.id,
-                "symbol": trade.symbol,
-                "price": trade.price,
-                "quantity": trade.quantity,
-                "type": trade.trade_type,
-                "time": trade.timestamp,
-                "source": trade.source
-            })
-        
-        return jsonify(trades_json)
-    except Exception as e:
-        logger.error(f"Error getting trades: {str(e)}")
+        logging.error(f"Error getting discord trades: {str(e)}")
         return jsonify([]), 500
 
 if __name__ == '__main__':
-    app.run(debug=Config.DEBUG)
+    app.run(debug=True)
