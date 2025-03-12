@@ -282,4 +282,5 @@ def get_multiple_quotes():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=Config.DEBUG)
+    port = int(os***REMOVED***iron.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=Config.DEBUG)
