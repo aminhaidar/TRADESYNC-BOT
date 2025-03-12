@@ -56,7 +56,7 @@ login_manager.login_view = "login"
 google_bp = make_google_blueprint(
     client_id=os.getenv("GOOGLE_CLIENT_ID"),
     client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
-    redirect_url="/auth/google/callback",  # Changed from redirect_to
+    redirect_url="/auth/google/callback",  # Use the path that's registered in Google OAuth
     scope=["profile", "email"]
 )
 app.register_blueprint(google_bp, url_prefix="/auth")
@@ -171,10 +171,12 @@ def register():
 def google_login():
     return redirect(url_for('google.login'))
 
+# Add both callback routes to ensure one of them works
 @app.route('/auth/google/callback')
-def google_login_callback():
+def auth_google_callback():
+    logger.info("Received callback at /auth/google/callback")
     if not google.authorized:
-        logger.warning("Google authorization failed")
+        logger.warning("Google authorization failed in /auth/google/callback")
         return redirect(url_for('login'))
     
     try:
@@ -188,13 +190,41 @@ def google_login_callback():
                 'email': user_info['email']
             }
             login_user(user)
-            logger.info(f"User logged in: {user_info['email']}")
+            logger.info(f"User logged in via /auth/google/callback: {user_info['email']}")
             return redirect(url_for('dashboard'))
         else:
-            logger.error(f"Google API error: {resp.text}")
+            logger.error(f"Google API error in /auth/google/callback: {resp.text}")
             return redirect(url_for('login'))
     except Exception as e:
-        logger.error(f"Error in Google callback: {str(e)}")
+        logger.error(f"Error in /auth/google/callback: {str(e)}")
+        traceback.print_exc()
+        return redirect(url_for('login'))
+
+@app.route('/google_login_callback')
+def google_login_callback():
+    logger.info("Received callback at /google_login_callback")
+    if not google.authorized:
+        logger.warning("Google authorization failed in /google_login_callback")
+        return redirect(url_for('login'))
+    
+    try:
+        resp = google.get('/oauth2/v1/userinfo')
+        if resp.ok:
+            user_info = resp.json()
+            user = User(user_info['id'], user_info['name'], user_info['email'])
+            session['user_data'] = {
+                'id': user_info['id'],
+                'name': user_info['name'],
+                'email': user_info['email']
+            }
+            login_user(user)
+            logger.info(f"User logged in via /google_login_callback: {user_info['email']}")
+            return redirect(url_for('dashboard'))
+        else:
+            logger.error(f"Google API error in /google_login_callback: {resp.text}")
+            return redirect(url_for('login'))
+    except Exception as e:
+        logger.error(f"Error in /google_login_callback: {str(e)}")
         traceback.print_exc()
         return redirect(url_for('login'))
 
