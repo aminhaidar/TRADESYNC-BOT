@@ -231,5 +231,55 @@ def get_portfolio():
         logger.error(f"Error getting portfolio data: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/market/indices', methods=['GET'])
+@login_required
+def get_market_indices():
+    """API endpoint for getting major market indices data"""
+    try:
+        from services.api.market_data import market_data_service
+        
+        indices = market_data_service.get_major_indices()
+        
+        return jsonify(indices)
+    except Exception as e:
+        logger.error(f"Error getting market indices: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/market/quote/<symbol>', methods=['GET'])
+@login_required
+def get_stock_quote(symbol):
+    """API endpoint for getting data for a specific stock"""
+    try:
+        from services.api.market_data import market_data_service
+        
+        quote = market_data_service.get_quote(symbol.upper())
+        
+        if quote:
+            return jsonify(quote)
+        else:
+            return jsonify({"error": f"Could not fetch data for {symbol}"}), 404
+    except Exception as e:
+        logger.error(f"Error getting stock quote for {symbol}: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/market/quotes', methods=['GET'])
+@login_required
+def get_multiple_quotes():
+    """API endpoint for getting data for multiple stocks"""
+    try:
+        from services.api.market_data import market_data_service
+        
+        symbols = request.args.get('symbols', '')
+        if not symbols:
+            return jsonify({"error": "No symbols provided"}), 400
+        
+        symbol_list = [s.strip().upper() for s in symbols.split(',')]
+        quotes = market_data_service.get_multiple_quotes(symbol_list)
+        
+        return jsonify(quotes)
+    except Exception as e:
+        logger.error(f"Error getting multiple stock quotes: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
 if __name__ == '__main__':
     app.run(debug=Config.DEBUG)

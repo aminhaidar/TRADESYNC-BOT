@@ -4,13 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TradeSync Bot</title>
-    <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts for Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
     <script>
         tailwind.config = {
             theme: {
@@ -75,6 +70,32 @@
             transform: translateY(-2px);
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
+        .skeleton {
+            position: relative;
+            overflow: hidden;
+        }
+        .skeleton::after {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            transform: translateX(-100%);
+            background-image: linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0) 0,
+                rgba(255, 255, 255, 0.05) 20%,
+                rgba(255, 255, 255, 0.1) 60%,
+                rgba(255, 255, 255, 0)
+            );
+            animation: shimmer 2s infinite;
+            content: '';
+        }
+        @keyframes shimmer {
+            100% {
+                transform: translateX(100%);
+            }
+        }
     </style>
 </head>
 <body class="bg-app-bg text-text-primary font-sans">
@@ -89,37 +110,50 @@
                 <ul class="space-y-1">
                     <li>
                         <a href="#" class="nav-link active flex items-center px-4 py-3 rounded-lg text-text-primary">
-                            <i class="fas fa-chart-line mr-3"></i>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
                             Dashboard
                         </a>
                     </li>
                     <li>
                         <a href="#" class="nav-link flex items-center px-4 py-3 rounded-lg text-text-secondary">
-                            <i class="fas fa-briefcase mr-3"></i>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
                             Portfolio
                         </a>
                     </li>
                     <li>
                         <a href="#" class="nav-link flex items-center px-4 py-3 rounded-lg text-text-secondary">
-                            <i class="fas fa-exchange-alt mr-3"></i>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                            </svg>
                             Trades
                         </a>
                     </li>
                     <li>
                         <a href="#" class="nav-link flex items-center px-4 py-3 rounded-lg text-text-secondary">
-                            <i class="fas fa-bell mr-3"></i>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                            </svg>
                             Alerts
                         </a>
                     </li>
                     <li>
                         <a href="#" class="nav-link flex items-center px-4 py-3 rounded-lg text-text-secondary">
-                            <i class="fas fa-cog mr-3"></i>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
                             Settings
                         </a>
                     </li>
                     <li>
                         <a href="{{ url_for('logout') }}" class="nav-link flex items-center px-4 py-3 rounded-lg text-text-secondary">
-                            <i class="fas fa-sign-out-alt mr-3"></i>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
                             Logout
                         </a>
                     </li>
@@ -132,7 +166,9 @@
             <div class="flex justify-between items-center p-4">
                 <h1 class="text-xl font-bold text-accent-interactive">TradeSync Bot</h1>
                 <button id="mobile-menu-button" class="text-text-primary">
-                    <i class="fas fa-bars"></i>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
                 </button>
             </div>
             <div id="mobile-menu" class="hidden p-4 border-t border-border-color">
@@ -179,6 +215,30 @@
                 </div>
             </div>
 
+            <!-- Market Indices Section -->
+            <div class="bg-card-bg border border-border-color rounded-lg p-5 mb-6 shadow-md">
+                <h2 class="text-lg font-semibold mb-4">Market Indices</h2>
+                <div id="market-indices" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                    <div class="p-3 border border-border-color rounded-lg skeleton h-24"></div>
+                    <div class="p-3 border border-border-color rounded-lg skeleton h-24"></div>
+                    <div class="p-3 border border-border-color rounded-lg skeleton h-24"></div>
+                    <div class="p-3 border border-border-color rounded-lg skeleton h-24"></div>
+                    <div class="p-3 border border-border-color rounded-lg skeleton h-24"></div>
+                </div>
+            </div>
+
+            <!-- Popular Stocks Section -->
+            <div class="bg-card-bg border border-border-color rounded-lg p-5 mb-6 shadow-md">
+                <h2 class="text-lg font-semibold mb-4">Popular Stocks</h2>
+                <div id="popular-stocks" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                    <div class="p-3 border border-border-color rounded-lg skeleton h-24"></div>
+                    <div class="p-3 border border-border-color rounded-lg skeleton h-24"></div>
+                    <div class="p-3 border border-border-color rounded-lg skeleton h-24"></div>
+                    <div class="p-3 border border-border-color rounded-lg skeleton h-24"></div>
+                    <div class="p-3 border border-border-color rounded-lg skeleton h-24"></div>
+                </div>
+            </div>
+
             <!-- Analytics Section -->
             <div class="bg-card-bg border border-border-color rounded-lg p-5 mb-6 shadow-md">
                 <h2 class="text-lg font-semibold mb-4">Analytics</h2>
@@ -214,6 +274,109 @@
             const mobileMenu = document.getElementById('mobile-menu');
             mobileMenu.classList.toggle('hidden');
         });
+
+        // Function to fetch and display data for any stock symbol
+        function fetchStockData(symbol, elementId) {
+            fetch(`/api/market/quote/${symbol}`)
+                .then(response => response.json())
+                .then(data => {
+                    const element = document.getElementById(elementId);
+                    if (!element) return;
+                    
+                    const isPositive = data.change >= 0;
+                    const changeClass = isPositive ? 'text-accent-positive' : 'text-accent-negative';
+                    
+                    // Update the element with the stock data
+                    element.innerHTML = `
+                        <div class="flex justify-between items-center">
+                            <span class="font-medium">${data.symbol}</span>
+                            <span class="text-text-secondary text-sm">${data.name}</span>
+                        </div>
+                        <div class="text-lg font-bold">$${data.price.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                        <div class="flex items-center ${changeClass}">
+                            <span>${isPositive ? '+' : ''}${data.change.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                            <span class="ml-1">(${isPositive ? '+' : ''}${data.change_percent.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}%)</span>
+                        </div>
+                    `;
+                })
+                .catch(error => {
+                    console.error(`Error fetching stock data for ${symbol}:`, error);
+                    document.getElementById(elementId).innerHTML = `<p class="text-accent-negative">Failed to load ${symbol} data</p>`;
+                });
+        }
+
+        // Fetch market indices
+        function fetchMarketIndices() {
+            fetch('/api/market/indices')
+                .then(response => response.json())
+                .then(data => {
+                    const indicesDiv = document.getElementById('market-indices');
+                    indicesDiv.innerHTML = '';
+                    
+                    Object.entries(data).forEach(([name, indexData]) => {
+                        const isPositive = indexData.change >= 0;
+                        const changeClass = isPositive ? 'text-accent-positive' : 'text-accent-negative';
+                        const changeIcon = isPositive ? 
+                            '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" /></svg>' : 
+                            '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>';
+                        
+                        const indexCard = document.createElement('div');
+                        indexCard.className = 'p-3 border border-border-color rounded-lg hover:bg-card-bg-hover transition-colors';
+                        indexCard.innerHTML = `
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-medium">${name}</h3>
+                            </div>
+                            <div class="text-xl font-bold">${indexData.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                            <div class="flex items-center ${changeClass}">
+                                ${changeIcon}
+                                <span>${isPositive ? '+' : ''}${indexData.change.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                <span class="ml-1">(${isPositive ? '+' : ''}${indexData.change_percent.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%)</span>
+                            </div>
+                        `;
+                        indicesDiv.appendChild(indexCard);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching market indices:', error);
+                    document.getElementById('market-indices').innerHTML = '<p class="text-center py-4 text-accent-negative">Failed to load market data</p>';
+                });
+        }
+
+        // Function to batch fetch stock data for multiple symbols
+        function fetchMultipleStocks(symbols, containerElementId) {
+            fetch(`/api/market/quotes?symbols=${symbols.join(',')}`)
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById(containerElementId);
+                    if (!container) return;
+                    
+                    container.innerHTML = '';
+                    
+                    Object.values(data).forEach(stockData => {
+                        const isPositive = stockData.change >= 0;
+                        const changeClass = isPositive ? 'text-accent-positive' : 'text-accent-negative';
+                        
+                        const stockCard = document.createElement('div');
+                        stockCard.className = 'p-3 border border-border-color rounded-lg hover:bg-card-bg-hover transition-colors';
+                        stockCard.innerHTML = `
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="font-medium">${stockData.symbol}</span>
+                                <span class="text-text-secondary text-xs">${stockData.name}</span>
+                            </div>
+                            <div class="text-lg font-bold">$${stockData.price.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                            <div class="flex items-center ${changeClass}">
+                                <span>${isPositive ? '+' : ''}${stockData.change.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                                <span class="ml-1">(${isPositive ? '+' : ''}${stockData.change_percent.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}%)</span>
+                            </div>
+                        `;
+                        container.appendChild(stockCard);
+                    });
+                })
+                .catch(error => {
+                    console.error(`Error fetching multiple stocks:`, error);
+                    document.getElementById(containerElementId).innerHTML = `<p class="text-accent-negative">Failed to load stock data</p>`;
+                });
+        }
 
         // Fetch Discord alerts
         fetch('/api/discord_trades')
@@ -256,6 +419,21 @@
                 console.error('Error fetching trades:', error);
                 document.getElementById('trades').innerHTML = '<p class="text-center py-4 text-accent-negative">Failed to load trades</p>';
             });
+
+        // Load market indices when page loads
+        fetchMarketIndices();
+
+        // As an example, fetch data for some popular stocks
+        const popularStocks = ['AAPL', 'MSFT', 'AMZN', 'GOOGL', 'TSLA'];
+
+        // Fetch data for popular stocks
+        fetchMultipleStocks(popularStocks, 'popular-stocks');
+
+        // Refresh data every 60 seconds
+        setInterval(() => {
+            fetchMarketIndices();
+            fetchMultipleStocks(popularStocks, 'popular-stocks');
+        }, 60000);
     </script>
 </body>
 </html>
