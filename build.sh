@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build script for deployment
+# Build script for Render.com deployment with read-only filesystem
 
 # Exit on error
 set -e
@@ -9,26 +9,29 @@ echo "Python version:"
 python --version
 echo "Current directory: $(pwd)"
 
-# Update apt and install system dependencies
-apt-get update -y
-apt-get install -y python3-dev python3-pip python3-setuptools python3-wheel python3-cffi python3-all-dev
-
 # Create logs directory if it doesn't exist
 mkdir -p logs
 
-# Clear pip cache for good measure
-pip cache purge
+# Skip system package installation on Render (read-only filesystem)
+# Instead, use pip to install required packages
 
 # Upgrade pip and essential packages
 pip install --upgrade pip setuptools wheel
 
-# Install packages that are known to have build issues first, using binary distributions when possible
-pip install --only-binary=:all: aiohttp==3.8.5 multidict yarl 
+# Install packages that are known to have build issues first
+# Using binary distributions when possible
+pip install --only-binary=:all: multidict yarl cchardet 
+
+# Install aiohttp separately with specific options
+pip install aiohttp==3.8.5 --no-build-isolation
 
 # Install all other requirements
 pip install -r requirements.txt
 
-# Check if aiohttp was installed correctly
+# List installed packages for debugging
+echo "Checking installed packages:"
 pip list | grep aiohttp
+pip list | grep multidict
+pip list | grep yarl
 
 echo "Build completed successfully"
