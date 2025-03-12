@@ -53,10 +53,12 @@ login_manager.init_app(app)
 login_manager.login_view = "login"
 
 # Google OAuth Configuration
+# IMPORTANT: Set redirect_url to the EXACT URL you will use as your callback
+GOOGLE_CALLBACK_URL = "https://tradesync-bot-service.onrender.com/google_login_callback" # Define it here for consistency
 google_bp = make_google_blueprint(
     client_id=os.getenv("GOOGLE_CLIENT_ID"),
     client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
-    redirect_url="/auth/google/callback",  # Use the path that's registered in Google OAuth
+    redirect_url=GOOGLE_CALLBACK_URL, # Use the defined variable
     scope=["profile", "email"]
 )
 app.register_blueprint(google_bp, url_prefix="/auth")
@@ -83,10 +85,10 @@ def check_dependencies():
     try:
         import aiohttp
         logger.info(f"aiohttp version: {aiohttp.__version__}")
-        
+
         # Check alpaca version
         check_alpaca_version()
-        
+
         return True
     except ImportError as e:
         logger.error(f"Dependency error: {str(e)}")
@@ -109,10 +111,10 @@ def setup_database():
     try:
         # Create logs directory if it doesn't exist
         os.makedirs('logs', exist_ok=True)
-        
+
         conn = sqlite3.connect('trades.db')
         cursor = conn.cursor()
-        
+
         # Create alerts table if it doesn't exist
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS alerts (
@@ -123,7 +125,7 @@ def setup_database():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
         ''')
-        
+
         # Create stock_data table if it doesn't exist
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS stock_data (
@@ -135,7 +137,7 @@ def setup_database():
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
         ''')
-        
+
         conn.commit()
         conn.close()
         logger.info("Database initialized")
@@ -171,14 +173,14 @@ def register():
 def google_login():
     return redirect(url_for('google.login'))
 
-# Add both callback routes to ensure one of them works
-@app.route('/auth/google/callback')
-def auth_google_callback():
-    logger.info("Received callback at /auth/google/callback")
+# Google Login Callback Route - IMPORTANT: Keep only ONE callback route for simplicity
+@app.route('/google_login_callback') # Use the same path as GOOGLE_CALLBACK_URL
+def google_login_callback():
+    logger.info("Received Google login callback")
     if not google.authorized:
-        logger.warning("Google authorization failed in /auth/google/callback")
+        logger.warning("Google authorization failed")
         return redirect(url_for('login'))
-    
+
     try:
         resp = google.get('/oauth2/v1/userinfo')
         if resp.ok:
@@ -190,43 +192,16 @@ def auth_google_callback():
                 'email': user_info['email']
             }
             login_user(user)
-            logger.info(f"User logged in via /auth/google/callback: {user_info['email']}")
+            logger.info(f"User logged in via Google: {user_info['email']}")
             return redirect(url_for('dashboard'))
         else:
-            logger.error(f"Google API error in /auth/google/callback: {resp.text}")
+            logger.error(f"Google API error: {resp.text}")
             return redirect(url_for('login'))
     except Exception as e:
-        logger.error(f"Error in /auth/google/callback: {str(e)}")
+        logger.error(f"Error during Google login callback: {str(e)}")
         traceback.print_exc()
         return redirect(url_for('login'))
 
-@app.route('/google_login_callback')
-def google_login_callback():
-    logger.info("Received callback at /google_login_callback")
-    if not google.authorized:
-        logger.warning("Google authorization failed in /google_login_callback")
-        return redirect(url_for('login'))
-    
-    try:
-        resp = google.get('/oauth2/v1/userinfo')
-        if resp.ok:
-            user_info = resp.json()
-            user = User(user_info['id'], user_info['name'], user_info['email'])
-            session['user_data'] = {
-                'id': user_info['id'],
-                'name': user_info['name'],
-                'email': user_info['email']
-            }
-            login_user(user)
-            logger.info(f"User logged in via /google_login_callback: {user_info['email']}")
-            return redirect(url_for('dashboard'))
-        else:
-            logger.error(f"Google API error in /google_login_callback: {resp.text}")
-            return redirect(url_for('login'))
-    except Exception as e:
-        logger.error(f"Error in /google_login_callback: {str(e)}")
-        traceback.print_exc()
-        return redirect(url_for('login'))
 
 @app.route('/logout')
 def logout():
@@ -245,7 +220,7 @@ def discord_webhook():
     try:
         data = request.json
         logger.info(f"Received webhook data: {data}")
-        
+
         # Extract data from IFTTT format
         alert_text = data.get("alert", "")
         timestamp = data.get("time", datetime.datetime.now().isoformat())
@@ -261,7 +236,7 @@ def discord_webhook():
         # Save to database
         conn = get_db_connection()
         conn.execute(
-            "INSERT INTO alerts (alert, timestamp, parsed_data) VALUES (?, ?, ?)", 
+            "INSERT INTO alerts (alert, timestamp, parsed_data) VALUES (?, ?, ?)",
             (alert_text, timestamp, json.dumps(structured_alert))
         )
         conn.commit()
@@ -286,7 +261,7 @@ def discord_webhook():
 
         # Emit to frontend via WebSocket
         socketio.emit("new_alert", alert_object)
-        
+
         return jsonify({"status": "success", "data": structured_alert})
     except Exception as e:
         logger.error(f"Error processing webhook: {str(e)}")
@@ -328,14 +303,14 @@ def parse_alert_with_ai(alert_text):
 # Parse alert using OpenAI
 def parse_alert_with_openai(alert_text):
     import openai
-    
+
     openai.api_key = OPENAI_API_KEY
-    
+
     prompt = f"""
     Extract structured trade details from this alert:
-    
+
     '{alert_text}'
-    
+
     Output a valid JSON object with the following format:
     {{
       "trader": "name of the trader",
@@ -346,10 +321,10 @@ def parse_alert_with_openai(alert_text):
       "option_type": "Call or Put",
       "expiration": "YYYY-MM-DD date format"
     }}
-    
+
     Return ONLY the JSON object, no additional text.
     """
-    
+
     try:
         response = openai.chat.completions.create(
             model="gpt-4-turbo",
@@ -358,15 +333,15 @@ def parse_alert_with_openai(alert_text):
                 {"role": "user", "content": prompt}
             ]
         )
-        
+
         # Extract and parse the JSON from the response
         result = response.choices[0].message.content.strip()
         # Remove any markdown code block formatting if present
         if result.startswith("```json"):
-            result = result.replace("```json", "").replace("```", "").strip()
+            result = result.replace("`json", "").replace("`", "").strip()
         elif result.startswith("```"):
             result = result.replace("```", "").strip()
-            
+
         return json.loads(result)
     except Exception as e:
         logger.error(f"OpenAI parsing error: {str(e)}")
@@ -376,14 +351,14 @@ def parse_alert_with_openai(alert_text):
 def parse_alert_with_claude(alert_text):
     try:
         import anthropic
-        
+
         client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-        
+
         prompt = f"""
         Extract structured trade details from this alert:
-        
+
         '{alert_text}'
-        
+
         Output a valid JSON object with the following format:
         {{
           "trader": "name of the trader",
@@ -394,10 +369,10 @@ def parse_alert_with_claude(alert_text):
           "option_type": "Call or Put",
           "expiration": "YYYY-MM-DD date format"
         }}
-        
+
         Return ONLY the JSON object, no additional text.
         """
-        
+
         response = client.messages.create(
             model="claude-3-sonnet-20240229",
             max_tokens=300,
@@ -406,15 +381,15 @@ def parse_alert_with_claude(alert_text):
                 {"role": "user", "content": prompt}
             ]
         )
-        
+
         # Extract and parse the JSON from the response
         result = response.content[0].text.strip()
         # Remove any markdown code block formatting if present
         if result.startswith("```json"):
-            result = result.replace("```json", "").replace("```", "").strip()
+            result = result.replace("`json", "").replace("`", "").strip()
         elif result.startswith("```"):
             result = result.replace("```", "").strip()
-            
+
         return json.loads(result)
     except Exception as e:
         logger.error(f"Claude parsing error: {str(e)}")
@@ -423,7 +398,7 @@ def parse_alert_with_claude(alert_text):
 # Fallback parser using regex and heuristics
 def fallback_alert_parser(alert_text):
     import re
-    
+
     # Default values
     parsed_data = {
         "trader": "Unknown",
@@ -434,34 +409,34 @@ def fallback_alert_parser(alert_text):
         "option_type": "Unknown",
         "expiration": ""
     }
-    
+
     # Try to extract trader name (usually at the beginning before "bought" or "sold")
     trader_match = re.search(r"([A-Za-z0-9_]+)\s+(bought|sold)", alert_text)
     if trader_match:
         parsed_data["trader"] = trader_match.group(1)
         parsed_data["action"] = trader_match.group(2)
-    
+
     # Extract ticker symbol (common stock tickers are 1-5 uppercase letters)
     symbol_match = re.search(r"\b([A-Z]{1,5})\b", alert_text)
     if symbol_match:
         parsed_data["symbol"] = symbol_match.group(1)
-    
+
     # Extract quantity
     quantity_match = re.search(r"(\d+)\s+(contracts?|shares?)", alert_text)
     if quantity_match:
         parsed_data["quantity"] = int(quantity_match.group(1))
-    
+
     # Extract option type
     if "call" in alert_text.lower():
         parsed_data["option_type"] = "Call"
     elif "put" in alert_text.lower():
         parsed_data["option_type"] = "Put"
-    
+
     # Extract strike price
     strike_match = re.search(r"(\d+(?:\.\d+)?)[C|P]", alert_text)
     if strike_match:
         parsed_data["strike"] = float(strike_match.group(1))
-    
+
     # Extract expiry date
     # Format might be MM/DD, MM/DD/YY, or text like "expiring 3/21"
     date_match = re.search(r"(?:expir(?:ing|es|y)|exp)?\s*(\d{1,2}/\d{1,2}(?:/\d{2,4})?)", alert_text, re.IGNORECASE)
@@ -471,7 +446,7 @@ def fallback_alert_parser(alert_text):
         if expiry_str.count('/') == 1:
             current_year = datetime.datetime.now().year
             expiry_str = f"{expiry_str}/{current_year}"
-        
+
         # Convert to YYYY-MM-DD
         try:
             # Handle both MM/DD/YY and MM/DD/YYYY formats
@@ -483,7 +458,7 @@ def fallback_alert_parser(alert_text):
         except ValueError:
             # If date parsing fails, keep the original string
             parsed_data["expiration"] = expiry_str
-    
+
     return parsed_data
 
 # Function to fetch stock data
@@ -492,26 +467,26 @@ def fetch_stock_data(symbol):
     try:
         # Use Yahoo Finance API
         url = f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
-        
+
         response = requests.get(url, timeout=10)  # Add timeout
         if not response.ok:
             logger.warning(f"Yahoo Finance API returned status code {response.status_code}")
             response.raise_for_status()
-            
+
         data = response.json()
-        
+
         # Extract relevant data
         result = data.get('chart', {}).get('result', [{}])[0]
         meta = result.get('meta', {})
         quote = result.get('indicators', {}).get('quote', [{}])[0]
-        
+
         current_price = meta.get('regularMarketPrice', 0)
         previous_close = meta.get('previousClose', 0)
         volume = quote.get('volume', [0])[-1] if quote.get('volume') else 0
-        
+
         # Calculate change percentage
         change_percent = ((current_price - previous_close) / previous_close) * 100 if previous_close else 0
-        
+
         # Store in database
         conn = get_db_connection()
         conn.execute(
@@ -520,14 +495,14 @@ def fetch_stock_data(symbol):
         )
         conn.commit()
         conn.close()
-        
+
         return {
             "symbol": symbol,
             "price": current_price,
             "change_percent": round(change_percent, 2),
             "volume": volume
         }
-    
+
     except Exception as e:
         logger.error(f"Error fetching stock data for {symbol}: {str(e)}")
         return {"symbol": symbol, "error": str(e)}
@@ -539,7 +514,7 @@ def get_alerts():
         conn = get_db_connection()
         alerts = conn.execute('SELECT * FROM alerts ORDER BY id DESC LIMIT 50').fetchall()
         conn.close()
-        
+
         # Convert to list of dicts
         result = []
         for alert in alerts:
@@ -550,7 +525,7 @@ def get_alerts():
             except:
                 alert_dict['parsed_data'] = {"error": "Failed to parse"}
             result.append(alert_dict)
-        
+
         return jsonify(result)
     except Exception as e:
         logger.error(f"Error fetching alerts: {str(e)}")
@@ -568,10 +543,10 @@ def get_indices():
             "DJI": fetch_stock_data("^DJI"),   # Dow Jones Industrial Average
             "RUT": fetch_stock_data("^RUT")    # Russell 2000
         }
-        
+
         # Emit via WebSocket too for real-time updates
         socketio.emit("indices_update", indices)
-        
+
         return jsonify(indices)
     except Exception as e:
         logger.error(f"Error fetching indices: {str(e)}")
@@ -589,30 +564,30 @@ def get_alpaca_data():
                 "positions": [],
                 "recent_orders": []
             }
-            
+
         headers = {
             "APCA-API-KEY-ID": ALPACA_API_KEY,
             "APCA-API-SECRET-KEY": ALPACA_SECRET_KEY
         }
-        
+
         try:
             # First attempt: Use REST API directly (works with any version)
             account_response = requests.get(
-                "https://paper-api.alpaca.markets/v2/account", 
+                "https://paper-api.alpaca.markets/v2/account",
                 headers=headers,
                 timeout=10
             )
             positions_response = requests.get(
-                "https://paper-api.alpaca.markets/v2/positions", 
+                "https://paper-api.alpaca.markets/v2/positions",
                 headers=headers,
                 timeout=10
             )
             orders_response = requests.get(
-                "https://paper-api.alpaca.markets/v2/orders?status=all&limit=10", 
+                "https://paper-api.alpaca.markets/v2/orders?status=all&limit=10",
                 headers=headers,
                 timeout=10
             )
-            
+
             return {
                 "account": account_response.json(),
                 "positions": positions_response.json(),
@@ -620,29 +595,29 @@ def get_alpaca_data():
             }
         except Exception as e:
             logger.error(f"Error with direct API calls: {str(e)}")
-            
+
             # Second attempt: Use the alpaca-trade-api library
             try:
                 import alpaca_trade_api as tradeapi
                 api = tradeapi.REST(ALPACA_API_KEY, ALPACA_SECRET_KEY, base_url='https://paper-api.alpaca.markets')
-                
+
                 account = api.get_account()
                 positions = api.list_positions()
                 orders = api.list_orders(status='all', limit=10)
-                
+
                 # Convert objects to dictionaries depending on the version
                 account_dict = account._raw if hasattr(account, '_raw') else vars(account)
-                
+
                 positions_list = []
                 for position in positions:
                     pos_dict = position._raw if hasattr(position, '_raw') else vars(position)
                     positions_list.append(pos_dict)
-                
+
                 orders_list = []
                 for order in orders:
                     order_dict = order._raw if hasattr(order, '_raw') else vars(order)
                     orders_list.append(order_dict)
-                
+
                 return {
                     "account": account_dict,
                     "positions": positions_list,
@@ -671,7 +646,7 @@ def get_alpaca_data():
 def get_portfolio():
     try:
         portfolio_data = get_alpaca_data()
-        
+
         # Add some calculated metrics if account data exists
         if "account" in portfolio_data and not portfolio_data.get("error"):
             try:
@@ -685,10 +660,10 @@ def get_portfolio():
                 portfolio_data["account"] = account_data
             except (ValueError, TypeError) as e:
                 logger.error(f"Error calculating account metrics: {str(e)}")
-        
+
         # Emit via WebSocket for real-time updates
         socketio.emit("portfolio_update", portfolio_data)
-        
+
         return jsonify(portfolio_data)
     except Exception as e:
         logger.error(f"Error fetching Alpaca data: {str(e)}")
@@ -699,14 +674,14 @@ def get_portfolio():
 def handle_connect():
     logger.info('Client connected')
     emit('status', {'status': 'connected'})
-    
+
     # Send initial data
     try:
         # Recent alerts
         conn = get_db_connection()
         alerts = conn.execute('SELECT * FROM alerts ORDER BY id DESC LIMIT 20').fetchall()
         conn.close()
-        
+
         alert_list = []
         for alert in alerts:
             try:
@@ -720,7 +695,7 @@ def handle_connect():
                 alert_list.append(alert_data)
             except:
                 continue
-        
+
         emit('initial_alerts', alert_list)
     except Exception as e:
         logger.error(f"Error sending initial data: {str(e)}")
@@ -742,7 +717,7 @@ def handle_refresh():
             "RUT": fetch_stock_data("^RUT")
         }
         emit('indices_update', indices)
-        
+
         # Update portfolio
         if current_user.is_authenticated:  # Only fetch portfolio data if user is logged in
             portfolio_data = get_alpaca_data()
