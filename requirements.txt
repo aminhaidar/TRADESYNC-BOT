@@ -14,5 +14,5 @@ flask-dance>=7.0.0,<7.1.0
 werkzeug>=3.0.0,<3.1.0
 backoff>=2.2.0,<2.3.0
 # We need specific versions for these to prevent conflicts
-aiohttp==3.8.1
+aiohttp==3.8.5  # Changed from 3.8.1 to 3.8.5 which is available
 alpaca-trade-api==3.0.0

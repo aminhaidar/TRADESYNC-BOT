@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build script for Render.com deployment
+# Optimized build script for Render.com deployment
 
 # Exit on error
 set -e
@@ -12,17 +12,23 @@ echo "Current directory: $(pwd)"
 # Create logs directory if it doesn't exist
 mkdir -p logs
 
-# Upgrade pip and specify the index to use
+# Upgrade pip
 pip install --upgrade pip setuptools wheel
 
-# Try to install a pre-built wheel from PyPI for aiohttp
-echo "Attempting to install aiohttp using pre-built wheel..."
-pip install --only-binary=:all: aiohttp==3.8.1
+# First install a compatible aiohttp version
+echo "Installing aiohttp..."
+pip install --prefer-binary aiohttp==3.8.5
 
-# Install the rest of the dependencies
-pip install -r requirements.txt --no-deps --only-binary=:all: alpaca-trade-api
+# Install alpaca-trade-api without dependencies 
+echo "Installing alpaca-trade-api without dependencies..."
+pip install alpaca-trade-api==3.0.0 --no-dependencies
 
-# Install any remaining dependencies
+# Install remaining requirements
+echo "Installing remaining packages..."
+pip install -r requirements.txt --no-dependencies  # Skip installing dependencies
+
+# Final pass to ensure all dependencies are installed
+echo "Ensuring all dependencies are installed..."
 pip install -r requirements.txt
 
 # Verify installation
