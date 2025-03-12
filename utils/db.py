@@ -57,13 +57,14 @@ class Database:
         )
         ''')
         
-        # Create users table
+        # Create users table with google_id
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL,
             email TEXT UNIQUE NOT NULL,
-            password_hash TEXT NOT NULL,
+            password_hash TEXT,
+            google_id TEXT UNIQUE,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
         ''')

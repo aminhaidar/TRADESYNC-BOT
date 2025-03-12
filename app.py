@@ -1,6 +1,7 @@
 from flask import Flask, request, render_template, jsonify, redirect, url_for, flash, session
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_wtf.csrf import CSRFProtect
+from flask_dance.contrib.google import make_google_blueprint, google
 import os
 import json
 from datetime import datetime
@@ -19,6 +20,15 @@ csrf = CSRFProtect(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+
+# Setup Google OAuth
+google_bp = make_google_blueprint(
+    client_id=Config.GOOGLE_CLIENT_ID,
+    client_secret=Config.GOOGLE_CLIENT_SECRET,
+    scope=["profile", "email"],
+    redirect_to="google_callback"
+)
+app.register_blueprint(google_bp, url_prefix="/login")
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -43,6 +53,53 @@ def login():
             error = 'Invalid username or password'
     
     return render_template('auth/login.html', error=error)
+
+@app.route("/login/google")
+def google_login():
+    if not google.authorized:
+        return redirect(url_for("google.login"))
+    return redirect(url_for("google_callback"))
+
+@app.route("/google-callback")
+def google_callback():
+    if not google.authorized:
+        flash("Failed to log in with Google.", "error")
+        return redirect(url_for("login"))
+    
+    resp = google.get("/oauth2/v1/userinfo")
+    if resp.ok:
+        google_info = resp.json()
+        google_id = google_info["id"]
+        
+        # Check if user exists
+        user = User.get_by_google_id(google_id)
+        
+        if not user:
+            # Create new user
+            email = google_info.get("email")
+            name = google_info.get("name", email.split("@")[0])
+            
+            # Check if email already exists
+            existing_user = User.get_by_email(email)
+            if existing_user:
+                # Link Google ID to existing account
+                existing_user.google_id = google_id
+                existing_user.save()
+                user = existing_user
+            else:
+                # Create new user
+                user = User(
+                    username=name,
+                    email=email,
+                    google_id=google_id
+                )
+                user.save()
+        
+        login_user(user)
+        return redirect(url_for("home"))
+    
+    flash("Failed to get user info from Google.", "error")
+    return redirect(url_for("login"))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -156,6 +213,23 @@ def get_trades():
     except Exception as e:
         logger.error(f"Error getting trades: {str(e)}")
         return jsonify([]), 500
+
+@app.route('/api/portfolio', methods=['GET'])
+@login_required
+def get_portfolio():
+    """API endpoint for getting portfolio data"""
+    try:
+        # For now, return sample data
+        portfolio_data = {
+            "total_value": "$50,234.12",
+            "daily_pnl": "+$123.45",
+            "positions": "AAPL (40), TSLA (30)"
+        }
+        
+        return jsonify(portfolio_data)
+    except Exception as e:
+        logger.error(f"Error getting portfolio data: {str(e)}")
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=Config.DEBUG)

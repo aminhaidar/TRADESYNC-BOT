@@ -3,11 +3,12 @@ from utils.db import db
 from flask_login import UserMixin
 
 class User(UserMixin):
-    def __init__(self, username, email, password_hash=None, id=None):
+    def __init__(self, username, email, password_hash=None, id=None, google_id=None):
         self.id = id
         self.username = username
         self.email = email
         self.password_hash = password_hash
+        self.google_id = google_id
     
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -21,20 +22,20 @@ class User(UserMixin):
         if self.id is None:
             cursor = db.execute_query(
                 """
-                INSERT INTO users (username, email, password_hash)
-                VALUES (?, ?, ?)
+                INSERT INTO users (username, email, password_hash, google_id)
+                VALUES (?, ?, ?, ?)
                 """,
-                (self.username, self.email, self.password_hash)
+                (self.username, self.email, self.password_hash, self.google_id)
             )
             self.id = cursor.lastrowid
         else:
             db.execute_query(
                 """
                 UPDATE users
-                SET username = ?, email = ?, password_hash = ?
+                SET username = ?, email = ?, password_hash = ?, google_id = ?
                 WHERE id = ?
                 """,
-                (self.username, self.email, self.password_hash, self.id)
+                (self.username, self.email, self.password_hash, self.google_id, self.id)
             )
         return self
     
@@ -54,7 +55,8 @@ class User(UserMixin):
                 username=row['username'],
                 email=row['email'],
                 password_hash=row['password_hash'],
-                id=row['id']
+                id=row['id'],
+                google_id=row.get('google_id')
             )
         return None
     
@@ -74,7 +76,8 @@ class User(UserMixin):
                 username=row['username'],
                 email=row['email'],
                 password_hash=row['password_hash'],
-                id=row['id']
+                id=row['id'],
+                google_id=row.get('google_id')
             )
         return None
     
@@ -94,6 +97,28 @@ class User(UserMixin):
                 username=row['username'],
                 email=row['email'],
                 password_hash=row['password_hash'],
-                id=row['id']
+                id=row['id'],
+                google_id=row.get('google_id')
+            )
+        return None
+    
+    @classmethod
+    def get_by_google_id(cls, google_id):
+        cursor = db.execute_query(
+            """
+            SELECT * FROM users
+            WHERE google_id = ?
+            """,
+            (google_id,)
+        )
+        
+        row = cursor.fetchone()
+        if row:
+            return cls(
+                username=row['username'],
+                email=row['email'],
+                password_hash=row['password_hash'],
+                id=row['id'],
+                google_id=row['google_id']
             )
         return None
