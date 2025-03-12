@@ -10,6 +10,9 @@ import datetime
 import logging
 import traceback
 import requests
+import sys
+import aiohttp
+import backoff
 from dotenv import load_dotenv
 from oauthlib.oauth2.rfc6749.errors import OAuth2Error
 
@@ -75,37 +78,54 @@ def load_user(user_id):
     user_data = session['user_data']
     return User(user_data['id'], user_data['name'], user_data['email'])
 
+def check_aiohttp_installation():
+    """Verify aiohttp installation and log version information"""
+    try:
+        logger.info(f"aiohttp version: {aiohttp.__version__}")
+        logger.info(f"Python version: {sys.version}")
+        return True
+    except Exception as e:
+        logger.error(f"aiohttp import error: {str(e)}")
+        return False
+
 # Database setup
 def setup_database():
-    conn = sqlite3.connect('trades.db')
-    cursor = conn.cursor()
-    
-    # Create alerts table if it doesn't exist
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS alerts (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        alert TEXT NOT NULL,
-        timestamp TEXT NOT NULL,
-        parsed_data TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-    ''')
-    
-    # Create stock_data table if it doesn't exist
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS stock_data (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        symbol TEXT NOT NULL,
-        price REAL,
-        change_percent REAL,
-        volume INTEGER,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-    ''')
-    
-    conn.commit()
-    conn.close()
-    logger.info("Database initialized")
+    try:
+        # Create logs directory if it doesn't exist
+        os.makedirs('logs', exist_ok=True)
+        
+        conn = sqlite3.connect('trades.db')
+        cursor = conn.cursor()
+        
+        # Create alerts table if it doesn't exist
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS alerts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            alert TEXT NOT NULL,
+            timestamp TEXT NOT NULL,
+            parsed_data TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+        ''')
+        
+        # Create stock_data table if it doesn't exist
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS stock_data (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            symbol TEXT NOT NULL,
+            price REAL,
+            change_percent REAL,
+            volume INTEGER,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+        ''')
+        
+        conn.commit()
+        conn.close()
+        logger.info("Database initialized")
+    except Exception as e:
+        logger.error(f"Database initialization error: {str(e)}")
+        traceback.print_exc()
 
 # Get database connection
 def get_db_connection():
@@ -421,12 +441,17 @@ def fallback_alert_parser(alert_text):
     return parsed_data
 
 # Function to fetch stock data
+@backoff.on_exception(backoff.expo, (requests.exceptions.RequestException, aiohttp.ClientError), max_tries=3)
 def fetch_stock_data(symbol):
     try:
         # Use Yahoo Finance API
         url = f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
         
-        response = requests.get(url)
+        response = requests.get(url, timeout=10)  # Add timeout
+        if not response.ok:
+            logger.warning(f"Yahoo Finance API returned status code {response.status_code}")
+            response.raise_for_status()
+            
         data = response.json()
         
         # Extract relevant data
@@ -511,6 +536,10 @@ def get_indices():
 @login_required
 def get_portfolio():
     try:
+        if not ALPACA_API_KEY or not ALPACA_SECRET_KEY:
+            logger.warning("Alpaca API keys not configured")
+            return jsonify({"error": "Alpaca API not configured"}), 400
+            
         headers = {
             "APCA-API-KEY-ID": ALPACA_API_KEY,
             "APCA-API-SECRET-KEY": ALPACA_SECRET_KEY
@@ -519,7 +548,8 @@ def get_portfolio():
         # Get account information
         account_response = requests.get(
             "https://paper-api.alpaca.markets/v2/account", 
-            headers=headers
+            headers=headers,
+            timeout=10
         )
         account_data = account_response.json()
         
@@ -537,14 +567,16 @@ def get_portfolio():
         # Get positions
         positions_response = requests.get(
             "https://paper-api.alpaca.markets/v2/positions", 
-            headers=headers
+            headers=headers,
+            timeout=10
         )
         positions_data = positions_response.json()
         
         # Get recent orders
         orders_response = requests.get(
             "https://paper-api.alpaca.markets/v2/orders?status=all&limit=10", 
-            headers=headers
+            headers=headers,
+            timeout=10
         )
         orders_data = orders_response.json()
         
@@ -612,7 +644,7 @@ def handle_refresh():
         emit('indices_update', indices)
         
         # Update portfolio
-        if current_user.is_authenticated:  # Only fetch portfolio data if user is logged in
+        if current_user.is_authenticated and ALPACA_API_KEY and ALPACA_SECRET_KEY:  # Only fetch portfolio data if user is logged in
             headers = {
                 "APCA-API-KEY-ID": ALPACA_API_KEY,
                 "APCA-API-SECRET-KEY": ALPACA_SECRET_KEY
@@ -620,15 +652,18 @@ def handle_refresh():
             
             account_response = requests.get(
                 "https://paper-api.alpaca.markets/v2/account", 
-                headers=headers
+                headers=headers,
+                timeout=10
             )
             positions_response = requests.get(
                 "https://paper-api.alpaca.markets/v2/positions", 
-                headers=headers
+                headers=headers,
+                timeout=10
             )
             orders_response = requests.get(
                 "https://paper-api.alpaca.markets/v2/orders?status=all&limit=10", 
-                headers=headers
+                headers=headers,
+                timeout=10
             )
             
             portfolio_data = {
@@ -642,6 +677,16 @@ def handle_refresh():
         logger.error(f"Error refreshing data: {str(e)}")
         emit('error', {'message': f"Error refreshing data: {str(e)}"})
 
+# Health check endpoint
+@app.route('/health', methods=['GET'])
+def health_check():
+    return jsonify({
+        "status": "healthy",
+        "timestamp": datetime.datetime.now().isoformat(),
+        "aiohttp_version": aiohttp.__version__,
+        "python_version": sys.version
+    })
+
 # More detailed error handling for OAuth
 @app.errorhandler(OAuth2Error)
 def handle_oauth_error(error):
@@ -651,4 +696,5 @@ def handle_oauth_error(error):
 if __name__ == '__main__':
     port = int(os.getenv("PORT", 5000))
     logger.info(f"Starting server on port {port}")
+    check_aiohttp_installation()  # Log aiohttp status on startup
     socketio.run(app, host="0.0.0.0", port=port, debug=True)
