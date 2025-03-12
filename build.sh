@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Optimized build script for Render.com deployment
+# Build script for Render.com deployment with latest Alpaca version
 
 # Exit on error
 set -e
@@ -15,24 +15,20 @@ mkdir -p logs
 # Upgrade pip
 pip install --upgrade pip setuptools wheel
 
-# First install a compatible aiohttp version
+# Install aiohttp directly first
 echo "Installing aiohttp..."
-pip install --prefer-binary aiohttp==3.8.5
+pip install aiohttp==3.8.5
 
-# Install alpaca-trade-api without dependencies 
-echo "Installing alpaca-trade-api without dependencies..."
-pip install alpaca-trade-api==3.0.0 --no-dependencies
+# Install latest alpaca-trade-api
+echo "Installing latest alpaca-trade-api..."
+pip install alpaca-trade-api --upgrade
 
-# Install remaining requirements
-echo "Installing remaining packages..."
-pip install -r requirements.txt --no-dependencies  # Skip installing dependencies
-
-# Final pass to ensure all dependencies are installed
-echo "Ensuring all dependencies are installed..."
+# Install remaining dependencies
+echo "Installing remaining requirements..."
 pip install -r requirements.txt
 
-# Verify installation
-echo "Checking installed packages:"
+# Show the installed package versions
+echo "Installed package versions:"
 pip list | grep aiohttp
 pip list | grep alpaca
 

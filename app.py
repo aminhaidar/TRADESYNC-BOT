@@ -78,14 +78,30 @@ def load_user(user_id):
     user_data = session['user_data']
     return User(user_data['id'], user_data['name'], user_data['email'])
 
-def check_aiohttp_installation():
-    """Verify aiohttp installation and log version information"""
+def check_dependencies():
+    """Check if required dependencies are available and log versions."""
     try:
+        import aiohttp
         logger.info(f"aiohttp version: {aiohttp.__version__}")
-        logger.info(f"Python version: {sys.version}")
+        
+        # Check alpaca version
+        check_alpaca_version()
+        
+        return True
+    except ImportError as e:
+        logger.error(f"Dependency error: {str(e)}")
+        return False
+
+def check_alpaca_version():
+    """Check alpaca version and log details for debugging."""
+    try:
+        import alpaca_trade_api as tradeapi
+        logger.info(f"Using alpaca-trade-api version: {tradeapi.__version__}")
+        # Log available API methods for debugging
+        logger.info(f"Available API methods: {[m for m in dir(tradeapi) if not m.startswith('_')]}")
         return True
     except Exception as e:
-        logger.error(f"aiohttp import error: {str(e)}")
+        logger.error(f"Error importing alpaca-trade-api: {str(e)}")
         return False
 
 # Database setup
@@ -531,60 +547,114 @@ def get_indices():
         logger.error(f"Error fetching indices: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
-# API route to get Alpaca portfolio details
-@app.route('/api/portfolio', methods=['GET'])
-@login_required
-def get_portfolio():
+# Get Alpaca data with version-agnostic approach
+def get_alpaca_data():
+    """Gets Alpaca API data with version-agnostic approach."""
     try:
         if not ALPACA_API_KEY or not ALPACA_SECRET_KEY:
             logger.warning("Alpaca API keys not configured")
-            return jsonify({"error": "Alpaca API not configured"}), 400
+            return {
+                "error": "Alpaca API not configured",
+                "account": {},
+                "positions": [],
+                "recent_orders": []
+            }
             
         headers = {
             "APCA-API-KEY-ID": ALPACA_API_KEY,
             "APCA-API-SECRET-KEY": ALPACA_SECRET_KEY
         }
         
-        # Get account information
-        account_response = requests.get(
-            "https://paper-api.alpaca.markets/v2/account", 
-            headers=headers,
-            timeout=10
-        )
-        account_data = account_response.json()
-        
-        # Calculate some additional metrics
         try:
-            equity = float(account_data.get('equity', 0))
-            last_equity = float(account_data.get('last_equity', 0))
-            if last_equity > 0:
-                account_data['profit_loss_pct'] = ((equity - last_equity) / last_equity) * 100
-            else:
-                account_data['profit_loss_pct'] = 0
-        except (ValueError, TypeError):
-            account_data['profit_loss_pct'] = 0
-        
-        # Get positions
-        positions_response = requests.get(
-            "https://paper-api.alpaca.markets/v2/positions", 
-            headers=headers,
-            timeout=10
-        )
-        positions_data = positions_response.json()
-        
-        # Get recent orders
-        orders_response = requests.get(
-            "https://paper-api.alpaca.markets/v2/orders?status=all&limit=10", 
-            headers=headers,
-            timeout=10
-        )
-        orders_data = orders_response.json()
-        
-        portfolio_data = {
-            "account": account_data,
-            "positions": positions_data,
-            "recent_orders": orders_data
+            # First attempt: Use REST API directly (works with any version)
+            account_response = requests.get(
+                "https://paper-api.alpaca.markets/v2/account", 
+                headers=headers,
+                timeout=10
+            )
+            positions_response = requests.get(
+                "https://paper-api.alpaca.markets/v2/positions", 
+                headers=headers,
+                timeout=10
+            )
+            orders_response = requests.get(
+                "https://paper-api.alpaca.markets/v2/orders?status=all&limit=10", 
+                headers=headers,
+                timeout=10
+            )
+            
+            return {
+                "account": account_response.json(),
+                "positions": positions_response.json(),
+                "recent_orders": orders_response.json()
+            }
+        except Exception as e:
+            logger.error(f"Error with direct API calls: {str(e)}")
+            
+            # Second attempt: Use the alpaca-trade-api library
+            try:
+                import alpaca_trade_api as tradeapi
+                api = tradeapi.REST(ALPACA_API_KEY, ALPACA_SECRET_KEY, base_url='https://paper-api.alpaca.markets')
+                
+                account = api.get_account()
+                positions = api.list_positions()
+                orders = api.list_orders(status='all', limit=10)
+                
+                # Convert objects to dictionaries depending on the version
+                account_dict = account._raw if hasattr(account, '_raw') else vars(account)
+                
+                positions_list = []
+                for position in positions:
+                    pos_dict = position._raw if hasattr(position, '_raw') else vars(position)
+                    positions_list.append(pos_dict)
+                
+                orders_list = []
+                for order in orders:
+                    order_dict = order._raw if hasattr(order, '_raw') else vars(order)
+                    orders_list.append(order_dict)
+                
+                return {
+                    "account": account_dict,
+                    "positions": positions_list,
+                    "recent_orders": orders_list
+                }
+            except Exception as nested_e:
+                logger.error(f"Error with alpaca-trade-api library: {str(nested_e)}")
+                return {
+                    "error": f"Failed to retrieve Alpaca data: {str(e)} and {str(nested_e)}",
+                    "account": {},
+                    "positions": [],
+                    "recent_orders": []
+                }
+    except Exception as e:
+        logger.error(f"Overall error in get_alpaca_data: {str(e)}")
+        return {
+            "error": str(e),
+            "account": {},
+            "positions": [],
+            "recent_orders": []
         }
+
+# API route to get Alpaca portfolio details
+@app.route('/api/portfolio', methods=['GET'])
+@login_required
+def get_portfolio():
+    try:
+        portfolio_data = get_alpaca_data()
+        
+        # Add some calculated metrics if account data exists
+        if "account" in portfolio_data and not portfolio_data.get("error"):
+            try:
+                account_data = portfolio_data["account"]
+                equity = float(account_data.get('equity', 0))
+                last_equity = float(account_data.get('last_equity', 0))
+                if last_equity > 0:
+                    account_data['profit_loss_pct'] = ((equity - last_equity) / last_equity) * 100
+                else:
+                    account_data['profit_loss_pct'] = 0
+                portfolio_data["account"] = account_data
+            except (ValueError, TypeError) as e:
+                logger.error(f"Error calculating account metrics: {str(e)}")
         
         # Emit via WebSocket for real-time updates
         socketio.emit("portfolio_update", portfolio_data)
@@ -644,34 +714,8 @@ def handle_refresh():
         emit('indices_update', indices)
         
         # Update portfolio
-        if current_user.is_authenticated and ALPACA_API_KEY and ALPACA_SECRET_KEY:  # Only fetch portfolio data if user is logged in
-            headers = {
-                "APCA-API-KEY-ID": ALPACA_API_KEY,
-                "APCA-API-SECRET-KEY": ALPACA_SECRET_KEY
-            }
-            
-            account_response = requests.get(
-                "https://paper-api.alpaca.markets/v2/account", 
-                headers=headers,
-                timeout=10
-            )
-            positions_response = requests.get(
-                "https://paper-api.alpaca.markets/v2/positions", 
-                headers=headers,
-                timeout=10
-            )
-            orders_response = requests.get(
-                "https://paper-api.alpaca.markets/v2/orders?status=all&limit=10", 
-                headers=headers,
-                timeout=10
-            )
-            
-            portfolio_data = {
-                "account": account_response.json(),
-                "positions": positions_response.json(),
-                "recent_orders": orders_response.json()
-            }
-            
+        if current_user.is_authenticated:  # Only fetch portfolio data if user is logged in
+            portfolio_data = get_alpaca_data()
             emit('portfolio_update', portfolio_data)
     except Exception as e:
         logger.error(f"Error refreshing data: {str(e)}")
@@ -696,5 +740,5 @@ def handle_oauth_error(error):
 if __name__ == '__main__':
     port = int(os.getenv("PORT", 5000))
     logger.info(f"Starting server on port {port}")
-    check_aiohttp_installation()  # Log aiohttp status on startup
+    check_dependencies()  # Log dependency status
     socketio.run(app, host="0.0.0.0", port=port, debug=True)
