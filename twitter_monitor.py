@@ -31,7 +31,7 @@ most_recent_ids = {}
 def get_user_ids():
     """Convert usernames to user IDs and store them"""
     global user_ids
-    
+
     for username in usernames_to_monitor:
         try:
             user_response = client.get_user(username=username)
@@ -57,7 +57,7 @@ def forward_tweet_to_webhook(username, tweet_id, tweet_text, created_at):
             "created_at": created_at,
             "url": f"https://twitter.com/{username}/status/{tweet_id}"
         }
-        
+
         response = requests.post(webhook_url, json=payload)
         if response.status_code in (200, 201, 202, 204):
             logger.info(f"Successfully forwarded tweet from @{username} to webhook")
@@ -78,28 +78,28 @@ def check_user_tweets(username, user_id):
             max_results=5,  # Minimum allowed by API
             tweet_fields=["created_at", "text"]
         )
-        
+
         if tweets_response and tweets_response.data:
             tweets_to_process = list(reversed(tweets_response.data))
             logger.info(f"Found {len(tweets_to_process)} recent tweets from @{username}")
-            
+
             for tweet in tweets_to_process:
                 tweet_text = tweet.text
                 tweet_id = tweet.id
                 created_at = str(tweet.created_at)
-                
+
                 logger.info(f"Sample tweet from @{username} (ID: {tweet_id}): {tweet_text}")
                 forward_tweet_to_webhook(username, tweet_id, tweet_text, created_at)
         else:
             logger.info(f"No tweets found for @{username}")
-            
+
     except tweepy.TooManyRequests:
         logger.warning(f"Rate limit exceeded when checking @{username}, will retry later")
         return False
     except Exception as e:
         logger.error(f"Error fetching tweets for @{username}: {e}")
         return False
-    
+
     return True
 
 def monitor_all_users():
@@ -114,16 +114,16 @@ def main():
     """Main function to run the Twitter monitor"""
     try:
         get_user_ids()
-        
+
         if not user_ids:
             logger.error("No valid users found to monitor. Exiting.")
             return
-            
+
         logger.info("Twitter monitor started. Press Ctrl+C to stop.")
-        
+
         while True:
             monitor_all_users()
-            
+
     except KeyboardInterrupt:
         logger.info("Monitor stopped by user")
     except Exception as e:
