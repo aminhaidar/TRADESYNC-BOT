@@ -3,64 +3,618 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TradeSync Bot - Dashboard</title>
-    <link rel="stylesheet" href="/static/styles.css">
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.13.5/cdn.min.js"></script>
+    <title>TradeSync Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom-dark.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="bg-gray-900 text-white">
-
-    <div class="container mx-auto p-6">
-        <h1 class="text-3xl font-bold mb-6">TradeSync Dashboard</h1>
-
-        <!-- Stock Data -->
-        <div x-data="{ stockData: {} }" x-init="fetch('/api/stock_data')
-            .then(res => {
-                if (!res.ok) throw new Error('Stock API failed');
-                return res.json();
-            })
-            .then(data => stockData = data)
-            .catch(err => console.error('Stock API Error:', err))">
-            <p>Current Price: <span x-text="'$' + (stockData?.price ?? 'N/A')"></span></p>
-        </div>
-
-        <!-- Recent Trades -->
-        <h2 class="text-2xl font-semibold mt-6">Recent Trades</h2>
-        <div x-data="{ alerts: [] }" x-init="fetch('/api/trades')
-            .then(res => {
-                if (!res.ok) throw new Error('Trade API failed');
-                return res.json();
-            })
-            .then(data => alerts = data)
-            .catch(err => console.error('Trade API Error:', err))">
-
-            <template x-for="alert in alerts">
-                <div class="p-4 bg-gray-800 rounded-lg mb-2">
-                    <p class="font-bold text-blue-400" x-text="alert.author"></p>
-                    <p x-text="alert.summary"></p>
-                    <p>Price at Alert: <span x-text="'$' + (alert.price_at_alert ?? 'N/A')"></span></p>
-                    <p>% Change: <span x-text="alert.percent_change ?? 'N/A'"></span></p>
-                    <p>Time: <span x-text="timeAgo(alert.timestamp)"></span></p>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="sidebar-logo">TradeSync</h1>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="sidebar-nav-item active">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="sidebar-nav-item">
+                    <i class="fas fa-wallet"></i>
+                    <span>Portfolio</span>
+                </a>
+                <a href="#" class="sidebar-nav-item">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Trading</span>
+                </a>
+                <a href="#" class="sidebar-nav-item">
+                    <i class="fas fa-bell"></i>
+                    <span>Alerts</span>
+                </a>
+                <a href="#" class="sidebar-nav-item">
+                    <i class="fas fa-history"></i>
+                    <span>History</span>
+                </a>
+                <a href="#" class="sidebar-nav-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+            <div class="sidebar-user">
+                <div class="user-info">
+                    <div class="user-avatar">
+                        {{ user_name[:1] }}
+                    </div>
+                    <div>
+                        <div class="user-name">{{ user_name }}</div>
+                        <div class="user-email">{{ user_name }}@example.com</div>
+                    </div>
                 </div>
-            </template>
+            </div>
+        </aside>
+
+        <!-- Main content -->
+        <main class="main-content">
+            <header>
+                <h1 class="header-title">Dashboard</h1>
+                <div class="header-nav">
+                    <div id="market-status" class="badge badge-success">
+                        Market Open
+                    </div>
+                    <a href="{{ url_for('logout') }}" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
+            </header>
+
+            <!-- Welcome panel for new users -->
+            <div class="welcome-panel fade-in">
+                <h2 class="welcome-title">Welcome to TradeSync, {{ user_name }}</h2>
+                <p class="welcome-subtitle">Your intelligent trading platform for real-time market data, portfolio tracking, and automated signals.</p>
+                <div class="welcome-actions">
+                    <button class="btn btn-primary">
+                        <i class="fas fa-rocket"></i> Quick Start Guide
+                    </button>
+                    <button class="btn btn-secondary">
+                        <i class="fas fa-cog"></i> Configure Settings
+                    </button>
+                </div>
+            </div>
+
+            <!-- Market Overview -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Market Overview</h2>
+                    <button id="refresh-market" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div id="market-indices" class="stats-row">
+                        <div class="stat-item">
+                            <div id="spy-value" class="stat-value">--</div>
+                            <div class="stat-label">S&P 500</div>
+                            <div id="spy-change" class="badge">--</div>
+                        </div>
+                        <div class="stat-item">
+                            <div id="qqq-value" class="stat-value">--</div>
+                            <div class="stat-label">NASDAQ</div>
+                            <div id="qqq-change" class="badge">--</div>
+                        </div>
+                        <div class="stat-item">
+                            <div id="dia-value" class="stat-value">--</div>
+                            <div class="stat-label">DOW</div>
+                            <div id="dia-change" class="badge">--</div>
+                        </div>
+                        <div class="stat-item">
+                            <div id="vix-value" class="stat-value">--</div>
+                            <div class="stat-label">VIX</div>
+                            <div id="vix-change" class="badge">--</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Portfolio Summary -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Portfolio Summary</h2>
+                    <div class="header-nav">
+                        <div id="portfolio-data-source" class="badge badge-primary tooltip">
+                            <span id="data-source-text">Live Data</span>
+                            <span class="tooltip-text" id="data-source-tooltip">Using real Alpaca API data</span>
+                        </div>
+                        <button id="refresh-portfolio" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="dashboard-grid">
+                        <div class="metric-card">
+                            <div class="metric-title">Portfolio Value</div>
+                            <div id="portfolio-value" class="metric-value">$0.00</div>
+                            <div id="portfolio-change" class="metric-change">
+                                <i class="fas fa-arrow-up"></i> 0.00%
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-title">Cash Balance</div>
+                            <div id="cash-balance" class="metric-value">$0.00</div>
+                            <div class="metric-subtitle">Available for Trading</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-title">Daily P/L</div>
+                            <div id="daily-pl" class="metric-value">$0.00</div>
+                            <div id="daily-pl-percent" class="metric-change">
+                                <i class="fas fa-arrow-up"></i> 0.00%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Positions -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Positions</h2>
+                </div>
+                <div class="card-body">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Symbol</th>
+                                    <th>Quantity</th>
+                                    <th>Entry Price</th>
+                                    <th>Current Price</th>
+                                    <th>Market Value</th>
+                                    <th>Unrealized P/L</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="positions-table">
+                                <tr>
+                                    <td colspan="7" class="text-center">Loading positions...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Orders -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Recent Orders</h2>
+                </div>
+                <div class="card-body">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Symbol</th>
+                                    <th>Side</th>
+                                    <th>Type</th>
+                                    <th>Quantity</th>
+                                    <th>Price</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orders-table">
+                                <tr>
+                                    <td colspan="7" class="text-center">Loading orders...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trade Alerts -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Trade Alerts</h2>
+                </div>
+                <div class="card-body">
+                    <div id="alerts-container">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            <div>
+                                <strong>Welcome to TradeSync!</strong>
+                                <p class="mb-0">Configure your trade alerts to receive notifications about market opportunities.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Alert</th>
+                                    <th>Symbol</th>
+                                    <th>Price</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="alerts-table">
+                                <tr>
+                                    <td colspan="5" class="text-center">No recent alerts</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Mobile Navigation Bar -->
+    <div class="mobile-navbar">
+        <div class="nav-buttons">
+            <a href="#" class="nav-button active">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="nav-button">
+                <i class="fas fa-wallet"></i>
+                <span>Portfolio</span>
+            </a>
+            <a href="#" class="nav-button">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Trading</span>
+            </a>
+            <a href="#" class="nav-button">
+                <i class="fas fa-bell"></i>
+                <span>Alerts</span>
+            </a>
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
     <script>
-        function timeAgo(timestamp) {
-            if (!timestamp) return 'N/A';
-            const date = new Date(timestamp);
-            if (isNaN(date.getTime())) return 'N/A';
-
-            const now = new Date();
-            const seconds = Math.floor((now - date) / 1000);
-            if (seconds < 60) return 'just now';
-            const minutes = Math.floor(seconds / 60);
-            if (minutes < 60) return `${minutes}m ago`;
-            const hours = Math.floor(minutes / 60);
-            if (hours < 24) return `${hours}h ago`;
-            const days = Math.floor(hours / 24);
-            if (days < 7) return `${days}d ago`;
-            return date.toLocaleDateString();
+        // Connect to WebSocket
+        const socket = io();
+        
+        socket.on('connect', () => {
+            console.log('Connected to WebSocket server');
+            document.getElementById('market-status').classList.remove('badge-danger');
+            document.getElementById('market-status').classList.add('badge-success');
+            document.getElementById('market-status').textContent = 'Connected';
+        });
+        
+        socket.on('disconnect', () => {
+            console.log('Disconnected from WebSocket server');
+            document.getElementById('market-status').classList.remove('badge-success');
+            document.getElementById('market-status').classList.add('badge-danger');
+            document.getElementById('market-status').textContent = 'Disconnected';
+        });
+        
+        socket.on('indices_update', (data) => {
+            updateMarketIndicators(data);
+        });
+        
+        socket.on('portfolio_update', (data) => {
+            updatePortfolio(data);
+        });
+        
+        // Initial data load
+        window.addEventListener('DOMContentLoaded', () => {
+            fetchMarketData();
+            fetchPortfolio();
+            fetchTradeAlerts();
+        });
+        
+        // Event listeners for refresh buttons
+        document.getElementById('refresh-market').addEventListener('click', fetchMarketData);
+        document.getElementById('refresh-portfolio').addEventListener('click', fetchPortfolio);
+        
+        // Fetch market data
+        function fetchMarketData() {
+            fetch('/api/market_data')
+                .then(response => response.json())
+                .then(data => {
+                    updateMarketIndicators(data);
+                })
+                .catch(error => {
+                    console.error('Error fetching market data:', error);
+                    showError('Failed to fetch market data');
+                });
+        }
+        
+        // Fetch portfolio data
+        function fetchPortfolio() {
+            fetch('/api/portfolio')
+                .then(response => response.json())
+                .then(data => {
+                    updatePortfolio(data);
+                })
+                .catch(error => {
+                    console.error('Error fetching portfolio:', error);
+                    showError('Failed to fetch portfolio data');
+                });
+        }
+        
+        // Fetch trade alerts
+        function fetchTradeAlerts() {
+            fetch('/api/trades')
+                .then(response => response.json())
+                .then(data => {
+                    updateTradeAlerts(data);
+                })
+                .catch(error => {
+                    console.error('Error fetching trade alerts:', error);
+                });
+        }
+        
+        // Update market indicators
+        function updateMarketIndicators(data) {
+            if (data.error) {
+                console.error('Market data error:', data.error);
+                return;
+            }
+            
+            updateMarketIndex('spy', data.SPY);
+            updateMarketIndex('qqq', data.QQQ);
+            updateMarketIndex('dia', data.DIA);
+            updateMarketIndex('vix', data.VIX);
+        }
+        
+        function updateMarketIndex(id, data) {
+            if (!data || data.error) return;
+            
+            const valueElement = document.getElementById(`${id}-value`);
+            const changeElement = document.getElementById(`${id}-change`);
+            
+            // Format the display value
+            valueElement.textContent = formatCurrency(data.price);
+            
+            // Update the change percentage
+            const changePercent = data.change_percent || 0;
+            const formattedChange = changePercent > 0 ? `+${changePercent.toFixed(2)}%` : `${changePercent.toFixed(2)}%`;
+            
+            changeElement.textContent = formattedChange;
+            
+            // Add appropriate class based on value
+            if (changePercent > 0) {
+                changeElement.className = 'badge badge-success';
+            } else if (changePercent < 0) {
+                changeElement.className = 'badge badge-danger';
+            } else {
+                changeElement.className = 'badge';
+            }
+            
+            // Add a flash animation to show updated data
+            valueElement.classList.add('pulse');
+            setTimeout(() => {
+                valueElement.classList.remove('pulse');
+            }, 2000);
+        }
+        
+        // Update portfolio data
+        function updatePortfolio(data) {
+            if (data.error) {
+                console.error('Portfolio error:', data.error);
+                showError('Failed to update portfolio: ' + data.error);
+                return;
+            }
+            
+            // Check if using mock data
+            if (data.is_mock) {
+                document.getElementById('portfolio-data-source').className = 'badge badge-warning tooltip';
+                document.getElementById('data-source-text').textContent = 'Mock Data';
+                document.getElementById('data-source-tooltip').textContent = 'Using simulated portfolio data';
+            } else {
+                document.getElementById('portfolio-data-source').className = 'badge badge-primary tooltip';
+                document.getElementById('data-source-text').textContent = 'Live Data';
+                document.getElementById('data-source-tooltip').textContent = 'Using real Alpaca API data';
+            }
+            
+            // Update account summary
+            const account = data.account;
+            document.getElementById('portfolio-value').textContent = formatCurrency(account.portfolio_value);
+            document.getElementById('cash-balance').textContent = formatCurrency(account.cash);
+            
+            // Calculate daily P/L
+            const dailyPL = parseFloat(account.equity) - parseFloat(account.last_equity);
+            const dailyPLPercent = (parseFloat(account.equity) > 0 && parseFloat(account.last_equity) > 0) 
+                ? (dailyPL / parseFloat(account.last_equity) * 100)
+                : 0;
+            
+            document.getElementById('daily-pl').textContent = formatCurrency(dailyPL);
+            
+            const dailyPlPercentElement = document.getElementById('daily-pl-percent');
+            if (dailyPL > 0) {
+                dailyPlPercentElement.innerHTML = `<i class="fas fa-arrow-up"></i> ${dailyPLPercent.toFixed(2)}%`;
+                dailyPlPercentElement.className = 'metric-change positive';
+                document.getElementById('daily-pl').className = 'metric-value positive-value';
+            } else if (dailyPL < 0) {
+                dailyPlPercentElement.innerHTML = `<i class="fas fa-arrow-down"></i> ${dailyPLPercent.toFixed(2)}%`;
+                dailyPlPercentElement.className = 'metric-change negative';
+                document.getElementById('daily-pl').className = 'metric-value negative-value';
+            } else {
+                dailyPlPercentElement.innerHTML = `0.00%`;
+                dailyPlPercentElement.className = 'metric-change';
+                document.getElementById('daily-pl').className = 'metric-value';
+            }
+            
+            // Update positions table
+            const positionsTable = document.getElementById('positions-table');
+            positionsTable.innerHTML = '';
+            
+            if (data.positions.length === 0) {
+                positionsTable.innerHTML = '<tr><td colspan="7" class="text-center">No positions found</td></tr>';
+            } else {
+                data.positions.forEach(position => {
+                    // Calculate values
+                    const marketValue = parseFloat(position.market_value || position.qty * position.current_price);
+                    const unrealizedPL = parseFloat(position.unrealized_pl || 0);
+                    const unrealizedPLPercent = parseFloat(position.unrealized_plpc || 0) * 100;
+                    
+                    // Create table row
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${position.symbol}</td>
+                        <td>${position.qty}</td>
+                        <td>${formatCurrency(position.avg_entry_price)}</td>
+                        <td>${formatCurrency(position.current_price)}</td>
+                        <td>${formatCurrency(marketValue)}</td>
+                        <td class="${unrealizedPL >= 0 ? 'positive-value' : 'negative-value'}">
+                            ${formatCurrency(unrealizedPL)} (${unrealizedPLPercent.toFixed(2)}%)
+                        </td>
+                        <td>
+                            <button class="btn btn-success btn-sm" onclick="executeTrade('${position.symbol}', 'buy')">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="executeTrade('${position.symbol}', 'sell')">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </td>
+                    `;
+                    positionsTable.appendChild(row);
+                });
+            }
+            
+            // Update orders table
+            const ordersTable = document.getElementById('orders-table');
+            ordersTable.innerHTML = '';
+            
+            if (data.recent_orders.length === 0) {
+                ordersTable.innerHTML = '<tr><td colspan="7" class="text-center">No recent orders</td></tr>';
+            } else {
+                data.recent_orders.forEach(order => {
+                    const filledPrice = order.filled_avg_price || order.limit_price || '--';
+                    const orderDate = new Date(order.created_at).toLocaleString();
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${orderDate}</td>
+                        <td>${order.symbol}</td>
+                        <td class="${order.side === 'buy' ? 'positive-value' : 'negative-value'}">${order.side.toUpperCase()}</td>
+                        <td>${order.type}</td>
+                        <td>${order.qty}</td>
+                        <td>${formatCurrency(filledPrice)}</td>
+                        <td>
+                            <span class="badge ${getOrderStatusClass(order.status)}">${order.status}</span>
+                        </td>
+                    `;ordersTable.appendChild(row);
+                });
+            }
+        }
+        
+        // Update trade alerts
+        function updateTradeAlerts(data) {
+            const alertsTable = document.getElementById('alerts-table');
+            alertsTable.innerHTML = '';
+            
+            if (!data || data.length === 0) {
+                alertsTable.innerHTML = '<tr><td colspan="5" class="text-center">No recent alerts</td></tr>';
+                return;
+            }
+            
+            data.forEach(alert => {
+                const alertData = alert.parsed_data || {};
+                const alertDate = new Date(alert.timestamp).toLocaleString();
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${alertDate}</td>
+                    <td>${alert.alert}</td>
+                    <td>${alertData.symbol || '--'}</td>
+                    <td>${alertData.price ? formatCurrency(alertData.price) : '--'}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" onclick="executeAlert(${alert.id})">
+                            <i class="fas fa-play"></i> Execute
+                        </button>
+                    </td>
+                `;
+                alertsTable.appendChild(row);
+            });
+        }
+        
+        // Helper function to format currency
+        function formatCurrency(value) {
+            if (!value) return '$0.00';
+            
+            const numValue = parseFloat(value);
+            return new Intl.NumberFormat('en-US', { 
+                style: 'currency', 
+                currency: 'USD',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(numValue);
+        }
+        
+        // Helper function to get order status class for badges
+        function getOrderStatusClass(status) {
+            switch (status.toLowerCase()) {
+                case 'filled':
+                    return 'badge-success';
+                case 'canceled':
+                case 'expired':
+                    return 'badge-danger';
+                case 'pending':
+                case 'accepted':
+                case 'new':
+                    return 'badge-primary';
+                case 'partially_filled':
+                    return 'badge-warning';
+                default:
+                    return '';
+            }
+        }
+        
+        // Show error message
+        function showError(message) {
+            const alertsContainer = document.getElementById('alerts-container');
+            
+            // Create error alert
+            const errorAlert = document.createElement('div');
+            errorAlert.className = 'alert alert-danger';
+            errorAlert.innerHTML = `
+                <i class="fas fa-exclamation-circle"></i>
+                <div>
+                    <strong>Error</strong>
+                    <p class="mb-0">${message}</p>
+                </div>
+            `;
+            
+            // Add close button
+            const closeButton = document.createElement('button');
+            closeButton.className = 'btn btn-sm';
+            closeButton.innerHTML = '<i class="fas fa-times"></i>';
+            closeButton.style.marginLeft = 'auto';
+            closeButton.onclick = function() {
+                alertsContainer.removeChild(errorAlert);
+            };
+            
+            errorAlert.appendChild(closeButton);
+            
+            // Add to container
+            alertsContainer.appendChild(errorAlert);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (alertsContainer.contains(errorAlert)) {
+                    alertsContainer.removeChild(errorAlert);
+                }
+            }, 5000);
+        }
+        
+        // Placeholder for trade execution function
+        function executeTrade(symbol, side) {
+            console.log(`Executing ${side} order for ${symbol}`);
+            // This would be implemented to call your API endpoint
+            alert(`${side.toUpperCase()} order for ${symbol} would be executed here.`);
+        }
+        
+        // Placeholder for alert execution function
+        function executeAlert(alertId) {
+            console.log(`Executing alert #${alertId}`);
+            // This would be implemented to call your API endpoint
+            alert(`Alert #${alertId} would be executed here.`);
         }
     </script>
 </body>

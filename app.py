@@ -1,26 +1,46 @@
 import os
 import json
 import logging
+import datetime
 import traceback
 import requests
-import datetime
 import sqlite3
-
-from flask import Flask, jsonify, render_template, redirect, url_for, request, session
+from flask import Flask, redirect, url_for, session, jsonify, render_template, request
 from flask_cors import CORS
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required, UserMixin
 from flask_socketio import SocketIO, emit
+from flask_dance.contrib.google import make_google_blueprint, google
 from dotenv import load_dotenv
-import alpaca_trade_api as tradeapi
+from routes.stock_routes import stock_routes
+from routes.trade_routes import trade_routes
+from services.alpaca_service import fetch_stock_data
+from database import setup_database
 
 # Load environment variables
 load_dotenv()
+
+# Debug print for environment variables
+print("=== ENVIRONMENT VARIABLES DEBUG ===")
+print(f"ALPACA_API_KEY exists: {'ALPACA_API_KEY' in os.environ}")
+print(f"ALPACA_SECRET_KEY exists: {'ALPACA_SECRET_KEY' in os.environ}")
+if 'ALPACA_API_KEY' in os.environ and os.environ['ALPACA_API_KEY']:
+    print(f"ALPACA_API_KEY starts with: {os.environ['ALPACA_API_KEY'][:4]}...")
+else:
+    print("ALPACA_API_KEY is not set or is empty")
+if 'ALPACA_SECRET_KEY' in os.environ and os.environ['ALPACA_SECRET_KEY']:
+    print(f"ALPACA_SECRET_KEY starts with: {os.environ['ALPACA_SECRET_KEY'][:4]}...")
+else:
+    print("ALPACA_SECRET_KEY is not set or is empty")
+print("==================================")
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.FileHandler("logs/app.log"), logging.StreamHandler()],
+    handlers=[
+        logging.FileHandler("logs/app.log"),
+        logging.StreamHandler(),
+    ],
 )
 logger = logging.getLogger(__name__)
 
@@ -29,57 +49,46 @@ app = Flask(__name__)
 CORS(app)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "TRADESYNC-BOT")
 
-# Initialize WebSocket
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
+# Setup database
+setup_database()
 
-# Set up Flask-Login
+# Flask-Login Setup
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
 
-# Alpaca API Configuration
-ALPACA_API_KEY = os.getenv("ALPACA_API_KEY")
-ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY")
-ALPACA_BASE_URL = "https://paper-api.alpaca.markets"
+# Initialize WebSocket
+socketio = SocketIO(app, cors_allowed_origins="*")
 
-api = tradeapi.REST(ALPACA_API_KEY, ALPACA_SECRET_KEY, base_url=ALPACA_BASE_URL)
+# Register API routes as blueprints
+app.register_blueprint(stock_routes)
+app.register_blueprint(trade_routes)
 
+### AUTHENTICATION SETUP ###
 
-### DATABASE SETUP ###
-def setup_database():
-    try:
-        os.makedirs("logs", exist_ok=True)
-        conn = sqlite3.connect("trades.db")
-        cursor = conn.cursor()
-        cursor.execute(
-            """CREATE TABLE IF NOT EXISTS alerts (
-                id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                alert TEXT NOT NULL, 
-                timestamp TEXT NOT NULL, 
-                parsed_data TEXT, 
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)"""
-        )
-        cursor.execute(
-            """CREATE TABLE IF NOT EXISTS stock_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                symbol TEXT NOT NULL, 
-                price REAL, 
-                change_percent REAL, 
-                volume INTEGER, 
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)"""
-        )
-        conn.commit()
-        conn.close()
-        logger.info("Database initialized")
-    except Exception as e:
-        logger.error(f"Database initialization error: {str(e)}")
-        traceback.print_exc()
+google_bp = make_google_blueprint(
+    client_id=os.getenv("GOOGLE_CLIENT_ID"),
+    client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
+    scope=["profile", "email"],
+)
+app.register_blueprint(google_bp, url_prefix="/auth")
 
 
-setup_database()
+class User(UserMixin):
+    def __init__(self, user_id, name, email):
+        self.id = user_id
+        self.name = name
+        self.email = email
 
 
-### ROUTES ###
+@login_manager.user_loader
+def load_user(user_id):
+    if "user_data" not in session:
+        return None
+    user_data = session["user_data"]
+    return User(user_data["id"], user_data["name"], user_data["email"])
+
+
 @app.route("/")
 def index():
     if current_user.is_authenticated:
@@ -87,77 +96,160 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/api/portfolio", methods=["GET"])
-@login_required
-def get_portfolio():
+# New login route that bypasses Google auth for testing
+@app.route("/login")
+def login():
+    # For testing: create a dummy user session
+    user = User("test_id", "Test User", "test@example.com")
+    session["user_data"] = {
+        "id": "test_id",
+        "name": "Test User",
+        "email": "test@example.com",
+    }
+    login_user(user)
+    return redirect(url_for("dashboard"))
+
+
+@app.route("/dashboard")
+# Comment out the login_required decorator for testing
+# @login_required
+def dashboard():
+    # Provide a default user name for testing
+    user_name = current_user.name if current_user.is_authenticated else "Test User"
+    return render_template("dashboard.html", user_name=user_name)
+
+
+@app.route("/auth/google/authorized")
+def google_authorized():
+    logger.info("Received Google login callback")
+    if not google.authorized:
+        return redirect(url_for("login"))
+
     try:
-        account = api.get_account()
-        positions = api.list_positions()
-        portfolio = {
-            "equity": account.equity,
-            "cash": account.cash,
-            "positions": [
-                {"symbol": p.symbol, "qty": p.qty, "market_value": p.market_value}
-                for p in positions
-            ],
-        }
-        return jsonify(portfolio)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@app.route("/api/market_indices", methods=["GET"])
-def get_market_indices():
-    try:
-        symbols = ["VIX", "SPY", "IWM", "BTCUSD"]
-        quotes = {symbol: api.get_last_trade(symbol)._raw for symbol in symbols}
-        return jsonify(quotes)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@app.route("/api/trades", methods=["GET"])
-@login_required
-def get_trades():
-    try:
-        orders = api.list_orders(status="all", limit=10)
-        trade_data = [
-            {
-                "symbol": o.symbol,
-                "qty": o.qty,
-                "side": o.side,
-                "status": o.status,
-                "created_at": o.created_at,
+        resp = google.get("/oauth2/v1/userinfo")
+        if resp.ok:
+            user_info = resp.json()
+            user = User(user_info["id"], user_info["name"], user_info["email"])
+            session["user_data"] = {
+                "id": user_info["id"],
+                "name": user_info["name"],
+                "email": user_info["email"],
             }
-            for o in orders
-        ]
-        return jsonify(trade_data)
+            login_user(user)
+            return redirect(url_for("dashboard"))
+        else:
+            return redirect(url_for("login"))
     except Exception as e:
+        logger.error(f"Google login error: {str(e)}")
+        traceback.print_exc()
+        return redirect(url_for("login"))
+
+
+@app.route("/logout")
+def logout():
+    logout_user()
+    session.clear()
+    return redirect(url_for("index"))
+
+
+### API ENDPOINTS ###
+
+@app.route("/api/stock_data", methods=["GET"])
+def get_stock_data():
+    """
+    Fetch stock data from Alpaca API for real-time updates.
+    """
+    try:
+        symbol = request.args.get("symbol", "AAPL")  # Default to AAPL
+        stock_data = fetch_stock_data(symbol)
+        return jsonify(stock_data)
+    except Exception as e:
+        logger.error(f"Error fetching stock data: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
 
-# WebSocket for real-time updates
+@app.route("/api/market_data", methods=["GET"])
+def get_market_data():
+    """
+    Fetch stock indices data using Alpaca API.
+    """
+    try:
+        indices = {
+            "SPY": fetch_stock_data("SPY"),
+            "QQQ": fetch_stock_data("QQQ"),
+            "DIA": fetch_stock_data("DIA"),
+            "IWM": fetch_stock_data("IWM"),
+            "VIX": fetch_stock_data("VIX"),
+        }
+
+        socketio.emit("indices_update", indices)  # Push data to WebSocket clients
+        return jsonify(indices)
+    except Exception as e:
+        logger.error(f"Error fetching market data: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/portfolio", methods=["GET"])
+# Commenting out login_required for testing
+# @login_required
+def get_portfolio():
+    """
+    Fetch user's Alpaca portfolio data.
+    """
+    from services.alpaca_service import get_alpaca_portfolio
+
+    try:
+        portfolio_data = get_alpaca_portfolio()
+        socketio.emit("portfolio_update", portfolio_data)
+        return jsonify(portfolio_data)
+    except Exception as e:
+        logger.error(f"Error fetching portfolio: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+
+### WEBSOCKETS ###
+
+@socketio.on("connect")
+def handle_connect():
+    logger.info("Client connected")
+    emit("status", {"status": "connected"})
+
+
+@socketio.on("disconnect")
+def handle_disconnect():
+    logger.info("Client disconnected")
+
+
 @socketio.on("refresh_data")
-def refresh_data():
+def handle_refresh():
     logger.info("Client requested data refresh")
     try:
-        indices = get_market_indices()
+        indices = {
+            "SPY": fetch_stock_data("SPY"),
+            "QQQ": fetch_stock_data("QQQ"),
+            "DIA": fetch_stock_data("DIA"),
+            "IWM": fetch_stock_data("IWM"),
+            "VIX": fetch_stock_data("VIX"),
+        }
         emit("indices_update", indices)
-
-        if current_user.is_authenticated:
-            portfolio_data = get_portfolio()
-            emit("portfolio_update", portfolio_data)
     except Exception as e:
         logger.error(f"Error refreshing data: {str(e)}")
         emit("error", {"message": f"Error refreshing data: {str(e)}"})
 
 
-@app.errorhandler(404)
-def not_found_error(error):
-    return jsonify({"error": "Resource not found"}), 404
+### HEALTH CHECK ###
+
+@app.route("/health", methods=["GET"])
+def health_check():
+    return jsonify(
+        {
+            "status": "healthy",
+            "timestamp": datetime.datetime.now().isoformat(),
+        }
+    )
 
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
     logger.info(f"Starting server on port {port}")
-    socketio.run(app, host="0.0.0.0", port=port, debug=True)
+    socketio.run(app, host="0.0.0.0", port=port)

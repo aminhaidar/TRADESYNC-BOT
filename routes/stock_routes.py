@@ -1,36 +1,19 @@
-from flask import Blueprint, jsonify, request
-import os
-import requests
+from flask import Blueprint, request, jsonify
+from services.alpaca_service import fetch_stock_data
+import logging
 
 stock_routes = Blueprint("stock_routes", __name__)
-
-# Load API keys from environment variables
-ALPACA_API_KEY = os.getenv("ALPACA_API_KEY")
-ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY")
-ALPACA_BASE_URL = "https://data.alpaca.markets/v2/stocks"
-
-# Function to fetch stock data from Alpaca
-def get_stock_data(symbol):
-    headers = {
-        "APCA-API-KEY-ID": ALPACA_API_KEY,
-        "APCA-API-SECRET-KEY": ALPACA_SECRET_KEY
-    }
-
-    url = f"{ALPACA_BASE_URL}/quotes/{symbol}"
-
-    try:
-        response = requests.get(url, headers=headers)
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        return {"error": str(e)}
+logger = logging.getLogger(__name__)
 
 @stock_routes.route("/api/stock_data", methods=["GET"])
-def fetch_stock_data():
-    symbol = request.args.get("symbol", "AAPL")  # Default to AAPL if no symbol is provided
-    stock_data = get_stock_data(symbol)
-
-    if "error" in stock_data:
-        return jsonify({"error": stock_data["error"]}), 500
-
-    return jsonify(stock_data)
+def get_stock_data():
+    """
+    Fetch stock data for a given symbol from Alpaca API.
+    """
+    try:
+        symbol = request.args.get("symbol", "AAPL")  # Default to AAPL
+        stock_data = fetch_stock_data(symbol)
+        return jsonify(stock_data)
+    except Exception as e:
+        logger.error(f"Error fetching stock data: {str(e)}")
+        return jsonify({"error": str(e)}), 500

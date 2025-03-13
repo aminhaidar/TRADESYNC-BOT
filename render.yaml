@@ -1,18 +1,13 @@
 services:
+  # A web service
   - type: web
     name: tradesync-bot
-    env: python
-    buildCommand: ./build.sh
-    startCommand: gunicorn --worker-class eventlet -w 1 app:socketio
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --worker-class gevent -w 1 wsgi:application
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.11.0
       - key: FLASK_SECRET_KEY
-        sync: false
-      - key: OPENAI_API_KEY
-        sync: false
-      - key: ANTHROPIC_API_KEY
-        sync: false
+        generateValue: true
       - key: ALPACA_API_KEY
         sync: false
       - key: ALPACA_SECRET_KEY

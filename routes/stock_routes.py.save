@@ -1,0 +1,519 @@
+Requirement already satisfied: pandas>=0.18.1 in ./venv/lib/python3.13/site-packages (from alpaca-trade-api<4.0.0,>=3.2.0->-r requirements.txt (line 17)) (2.2.3)
+Requirement already satisfied: numpy>=1.11.1 in ./venv/lib/python3.13/site-packages (from alpaca-trade-api<4.0.0,>=3.2.0->-r requirements.txt (line 17)) (2.2.3)
+Requirement already satisfied: websocket-client<2,>=0.56.0 in ./venv/lib/python3.13/site-packages (from alpaca-trade-api<4.0.0,>=3.2.0->-r requirements.txt (line 17)) (1.8.0)
+Requirement already satisfied: websockets<11,>=9.0 in ./venv/lib/python3.13/site-packages (from alpaca-trade-api<4.0.0,>=3.2.0->-r requirements.txt (line 17)) (10.4)
+Requirement already satisfied: msgpack==1.0.3 in ./venv/lib/python3.13/site-packages (from alpaca-trade-api<4.0.0,>=3.2.0->-r requirements.txt (line 17)) (1.0.3)
+Requirement already satisfied: PyYAML==6.0.1 in ./venv/lib/python3.13/site-packages (from alpaca-trade-api<4.0.0,>=3.2.0->-r requirements.txt (line 17)) (6.0.1)
+Requirement already satisfied: deprecation==2.1.0 in ./venv/lib/python3.13/site-packages (from alpaca-trade-api<4.0.0,>=3.2.0->-r requirements.txt (line 17)) (2.1.0)
+Requirement already satisfied: httpcore==1.* in ./venv/lib/python3.13/site-packages (from httpx<1,>=0.23.0->openai<1.4.0,>=1.3.0->-r requirements.txt (line 8)) (1.0.7)
+Requirement already satisfied: h11<0.15,>=0.13 in ./venv/lib/python3.13/site-packages (from httpcore==1.*->httpx<1,>=0.23.0->openai<1.4.0,>=1.3.0->-r requirements.txt (line 8)) (0.14.0)
+Requirement already satisfied: python-dateutil>=2.8.2 in ./venv/lib/python3.13/site-packages (from pandas>=0.18.1->alpaca-trade-api<4.0.0,>=3.2.0->-r requirements.txt (line 17)) (2.9.0.post0)
+Requirement already satisfied: pytz>=2020.1 in ./venv/lib/python3.13/site-packages (from pandas>=0.18.1->alpaca-trade-api<4.0.0,>=3.2.0->-r requirements.txt (line 17)) (2025.1)
+Requirement already satisfied: tzdata>=2022.7 in ./venv/lib/python3.13/site-packages (from pandas>=0.18.1->alpaca-trade-api<4.0.0,>=3.2.0->-r requirements.txt (line 17)) (2025.1)
+Requirement already satisfied: pyasn1<0.7.0,>=0.4.6 in ./venv/lib/python3.13/site-packages (from pyasn1-modules>=0.2.1->google-auth<2.24.0,>=2.23.0->-r requirements.txt (line 11)) (0.6.1)
+Requirement already satisfied: annotated-types>=0.6.0 in ./venv/lib/python3.13/site-packages (from pydantic<3,>=1.9.0->openai<1.4.0,>=1.3.0->-r requirements.txt (line 8)) (0.7.0)
+Requirement already satisfied: pydantic-core==2.27.2 in ./venv/lib/python3.13/site-packages (from pydantic<3,>=1.9.0->openai<1.4.0,>=1.3.0->-r requirements.txt (line 8)) (2.27.2)
+Requirement already satisfied: bidict>=0.21.0 in ./venv/lib/python3.13/site-packages (from python-socketio>=5.0.2->flask-socketio<5.4.0,>=5.3.0->-r requirements.txt (line 5)) (0.23.1)
+Requirement already satisfied: python-engineio>=4.11.0 in ./venv/lib/python3.13/site-packages (from python-socketio>=5.0.2->flask-socketio<5.4.0,>=5.3.0->-r requirements.txt (line 5)) (4.11.2)
+Requirement already satisfied: huggingface-hub<1.0,>=0.16.4 in ./venv/lib/python3.13/site-packages (from tokenizers>=0.13.0->anthropic<0.6.0,>=0.5.0->-r requirements.txt (line 9)) (0.29.3)
+Requirement already satisfied: propcache>=0.2.0 in ./venv/lib/python3.13/site-packages (from yarl<2.0,>=1.12.0->aiohttp<3.11.0,>=3.10.0->-r requirements.txt (line 16)) (0.3.0)
+Requirement already satisfied: filelock in ./venv/lib/python3.13/site-packages (from huggingface-hub<1.0,>=0.16.4->tokenizers>=0.13.0->anthropic<0.6.0,>=0.5.0->-r requirements.txt (line 9)) (3.17.0)
+Requirement already satisfied: fsspec>=2023.5.0 in ./venv/lib/python3.13/site-packages (from huggingface-hub<1.0,>=0.16.4->tokenizers>=0.13.0->anthropic<0.6.0,>=0.5.0->-r requirements.txt (line 9)) (2025.3.0)
+Requirement already satisfied: six>=1.5 in ./venv/lib/python3.13/site-packages (from python-dateutil>=2.8.2->pandas>=0.18.1->alpaca-trade-api<4.0.0,>=3.2.0->-r requirements.txt (line 17)) (1.17.0)
+Requirement already satisfied: simple-websocket>=0.10.0 in ./venv/lib/python3.13/site-packages (from python-engineio>=4.11.0->python-socketio>=5.0.2->flask-socketio<5.4.0,>=5.3.0->-r requirements.txt (line 5)) (1.1.0)
+Requirement already satisfied: wsproto in ./venv/lib/python3.13/site-packages (from simple-websocket>=0.10.0->python-engineio>=4.11.0->python-socketio>=5.0.2->flask-socketio<5.4.0,>=5.3.0->-r requirements.txt (line 5)) (1.2.0)
+
+[notice] A new release of pip is available: 25.0 -> 25.0.1
+[notice] To update, run: pip install --upgrade pip
+(venv) amin.haidar@NGHMACPVXP2QC2J tradesync-bot % pip list | grep -E "flask|socketio|requests"
+python-socketio      5.12.1
+requests             2.31.0
+requests-oauthlib    2.0.0
+(venv) amin.haidar@NGHMACPVXP2QC2J tradesync-bot % pip uninstall -r requirements.txt -y
+pip install -r requirements.txt
+Found existing installation: Flask 2.3.3
+Uninstalling Flask-2.3.3:
+  Successfully uninstalled Flask-2.3.3
+Found existing installation: Flask-Login 0.6.3
+Uninstalling Flask-Login-0.6.3:
+  Successfully uninstalled Flask-Login-0.6.3
+Found existing installation: Flask-Cors 4.0.2
+Uninstalling Flask-Cors-4.0.2:
+  Successfully uninstalled Flask-Cors-4.0.2
+Found existing installation: Flask-SocketIO 5.3.7
+Uninstalling Flask-SocketIO-5.3.7:
+  Successfully uninstalled Flask-SocketIO-5.3.7
+Found existing installation: python-dotenv 1.0.1
+Uninstalling python-dotenv-1.0.1:
+  Successfully uninstalled python-dotenv-1.0.1
+Found existing installation: requests 2.31.0
+Uninstalling requests-2.31.0:
+  Successfully uninstalled requests-2.31.0
+Found existing installation: openai 1.3.9
+Uninstalling openai-1.3.9:
+  Successfully uninstalled openai-1.3.9
+Found existing installation: anthropic 0.5.0
+Uninstalling anthropic-0.5.0:
+  Successfully uninstalled anthropic-0.5.0
+Found existing installation: gunicorn 21.2.0
+Uninstalling gunicorn-21.2.0:
+  Successfully uninstalled gunicorn-21.2.0
+Found existing installation: google-auth 2.23.4
+Uninstalling google-auth-2.23.4:
+  Successfully uninstalled google-auth-2.23.4
+Found existing installation: google-auth-oauthlib 1.0.0
+Uninstalling google-auth-oauthlib-1.0.0:
+  Successfully uninstalled google-auth-oauthlib-1.0.0
+Found existing installation: Flask-Dance 7.0.1
+Uninstalling Flask-Dance-7.0.1:
+  Successfully uninstalled Flask-Dance-7.0.1
+Found existing installation: Werkzeug 3.0.6
+Uninstalling Werkzeug-3.0.6:
+  Successfully uninstalled Werkzeug-3.0.6
+Found existing installation: backoff 2.2.1
+Uninstalling backoff-2.2.1:
+  Successfully uninstalled backoff-2.2.1
+Found existing installation: aiohttp 3.10.11
+Uninstalling aiohttp-3.10.11:
+  Successfully uninstalled aiohttp-3.10.11
+Found existing installation: alpaca-trade-api 3.2.0
+Uninstalling alpaca-trade-api-3.2.0:
+  Successfully uninstalled alpaca-trade-api-3.2.0
+Collecting flask<2.4.0,>=2.3.0 (from -r requirements.txt (line 2))
+  Using cached flask-2.3.3-py3-none-any.whl.metadata (3.6 kB)
+Collecting flask-login<0.7.0,>=0.6.0 (from -r requirements.txt (line 3))
+  Using cached Flask_Login-0.6.3-py3-none-any.whl.metadata (5.8 kB)
+Collecting flask-cors<4.1.0,>=4.0.0 (from -r requirements.txt (line 4))
+  Using cached Flask_Cors-4.0.2-py2.py3-none-any.whl.metadata (5.5 kB)
+Collecting flask-socketio<5.4.0,>=5.3.0 (from -r requirements.txt (line 5))
+  Using cached Flask_SocketIO-5.3.7-py3-none-any.whl.metadata (2.6 kB)
+Collecting python-dotenv<1.1.0,>=1.0.0 (from -r requirements.txt (line 6))
+  Using cached python_dotenv-1.0.1-py3-none-any.whl.metadata (23 kB)
+Collecting requests<2.32.0,>=2.31.0 (from -r requirements.txt (line 7))
+  Using cached requests-2.31.0-py3-none-any.whl.metadata (4.6 kB)
+Collecting openai<1.4.0,>=1.3.0 (from -r requirements.txt (line 8))
+  Using cached openai-1.3.9-py3-none-any.whl.metadata (17 kB)
+Collecting anthropic<0.6.0,>=0.5.0 (from -r requirements.txt (line 9))
+  Using cached anthropic-0.5.0-py3-none-any.whl.metadata (12 kB)
+Collecting gunicorn<21.3.0,>=21.2.0 (from -r requirements.txt (line 10))
+  Using cached gunicorn-21.2.0-py3-none-any.whl.metadata (4.1 kB)
+Collecting google-auth<2.24.0,>=2.23.0 (from -r requirements.txt (line 11))
+  Using cached google_auth-2.23.4-py2.py3-none-any.whl.metadata (4.7 kB)
+Collecting google-auth-oauthlib<1.1.0,>=1.0.0 (from -r requirements.txt (line 12))
+  Using cached google_auth_oauthlib-1.0.0-py2.py3-none-any.whl.metadata (2.7 kB)
+Collecting flask-dance<7.1.0,>=7.0.0 (from -r requirements.txt (line 13))
+  Using cached flask_dance-7.0.1-py3-none-any.whl.metadata (6.9 kB)
+Collecting werkzeug<3.1.0,>=3.0.0 (from -r requirements.txt (line 14))
+  Using cached werkzeug-3.0.6-py3-none-any.whl.metadata (3.7 kB)
+Collecting backoff<2.3.0,>=2.2.0 (from -r requirements.txt (line 15))
+  Using cached backoff-2.2.1-py3-none-any.whl.metadata (14 kB)
+Collecting aiohttp<3.11.0,>=3.10.0 (from -r requirements.txt (line 16))
+  Using cached aiohttp-3.10.11-cp313-cp313-macosx_11_0_arm64.whl.metadata (7.7 kB)
+Collecting alpaca-trade-api<4.0.0,>=3.2.0 (from -r requirements.txt (line 17))
+  Using cached alpaca_trade_api-3.2.0-py3-none-any.whl.metadata (29 kB)
+Requirement already satisfied: Jinja2>=3.1.2 in ./venv/lib/python3.13/site-packages (from flask<2.4.0,>=2.3.0->-r requirements.txt (line 2)) (3.1.6)
+Requirement already satisfied: itsdangerous>=2.1.2 in ./venv/lib/python3.13/site-packages (from flask<2.4.0,>=2.3.0->-r requirements.txt (line 2)) (2.2.0)
+Requirement already satisfied: click>=8.1.3 in ./venv/lib/python3.13/site-packages (from flask<2.4.0,>=2.3.0->-r requirements.txt (line 2)) (8.1.8)
+Requirement already satisfied: blinker>=1.6.2 in ./venv/lib/python3.13/site-packages (from flask<2.4.0,>=2.3.0->-r requirements.txt (line 2)) (1.9.0)
+Requirement already satisfied: python-socketio>=5.0.2 in ./venv/lib/python3.13/site-packages (from flask-socketio<5.4.0,>=5.3.0->-r requirements.txt (line 5)) (5.12.1)
+Requirement already satisfied: charset-normalizer<4,>=2 in ./venv/lib/python3.13/site-packages (from requests<2.32.0,>=2.31.0->-r requirements.txt (line 7)) (3.4.1)
+Requirement already satisfied: idna<4,>=2.5 in ./venv/lib/python3.13/site-packages (from requests<2.32.0,>=2.31.0->-r requirements.txt (line 7)) (3.10)
+Requirement already satisfied: urllib3<3,>=1.21.1 in ./venv/lib/python3.13/site-packages (from requests<2.32.0,>=2.31.0->-r requirements.txt (line 7)) (1.26.20)
+Requirement already satisfied: certifi>=2017.4.17 in ./venv/lib/python3.13/site-packages (from requests<2.32.0,>=2.31.0->-r requirements.txt (line 7)) (2025.1.31)
+Requirement already satisfied: anyio<5,>=3.5.0 in ./venv/lib/python3.13/site-packages (from openai<1.4.0,>=1.3.0->-r requirements.txt (line 8)) (3.7.1)
+Requirement already satisfied: distro<2,>=1.7.0 in ./venv/lib/python3.13/site-packages (from openai<1.4.0,>=1.3.0->-r requirements.txt (line 8)) (1.9.0)
+Requirement already satisfied: httpx<1,>=0.23.0 in ./venv/lib/python3.13/site-packages (from openai<1.4.0,>=1.3.0->-r requirements.txt (line 8)) (0.28.1)
+Requirement already satisfied: pydantic<3,>=1.9.0 in ./venv/lib/python3.13/site-packages (from openai<1.4.0,>=1.3.0->-r requirements.txt (line 8)) (2.10.6)
+Requirement already satisfied: sniffio in ./venv/lib/python3.13/site-packages (from openai<1.4.0,>=1.3.0->-r requirements.txt (line 8)) (1.3.1)
+Requirement already satisfied: tqdm>4 in ./venv/lib/python3.13/site-packages (from openai<1.4.0,>=1.3.0->-r requirements.txt (line 8)) (4.67.1)
+Requirement already satisfied: typing-extensions<5,>=4.5 in ./venv/lib/python3.13/site-packages (from openai<1.4.0,>=1.3.0->-r requirements.txt (line 8)) (4.12.2)
+Requirement already satisfied: tokenizers>=0.13.0 in ./venv/lib/python3.13/site-packages (from anthropic<0.6.0,>=0.5.0->-r requirements.txt (line 9)) (0.21.0)
+Requirement already satisfied: packaging in ./venv/lib/python3.13/site-packages (from gunicorn<21.3.0,>=21.2.0->-r requirements.txt (line 10)) (24.2)
+Requirement already satisfied: cachetools<6.0,>=2.0.0 in ./venv/lib/python3.13/site-packages (from google-auth<2.24.0,>=2.23.0->-r requirements.txt (line 11)) (5.5.2)
+Requirement already satisfied: pyasn1-modules>=0.2.1 in ./venv/lib/python3.13/site-packages (from google-auth<2.24.0,>=2.23.0->-r requirements.txt (line 11)) (0.4.1)
+Requirement already satisfied: rsa<5,>=3.1.4 in ./venv/lib/python3.13/site-packages (from google-auth<2.24.0,>=2.23.0->-r requirements.txt (line 11)) (4.9)
+Requirement already satisfied: requests-oauthlib>=0.7.0 in ./venv/lib/python3.13/site-packages (from google-auth-oauthlib<1.1.0,>=1.0.0->-r requirements.txt (line 12)) (2.0.0)
+Requirement already satisfied: oauthlib>=3.2 in ./venv/lib/python3.13/site-packages (from flask-dance<7.1.0,>=7.0.0->-r requirements.txt (line 13)) (3.2.2)
+Requirement already satisfied: urlobject in ./venv/lib/python3.13/site-packages (from flask-dance<7.1.0,>=7.0.0->-r requirements.txt (line 13)) (2.4.3)
+Requirement already satisfied: MarkupSafe>=2.1.1 in ./venv/lib/python3.13/site-packages (from werkzeug<3.1.0,>=3.0.0->-r requirements.txt (line 14)) (3.0.2)
+Requirement already satisfied: aiohappyeyeballs>=2.3.0 in ./venv/lib/python3.13/site-packages (from aiohttp<3.11.0,>=3.10.0->-r requirements.txt (line 16)) (2.6.1)
+Requirement already satisfied: aiosignal>=1.1.2 in ./venv/lib/python3.13/site-packages (from aiohttp<3.11.0,>=3.10.0->-r requirements.txt (line 16)) (1.3.2)
+Requirement already satisfied: attrs>=17.3.0 in ./venv/lib/python3.13/site-packages (from aiohttp<3.11.0,>=3.10.0->-r requirements.txt (line 16)) (25.2.0)
+Requirement already satisfied: frozenlist>=1.1.1 in ./venv/lib/python3.13/site-packages (from aiohttp<3.11.0,>=3.10.0->-r requirements.txt (line 16)) (1.5.0)
+Requirement already satisfied: multidict<7.0,>=4.5 in ./venv/lib/python3.13/site-packages (from aiohttp<3.11.0,>=3.10.0->-r requirements.txt (line 16)) (6.1.0)
+Requirement already satisfied: yarl<2.0,>=1.12.0 in ./venv/lib/python3.13/site-packages (from aiohttp<3.11.0,>=3.10.0->-r requirements.txt (line 16)) (1.18.3)
+Requirement already satisfied: pandas>=0.18.1 in ./venv/lib/python3.13/site-packages (from alpaca-trade-api<4.0.0,>=3.2.0->-r requirements.txt (line 17)) (2.2.3)
+Requirement already satisfied: numpy>=1.11.1 in ./venv/lib/python3.13/site-packages (from alpaca-trade-api<4.0.0,>=3.2.0->-r requirements.txt (line 17)) (2.2.3)
+Requirement already satisfied: websocket-client<2,>=0.56.0 in ./venv/lib/python3.13/site-packages (from alpaca-trade-api<4.0.0,>=3.2.0->-r requirements.txt (line 17)) (1.8.0)
+Requirement already satisfied: websockets<11,>=9.0 in ./venv/lib/python3.13/site-packages (from alpaca-trade-api<4.0.0,>=3.2.0->-r requirements.txt (line 17)) (10.4)
+Requirement already satisfied: msgpack==1.0.3 in ./venv/lib/python3.13/site-packages (from alpaca-trade-api<4.0.0,>=3.2.0->-r requirements.txt (line 17)) (1.0.3)
+Requirement already satisfied: PyYAML==6.0.1 in ./venv/lib/python3.13/site-packages (from alpaca-trade-api<4.0.0,>=3.2.0->-r requirements.txt (line 17)) (6.0.1)
+Requirement already satisfied: deprecation==2.1.0 in ./venv/lib/python3.13/site-packages (from alpaca-trade-api<4.0.0,>=3.2.0->-r requirements.txt (line 17)) (2.1.0)
+Requirement already satisfied: httpcore==1.* in ./venv/lib/python3.13/site-packages (from httpx<1,>=0.23.0->openai<1.4.0,>=1.3.0->-r requirements.txt (line 8)) (1.0.7)
+Requirement already satisfied: h11<0.15,>=0.13 in ./venv/lib/python3.13/site-packages (from httpcore==1.*->httpx<1,>=0.23.0->openai<1.4.0,>=1.3.0->-r requirements.txt (line 8)) (0.14.0)
+Requirement already satisfied: python-dateutil>=2.8.2 in ./venv/lib/python3.13/site-packages (from pandas>=0.18.1->alpaca-trade-api<4.0.0,>=3.2.0->-r requirements.txt (line 17)) (2.9.0.post0)
+Requirement already satisfied: pytz>=2020.1 in ./venv/lib/python3.13/site-packages (from pandas>=0.18.1->alpaca-trade-api<4.0.0,>=3.2.0->-r requirements.txt (line 17)) (2025.1)
+Requirement already satisfied: tzdata>=2022.7 in ./venv/lib/python3.13/site-packages (from pandas>=0.18.1->alpaca-trade-api<4.0.0,>=3.2.0->-r requirements.txt (line 17)) (2025.1)
+Requirement already satisfied: pyasn1<0.7.0,>=0.4.6 in ./venv/lib/python3.13/site-packages (from pyasn1-modules>=0.2.1->google-auth<2.24.0,>=2.23.0->-r requirements.txt (line 11)) (0.6.1)
+Requirement already satisfied: annotated-types>=0.6.0 in ./venv/lib/python3.13/site-packages (from pydantic<3,>=1.9.0->openai<1.4.0,>=1.3.0->-r requirements.txt (line 8)) (0.7.0)
+Requirement already satisfied: pydantic-core==2.27.2 in ./venv/lib/python3.13/site-packages (from pydantic<3,>=1.9.0->openai<1.4.0,>=1.3.0->-r requirements.txt (line 8)) (2.27.2)
+Requirement already satisfied: bidict>=0.21.0 in ./venv/lib/python3.13/site-packages (from python-socketio>=5.0.2->flask-socketio<5.4.0,>=5.3.0->-r requirements.txt (line 5)) (0.23.1)
+Requirement already satisfied: python-engineio>=4.11.0 in ./venv/lib/python3.13/site-packages (from python-socketio>=5.0.2->flask-socketio<5.4.0,>=5.3.0->-r requirements.txt (line 5)) (4.11.2)
+Requirement already satisfied: huggingface-hub<1.0,>=0.16.4 in ./venv/lib/python3.13/site-packages (from tokenizers>=0.13.0->anthropic<0.6.0,>=0.5.0->-r requirements.txt (line 9)) (0.29.3)
+Requirement already satisfied: propcache>=0.2.0 in ./venv/lib/python3.13/site-packages (from yarl<2.0,>=1.12.0->aiohttp<3.11.0,>=3.10.0->-r requirements.txt (line 16)) (0.3.0)
+Requirement already satisfied: filelock in ./venv/lib/python3.13/site-packages (from huggingface-hub<1.0,>=0.16.4->tokenizers>=0.13.0->anthropic<0.6.0,>=0.5.0->-r requirements.txt (line 9)) (3.17.0)
+Requirement already satisfied: fsspec>=2023.5.0 in ./venv/lib/python3.13/site-packages (from huggingface-hub<1.0,>=0.16.4->tokenizers>=0.13.0->anthropic<0.6.0,>=0.5.0->-r requirements.txt (line 9)) (2025.3.0)
+Requirement already satisfied: six>=1.5 in ./venv/lib/python3.13/site-packages (from python-dateutil>=2.8.2->pandas>=0.18.1->alpaca-trade-api<4.0.0,>=3.2.0->-r requirements.txt (line 17)) (1.17.0)
+Requirement already satisfied: simple-websocket>=0.10.0 in ./venv/lib/python3.13/site-packages (from python-engineio>=4.11.0->python-socketio>=5.0.2->flask-socketio<5.4.0,>=5.3.0->-r requirements.txt (line 5)) (1.1.0)
+Requirement already satisfied: wsproto in ./venv/lib/python3.13/site-packages (from simple-websocket>=0.10.0->python-engineio>=4.11.0->python-socketio>=5.0.2->flask-socketio<5.4.0,>=5.3.0->-r requirements.txt (line 5)) (1.2.0)
+Using cached flask-2.3.3-py3-none-any.whl (96 kB)
+Using cached Flask_Login-0.6.3-py3-none-any.whl (17 kB)
+Using cached Flask_Cors-4.0.2-py2.py3-none-any.whl (14 kB)
+Using cached Flask_SocketIO-5.3.7-py3-none-any.whl (18 kB)
+Using cached python_dotenv-1.0.1-py3-none-any.whl (19 kB)
+Using cached requests-2.31.0-py3-none-any.whl (62 kB)
+Using cached openai-1.3.9-py3-none-any.whl (221 kB)
+Using cached anthropic-0.5.0-py3-none-any.whl (801 kB)
+Using cached gunicorn-21.2.0-py3-none-any.whl (80 kB)
+Using cached google_auth-2.23.4-py2.py3-none-any.whl (183 kB)
+Using cached google_auth_oauthlib-1.0.0-py2.py3-none-any.whl (18 kB)
+Using cached flask_dance-7.0.1-py3-none-any.whl (62 kB)
+Using cached werkzeug-3.0.6-py3-none-any.whl (227 kB)
+Using cached backoff-2.2.1-py3-none-any.whl (15 kB)
+Using cached aiohttp-3.10.11-cp313-cp313-macosx_11_0_arm64.whl (388 kB)
+Using cached alpaca_trade_api-3.2.0-py3-none-any.whl (34 kB)
+Installing collected packages: werkzeug, requests, python-dotenv, gunicorn, backoff, google-auth, flask, aiohttp, openai, google-auth-oauthlib, flask-login, flask-dance, flask-cors, alpaca-trade-api, anthropic, flask-socketio
+Successfully installed aiohttp-3.10.11 alpaca-trade-api-3.2.0 anthropic-0.5.0 backoff-2.2.1 flask-2.3.3 flask-cors-4.0.2 flask-dance-7.0.1 flask-login-0.6.3 flask-socketio-5.3.7 google-auth-2.23.4 google-auth-oauthlib-1.0.0 gunicorn-21.2.0 openai-1.3.9 python-dotenv-1.0.1 requests-2.31.0 werkzeug-3.0.6
+
+[notice] A new release of pip is available: 25.0 -> 25.0.1
+[notice] To update, run: pip install --upgrade pip
+(venv) amin.haidar@NGHMACPVXP2QC2J tradesync-bot % pip list | grep -E "flask|socketio|requests"
+python-socketio      5.12.1
+requests             2.31.0
+requests-oauthlib    2.0.0
+(venv) amin.haidar@NGHMACPVXP2QC2J tradesync-bot % # Ensure you're in your project directory
+cd /path/to/tradesync-bot
+
+# Activate your virtual environment (if you're not already in it)
+source venv/bin/activate
+
+# Install updated requirements
+pip install -r requirements.txt
+
+# Make sure you have the wsgi.py file in your project root
+# Run the application using gunicorn with gevent
+gunicorn --worker-class gevent -w 1 wsgi:application
+zsh: parse error near `)'
+(venv) amin.haidar@NGHMACPVXP2QC2J tradesync-bot % pip install -r requirements.txt
+pip install gevent
+gunicorn --worker-class gevent -w 1 wsgi:application
+Requirement already satisfied: flask<2.4.0,>=2.3.0 in ./venv/lib/python3.13/site-packages (from -r requirements.txt (line 1)) (2.3.3)
+Requirement already satisfied: flask-login<0.7.0,>=0.6.0 in ./venv/lib/python3.13/site-packages (from -r requirements.txt (line 2)) (0.6.3)
+Requirement already satisfied: flask-cors<4.1.0,>=4.0.0 in ./venv/lib/python3.13/site-packages (from -r requirements.txt (line 3)) (4.0.2)
+Requirement already satisfied: flask-socketio<5.4.0,>=5.3.0 in ./venv/lib/python3.13/site-packages (from -r requirements.txt (line 4)) (5.3.7)
+Requirement already satisfied: python-dotenv<1.1.0,>=1.0.0 in ./venv/lib/python3.13/site-packages (from -r requirements.txt (line 5)) (1.0.1)
+Requirement already satisfied: requests<2.32.0,>=2.31.0 in ./venv/lib/python3.13/site-packages (from -r requirements.txt (line 6)) (2.31.0)
+Requirement already satisfied: openai<1.4.0,>=1.3.0 in ./venv/lib/python3.13/site-packages (from -r requirements.txt (line 7)) (1.3.9)
+Requirement already satisfied: anthropic<0.6.0,>=0.5.0 in ./venv/lib/python3.13/site-packages (from -r requirements.txt (line 8)) (0.5.0)
+Requirement already satisfied: gunicorn<21.3.0,>=21.2.0 in ./venv/lib/python3.13/site-packages (from -r requirements.txt (line 9)) (21.2.0)
+Collecting gevent<24.0.0,>=23.9.0 (from -r requirements.txt (line 10))
+  Downloading gevent-23.9.1.tar.gz (5.8 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 5.8/5.8 MB 12.5 MB/s eta 0:00:00
+  Installing build dependencies ... done
+  Getting requirements to build wheel ... done
+  Preparing metadata (pyproject.toml) ... done
+Requirement already satisfied: google-auth<2.24.0,>=2.23.0 in ./venv/lib/python3.13/site-packages (from -r requirements.txt (line 11)) (2.23.4)
+Requirement already satisfied: google-auth-oauthlib<1.1.0,>=1.0.0 in ./venv/lib/python3.13/site-packages (from -r requirements.txt (line 12)) (1.0.0)
+Requirement already satisfied: flask-dance<7.1.0,>=7.0.0 in ./venv/lib/python3.13/site-packages (from -r requirements.txt (line 13)) (7.0.1)
+Requirement already satisfied: werkzeug<3.1.0,>=3.0.0 in ./venv/lib/python3.13/site-packages (from -r requirements.txt (line 14)) (3.0.6)
+Requirement already satisfied: backoff<2.3.0,>=2.2.0 in ./venv/lib/python3.13/site-packages (from -r requirements.txt (line 15)) (2.2.1)
+Requirement already satisfied: aiohttp<3.11.0,>=3.10.0 in ./venv/lib/python3.13/site-packages (from -r requirements.txt (line 16)) (3.10.11)
+Requirement already satisfied: alpaca-trade-api<4.0.0,>=3.2.0 in ./venv/lib/python3.13/site-packages (from -r requirements.txt (line 17)) (3.2.0)
+Requirement already satisfied: Jinja2>=3.1.2 in ./venv/lib/python3.13/site-packages (from flask<2.4.0,>=2.3.0->-r requirements.txt (line 1)) (3.1.6)
+Requirement already satisfied: itsdangerous>=2.1.2 in ./venv/lib/python3.13/site-packages (from flask<2.4.0,>=2.3.0->-r requirements.txt (line 1)) (2.2.0)
+Requirement already satisfied: click>=8.1.3 in ./venv/lib/python3.13/site-packages (from flask<2.4.0,>=2.3.0->-r requirements.txt (line 1)) (8.1.8)
+Requirement already satisfied: blinker>=1.6.2 in ./venv/lib/python3.13/site-packages (from flask<2.4.0,>=2.3.0->-r requirements.txt (line 1)) (1.9.0)
+Requirement already satisfied: python-socketio>=5.0.2 in ./venv/lib/python3.13/site-packages (from flask-socketio<5.4.0,>=5.3.0->-r requirements.txt (line 4)) (5.12.1)
+Requirement already satisfied: charset-normalizer<4,>=2 in ./venv/lib/python3.13/site-packages (from requests<2.32.0,>=2.31.0->-r requirements.txt (line 6)) (3.4.1)
+Requirement already satisfied: idna<4,>=2.5 in ./venv/lib/python3.13/site-packages (from requests<2.32.0,>=2.31.0->-r requirements.txt (line 6)) (3.10)
+Requirement already satisfied: urllib3<3,>=1.21.1 in ./venv/lib/python3.13/site-packages (from requests<2.32.0,>=2.31.0->-r requirements.txt (line 6)) (1.26.20)
+Requirement already satisfied: certifi>=2017.4.17 in ./venv/lib/python3.13/site-packages (from requests<2.32.0,>=2.31.0->-r requirements.txt (line 6)) (2025.1.31)
+Requirement already satisfied: anyio<5,>=3.5.0 in ./venv/lib/python3.13/site-packages (from openai<1.4.0,>=1.3.0->-r requirements.txt (line 7)) (3.7.1)
+Requirement already satisfied: distro<2,>=1.7.0 in ./venv/lib/python3.13/site-packages (from openai<1.4.0,>=1.3.0->-r requirements.txt (line 7)) (1.9.0)
+Requirement already satisfied: httpx<1,>=0.23.0 in ./venv/lib/python3.13/site-packages (from openai<1.4.0,>=1.3.0->-r requirements.txt (line 7)) (0.28.1)
+Requirement already satisfied: pydantic<3,>=1.9.0 in ./venv/lib/python3.13/site-packages (from openai<1.4.0,>=1.3.0->-r requirements.txt (line 7)) (2.10.6)
+Requirement already satisfied: sniffio in ./venv/lib/python3.13/site-packages (from openai<1.4.0,>=1.3.0->-r requirements.txt (line 7)) (1.3.1)
+Requirement already satisfied: tqdm>4 in ./venv/lib/python3.13/site-packages (from openai<1.4.0,>=1.3.0->-r requirements.txt (line 7)) (4.67.1)
+Requirement already satisfied: typing-extensions<5,>=4.5 in ./venv/lib/python3.13/site-packages (from openai<1.4.0,>=1.3.0->-r requirements.txt (line 7)) (4.12.2)
+Requirement already satisfied: tokenizers>=0.13.0 in ./venv/lib/python3.13/site-packages (from anthropic<0.6.0,>=0.5.0->-r requirements.txt (line 8)) (0.21.0)
+Requirement already satisfied: packaging in ./venv/lib/python3.13/site-packages (from gunicorn<21.3.0,>=21.2.0->-r requirements.txt (line 9)) (24.2)
+Requirement already satisfied: greenlet>=3.0rc3 in ./venv/lib/python3.13/site-packages (from gevent<24.0.0,>=23.9.0->-r requirements.txt (line 10)) (3.1.1)
+Collecting zope.event (from gevent<24.0.0,>=23.9.0->-r requirements.txt (line 10))
+  Using cached zope.event-5.0-py3-none-any.whl.metadata (4.4 kB)
+Collecting zope.interface (from gevent<24.0.0,>=23.9.0->-r requirements.txt (line 10))
+  Using cached zope.interface-7.2-cp313-cp313-macosx_11_0_arm64.whl.metadata (44 kB)
+Requirement already satisfied: cachetools<6.0,>=2.0.0 in ./venv/lib/python3.13/site-packages (from google-auth<2.24.0,>=2.23.0->-r requirements.txt (line 11)) (5.5.2)
+Requirement already satisfied: pyasn1-modules>=0.2.1 in ./venv/lib/python3.13/site-packages (from google-auth<2.24.0,>=2.23.0->-r requirements.txt (line 11)) (0.4.1)
+Requirement already satisfied: rsa<5,>=3.1.4 in ./venv/lib/python3.13/site-packages (from google-auth<2.24.0,>=2.23.0->-r requirements.txt (line 11)) (4.9)
+Requirement already satisfied: requests-oauthlib>=0.7.0 in ./venv/lib/python3.13/site-packages (from google-auth-oauthlib<1.1.0,>=1.0.0->-r requirements.txt (line 12)) (2.0.0)
+Requirement already satisfied: oauthlib>=3.2 in ./venv/lib/python3.13/site-packages (from flask-dance<7.1.0,>=7.0.0->-r requirements.txt (line 13)) (3.2.2)
+Requirement already satisfied: urlobject in ./venv/lib/python3.13/site-packages (from flask-dance<7.1.0,>=7.0.0->-r requirements.txt (line 13)) (2.4.3)
+Requirement already satisfied: MarkupSafe>=2.1.1 in ./venv/lib/python3.13/site-packages (from werkzeug<3.1.0,>=3.0.0->-r requirements.txt (line 14)) (3.0.2)
+Requirement already satisfied: aiohappyeyeballs>=2.3.0 in ./venv/lib/python3.13/site-packages (from aiohttp<3.11.0,>=3.10.0->-r requirements.txt (line 16)) (2.6.1)
+Requirement already satisfied: aiosignal>=1.1.2 in ./venv/lib/python3.13/site-packages (from aiohttp<3.11.0,>=3.10.0->-r requirements.txt (line 16)) (1.3.2)
+Requirement already satisfied: attrs>=17.3.0 in ./venv/lib/python3.13/site-packages (from aiohttp<3.11.0,>=3.10.0->-r requirements.txt (line 16)) (25.2.0)
+Requirement already satisfied: frozenlist>=1.1.1 in ./venv/lib/python3.13/site-packages (from aiohttp<3.11.0,>=3.10.0->-r requirements.txt (line 16)) (1.5.0)
+Requirement already satisfied: multidict<7.0,>=4.5 in ./venv/lib/python3.13/site-packages (from aiohttp<3.11.0,>=3.10.0->-r requirements.txt (line 16)) (6.1.0)
+Requirement already satisfied: yarl<2.0,>=1.12.0 in ./venv/lib/python3.13/site-packages (from aiohttp<3.11.0,>=3.10.0->-r requirements.txt (line 16)) (1.18.3)
+Requirement already satisfied: pandas>=0.18.1 in ./venv/lib/python3.13/site-packages (from alpaca-trade-api<4.0.0,>=3.2.0->-r requirements.txt (line 17)) (2.2.3)
+Requirement already satisfied: numpy>=1.11.1 in ./venv/lib/python3.13/site-packages (from alpaca-trade-api<4.0.0,>=3.2.0->-r requirements.txt (line 17)) (2.2.3)
+Requirement already satisfied: websocket-client<2,>=0.56.0 in ./venv/lib/python3.13/site-packages (from alpaca-trade-api<4.0.0,>=3.2.0->-r requirements.txt (line 17)) (1.8.0)
+Requirement already satisfied: websockets<11,>=9.0 in ./venv/lib/python3.13/site-packages (from alpaca-trade-api<4.0.0,>=3.2.0->-r requirements.txt (line 17)) (10.4)
+Requirement already satisfied: msgpack==1.0.3 in ./venv/lib/python3.13/site-packages (from alpaca-trade-api<4.0.0,>=3.2.0->-r requirements.txt (line 17)) (1.0.3)
+Requirement already satisfied: PyYAML==6.0.1 in ./venv/lib/python3.13/site-packages (from alpaca-trade-api<4.0.0,>=3.2.0->-r requirements.txt (line 17)) (6.0.1)
+Requirement already satisfied: deprecation==2.1.0 in ./venv/lib/python3.13/site-packages (from alpaca-trade-api<4.0.0,>=3.2.0->-r requirements.txt (line 17)) (2.1.0)
+Requirement already satisfied: httpcore==1.* in ./venv/lib/python3.13/site-packages (from httpx<1,>=0.23.0->openai<1.4.0,>=1.3.0->-r requirements.txt (line 7)) (1.0.7)
+Requirement already satisfied: h11<0.15,>=0.13 in ./venv/lib/python3.13/site-packages (from httpcore==1.*->httpx<1,>=0.23.0->openai<1.4.0,>=1.3.0->-r requirements.txt (line 7)) (0.14.0)
+Requirement already satisfied: python-dateutil>=2.8.2 in ./venv/lib/python3.13/site-packages (from pandas>=0.18.1->alpaca-trade-api<4.0.0,>=3.2.0->-r requirements.txt (line 17)) (2.9.0.post0)
+Requirement already satisfied: pytz>=2020.1 in ./venv/lib/python3.13/site-packages (from pandas>=0.18.1->alpaca-trade-api<4.0.0,>=3.2.0->-r requirements.txt (line 17)) (2025.1)
+Requirement already satisfied: tzdata>=2022.7 in ./venv/lib/python3.13/site-packages (from pandas>=0.18.1->alpaca-trade-api<4.0.0,>=3.2.0->-r requirements.txt (line 17)) (2025.1)
+Requirement already satisfied: pyasn1<0.7.0,>=0.4.6 in ./venv/lib/python3.13/site-packages (from pyasn1-modules>=0.2.1->google-auth<2.24.0,>=2.23.0->-r requirements.txt (line 11)) (0.6.1)
+Requirement already satisfied: annotated-types>=0.6.0 in ./venv/lib/python3.13/site-packages (from pydantic<3,>=1.9.0->openai<1.4.0,>=1.3.0->-r requirements.txt (line 7)) (0.7.0)
+Requirement already satisfied: pydantic-core==2.27.2 in ./venv/lib/python3.13/site-packages (from pydantic<3,>=1.9.0->openai<1.4.0,>=1.3.0->-r requirements.txt (line 7)) (2.27.2)
+Requirement already satisfied: bidict>=0.21.0 in ./venv/lib/python3.13/site-packages (from python-socketio>=5.0.2->flask-socketio<5.4.0,>=5.3.0->-r requirements.txt (line 4)) (0.23.1)
+Requirement already satisfied: python-engineio>=4.11.0 in ./venv/lib/python3.13/site-packages (from python-socketio>=5.0.2->flask-socketio<5.4.0,>=5.3.0->-r requirements.txt (line 4)) (4.11.2)
+Requirement already satisfied: huggingface-hub<1.0,>=0.16.4 in ./venv/lib/python3.13/site-packages (from tokenizers>=0.13.0->anthropic<0.6.0,>=0.5.0->-r requirements.txt (line 8)) (0.29.3)
+Requirement already satisfied: propcache>=0.2.0 in ./venv/lib/python3.13/site-packages (from yarl<2.0,>=1.12.0->aiohttp<3.11.0,>=3.10.0->-r requirements.txt (line 16)) (0.3.0)
+Collecting setuptools (from zope.event->gevent<24.0.0,>=23.9.0->-r requirements.txt (line 10))
+  Using cached setuptools-76.0.0-py3-none-any.whl.metadata (6.7 kB)
+Requirement already satisfied: filelock in ./venv/lib/python3.13/site-packages (from huggingface-hub<1.0,>=0.16.4->tokenizers>=0.13.0->anthropic<0.6.0,>=0.5.0->-r requirements.txt (line 8)) (3.17.0)
+Requirement already satisfied: fsspec>=2023.5.0 in ./venv/lib/python3.13/site-packages (from huggingface-hub<1.0,>=0.16.4->tokenizers>=0.13.0->anthropic<0.6.0,>=0.5.0->-r requirements.txt (line 8)) (2025.3.0)
+Requirement already satisfied: six>=1.5 in ./venv/lib/python3.13/site-packages (from python-dateutil>=2.8.2->pandas>=0.18.1->alpaca-trade-api<4.0.0,>=3.2.0->-r requirements.txt (line 17)) (1.17.0)
+Requirement already satisfied: simple-websocket>=0.10.0 in ./venv/lib/python3.13/site-packages (from python-engineio>=4.11.0->python-socketio>=5.0.2->flask-socketio<5.4.0,>=5.3.0->-r requirements.txt (line 4)) (1.1.0)
+Requirement already satisfied: wsproto in ./venv/lib/python3.13/site-packages (from simple-websocket>=0.10.0->python-engineio>=4.11.0->python-socketio>=5.0.2->flask-socketio<5.4.0,>=5.3.0->-r requirements.txt (line 4)) (1.2.0)
+Using cached zope.event-5.0-py3-none-any.whl (6.8 kB)
+Using cached zope.interface-7.2-cp313-cp313-macosx_11_0_arm64.whl (209 kB)
+Using cached setuptools-76.0.0-py3-none-any.whl (1.2 MB)
+Building wheels for collected packages: gevent
+  Building wheel for gevent (pyproject.toml) ... done
+  Created wheel for gevent: filename=gevent-23.9.1-cp313-cp313-macosx_14_0_arm64.whl size=1736801 sha256=12d94902455594322c21a2b2d171302bfbec2cfa1785ec086851a7b597ce0b33
+  Stored in directory: /Users/amin.haidar/Library/Caches/pip/wheels/a4/d7/df/cba2be53de03de7b2f898f97619e653cb481dff1bfb3ddf70d
+Successfully built gevent
+Installing collected packages: setuptools, zope.interface, zope.event, gevent
+Successfully installed gevent-23.9.1 setuptools-76.0.0 zope.event-5.0 zope.interface-7.2
+
+[notice] A new release of pip is available: 25.0 -> 25.0.1
+[notice] To update, run: pip install --upgrade pip
+Requirement already satisfied: gevent in ./venv/lib/python3.13/site-packages (23.9.1)
+Requirement already satisfied: greenlet>=3.0rc3 in ./venv/lib/python3.13/site-packages (from gevent) (3.1.1)
+Requirement already satisfied: zope.event in ./venv/lib/python3.13/site-packages (from gevent) (5.0)
+Requirement already satisfied: zope.interface in ./venv/lib/python3.13/site-packages (from gevent) (7.2)
+Requirement already satisfied: setuptools in ./venv/lib/python3.13/site-packages (from zope.event->gevent) (76.0.0)
+
+[notice] A new release of pip is available: 25.0 -> 25.0.1
+[notice] To update, run: pip install --upgrade pip
+
+Error: class uri 'gevent' invalid or not found:
+
+[Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/gunicorn/workers/ggevent.py", line 13, in <module>
+    import gevent
+ModuleNotFoundError: No module named 'gevent'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/gunicorn/util.py", line 111, in load_class
+    mod = importlib.import_module('.'.join(components))
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/importlib/__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 1026, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/gunicorn/workers/ggevent.py", line 15, in <module>
+    raise RuntimeError("gevent worker requires gevent 1.4 or higher")
+RuntimeError: gevent worker requires gevent 1.4 or higher
+]
+
+(venv) amin.haidar@NGHMACPVXP2QC2J tradesync-bot % # Make sure you're in your virtual environment
+# Try running with python directly first to test the app
+python app.py
+
+# If that works, try gunicorn with the sync worker instead of gevent
+gunicorn --bind 0.0.0.0:5000 wsgi:application
+quote>
+(venv) amin.haidar@NGHMACPVXP2QC2J tradesync-bot % python app.py
+Traceback (most recent call last):
+  File "/Users/amin.haidar/tradesync-bot/app.py", line 15, in <module>
+    from routes.trade_routes import trade_routes
+ModuleNotFoundError: No module named 'routes.trade_routes'
+(venv) amin.haidar@NGHMACPVXP2QC2J tradesync-bot % ls -la
+total 91152
+  UW PICO 5.09                                                                                                             New Buffer
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                                                                    [ New file ]
+^G Get Help                             ^O WriteOut                             ^R Read File                            ^Y Prev Pg                              ^K Cut Text                             ^C Cur Pos
+^X Exit                                 ^J Justify                              ^W Where is                             ^V Next Pg                              ^U UnCut Text                           ^T To Spell
+drwxr-xr-x@ 55 amin.haidar  staff      1760 Mar 13 00:02 .
+  UW PICO 5.09                                                                                                             New Buffer
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                                                                  [ Read 36 lines ]
+^G Get Help                             ^O WriteOut                             ^R Read File                            ^Y Prev Pg                              ^K Cut Text                             ^C Cur Pos
+^X Exit                                 ^J Justify                              ^W Where is                             ^V Next Pg                              ^U UnCut Text                           ^T To Spell
+  UW PICO 5.09                                                                                                    File: routes/stock_routes.py
+
+from flask import Blueprint, jsonify, request
+import os
+import requests
+
+stock_routes = Blueprint("stock_routes", __name__)
+
+# Load API keys from environment variables
+ALPACA_API_KEY = os.getenv("ALPACA_API_KEY")
+ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY")
+ALPACA_BASE_URL = "https://data.alpaca.markets/v2/stocks"
+
+# Function to fetch stock data from Alpaca
+def get_stock_data(symbol):
+    headers = {
+        "APCA-API-KEY-ID": ALPACA_API_KEY,
+        "APCA-API-SECRET-KEY": ALPACA_SECRET_KEY
+    }
+
+    url = f"{ALPACA_BASE_URL}/quotes/{symbol}"
+
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        return {"error": str(e)}
+
+@stock_routes.route("/api/stock_data", methods=["GET"])
+def fetch_stock_data():
+    symbol = request.args.get("symbol", "AAPL")  # Default to AAPL if no symbol is provided
+    stock_data = get_stock_data(symbol)
+
+    if "error" in stock_data:
+        return jsonify({"error": stock_data["error"]}), 500
+

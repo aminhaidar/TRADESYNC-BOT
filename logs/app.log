@@ -817,3 +817,44 @@
 2025-03-12 12:16:39,725 - __main__ - ERROR - Error fetching stock data for ^NDX: Expecting value: line 1 column 1 (char 0)
 2025-03-12 12:16:39,870 - __main__ - ERROR - Error fetching stock data for ^DJI: Expecting value: line 1 column 1 (char 0)
 2025-03-12 12:16:40,025 - __main__ - ERROR - Error fetching stock data for ^RUT: Expecting value: line 1 column 1 (char 0)
+2025-03-13 00:37:08,198 - database - INFO - Database initialized successfully
+2025-03-13 00:37:10,141 - __main__ - INFO - Starting server on port 5000
+2025-03-13 00:37:10,174 - app - WARNING - WebSocket transport not available. Install gevent-websocket for improved performance.
+2025-03-13 00:38:00,549 - services.alpaca_service - ERROR - Error fetching stock data for AAPL: 403 Client Error: Forbidden for url: https://paper-api.alpaca.markets/v2/stocks/AAPL/quotes/latest
+2025-03-13 00:41:17,868 - database - INFO - Database initialized successfully
+2025-03-13 00:41:17,910 - __main__ - INFO - Starting server on port 5000
+2025-03-13 00:41:17,913 - app - WARNING - WebSocket transport not available. Install gevent-websocket for improved performance.
+2025-03-13 00:41:36,015 - services.alpaca_service - ERROR - Error fetching stock data for AAPL: 403 Client Error: Forbidden for url: https://paper-api.alpaca.markets/v2/stocks/AAPL/quotes/latest
+2025-03-13 00:41:47,734 - services.alpaca_service - ERROR - Error fetching stock data for AAPL: 403 Client Error: Forbidden for url: https://paper-api.alpaca.markets/v2/stocks/AAPL/quotes/latest
+2025-03-13 00:45:42,225 - database - INFO - Database initialized successfully
+2025-03-13 00:45:42,266 - __main__ - INFO - Starting server on port 5000
+2025-03-13 00:45:42,269 - app - WARNING - WebSocket transport not available. Install gevent-websocket for improved performance.
+2025-03-13 00:46:00,532 - services.alpaca_service - ERROR - Alpaca API keys are not set. Returning mock data.
+2025-03-13 00:46:08,642 - services.alpaca_service - ERROR - Alpaca API keys are not set. Returning mock data.
+2025-03-13 00:49:18,907 - database - INFO - Database initialized successfully
+2025-03-13 00:49:19,254 - __main__ - INFO - Starting server on port 5000
+2025-03-13 00:49:19,285 - app - WARNING - WebSocket transport not available. Install gevent-websocket for improved performance.
+2025-03-13 00:49:23,983 - services.alpaca_service - INFO - Fetching stock data for AAPL with headers: {'APCA-API-KEY-ID': 'PKJ4SXESMNL2TC496B2J', 'APCA-API-SECRET-KEY': 'ehqd4WyctmQzjI7qsNL2lo9fQsu5d3jFUd1UReK4'}
+2025-03-13 00:49:24,304 - services.alpaca_service - ERROR - Error fetching stock data for AAPL: 404 Client Error: Not Found for url: https://paper-api.alpaca.markets/v2/stocks/AAPL/quotes/latest
+2025-03-13 00:49:26,300 - services.alpaca_service - INFO - Fetching stock data for AAPL with headers: {'APCA-API-KEY-ID': 'PKJ4SXESMNL2TC496B2J', 'APCA-API-SECRET-KEY': 'ehqd4WyctmQzjI7qsNL2lo9fQsu5d3jFUd1UReK4'}
+2025-03-13 00:49:26,485 - services.alpaca_service - ERROR - Error fetching stock data for AAPL: 404 Client Error: Not Found for url: https://paper-api.alpaca.markets/v2/stocks/AAPL/quotes/latest
+2025-03-13 00:49:30,196 - services.alpaca_service - INFO - Fetching stock data for AAPL with headers: {'APCA-API-KEY-ID': 'PKJ4SXESMNL2TC496B2J', 'APCA-API-SECRET-KEY': 'ehqd4WyctmQzjI7qsNL2lo9fQsu5d3jFUd1UReK4'}
+2025-03-13 00:49:30,386 - services.alpaca_service - ERROR - Error fetching stock data for AAPL: 404 Client Error: Not Found for url: https://paper-api.alpaca.markets/v2/stocks/AAPL/quotes/latest
+2025-03-13 00:49:30,616 - services.alpaca_service - INFO - Fetching stock data for AAPL with headers: {'APCA-API-KEY-ID': 'PKJ4SXESMNL2TC496B2J', 'APCA-API-SECRET-KEY': 'ehqd4WyctmQzjI7qsNL2lo9fQsu5d3jFUd1UReK4'}
+2025-03-13 00:49:30,874 - services.alpaca_service - ERROR - Error fetching stock data for AAPL: 404 Client Error: Not Found for url: https://paper-api.alpaca.markets/v2/stocks/AAPL/quotes/latest
+2025-03-13 01:00:36,283 - database - INFO - Database initialized successfully
+2025-03-13 01:00:36,324 - __main__ - INFO - Starting server on port 5000
+2025-03-13 01:00:36,327 - app - WARNING - WebSocket transport not available. Install gevent-websocket for improved performance.
+2025-03-13 01:00:40,722 - services.alpaca_service - INFO - Fetching stock data for SPY
+2025-03-13 01:00:41,082 - services.alpaca_service - INFO - Successfully fetched data for SPY
+2025-03-13 01:00:41,084 - services.alpaca_service - INFO - Fetching stock data for QQQ
+2025-03-13 01:00:41,326 - services.alpaca_service - INFO - Successfully fetched data for QQQ
+2025-03-13 01:00:41,330 - services.alpaca_service - INFO - Fetching stock data for DIA
+2025-03-13 01:00:41,531 - services.alpaca_service - INFO - Successfully fetched data for DIA
+2025-03-13 01:00:41,532 - services.alpaca_service - INFO - Fetching stock data for IWM
+2025-03-13 01:00:41,706 - services.alpaca_service - INFO - Successfully fetched data for IWM
+2025-03-13 01:00:41,707 - services.alpaca_service - INFO - Fetching stock data for VIX
+2025-03-13 01:00:41,888 - services.alpaca_service - WARNING - Error fetching stock data via newer API for VIX: 404 Client Error: Not Found for url: https://data.alpaca.markets/v2/stocks/VIX/snapshot
+2025-03-13 01:00:41,888 - services.alpaca_service - INFO - Trying fallback API endpoint for VIX
+2025-03-13 01:00:42,062 - services.alpaca_service - ERROR - Error fetching stock data via fallback API for VIX: 404 Client Error: Not Found for url: https://data.alpaca.markets/v2/stocks/VIX/bars/latest
+2025-03-13 01:00:42,765 - __main__ - INFO - Client connected
