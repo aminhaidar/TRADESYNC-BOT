@@ -1,5 +1,5 @@
+# render.yaml
 services:
-  # A web service
   - type: web
     name: tradesync-bot
     runtime: python

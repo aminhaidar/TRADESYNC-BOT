@@ -1,3 +1,4 @@
+# app.py
 import os
 import json
 import logging
@@ -58,7 +59,7 @@ login_manager.init_app(app)
 login_manager.login_view = "login"
 
 # Initialize WebSocket
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="gevent")
 
 # Register API routes as blueprints
 app.register_blueprint(stock_routes)
@@ -96,10 +97,8 @@ def index():
     return render_template("index.html")
 
 
-# New login route that bypasses Google auth for testing
 @app.route("/login")
 def login():
-    # For testing: create a dummy user session
     user = User("test_id", "Test User", "test@example.com")
     session["user_data"] = {
         "id": "test_id",
@@ -111,10 +110,7 @@ def login():
 
 
 @app.route("/dashboard")
-# Comment out the login_required decorator for testing
-# @login_required
 def dashboard():
-    # Provide a default user name for testing
     user_name = current_user.name if current_user.is_authenticated else "Test User"
     return render_template("dashboard.html", user_name=user_name)
 
@@ -156,11 +152,8 @@ def logout():
 
 @app.route("/api/stock_data", methods=["GET"])
 def get_stock_data():
-    """
-    Fetch stock data from Alpaca API for real-time updates.
-    """
     try:
-        symbol = request.args.get("symbol", "AAPL")  # Default to AAPL
+        symbol = request.args.get("symbol", "AAPL")
         stock_data = fetch_stock_data(symbol)
         return jsonify(stock_data)
     except Exception as e:
@@ -170,9 +163,6 @@ def get_stock_data():
 
 @app.route("/api/market_data", methods=["GET"])
 def get_market_data():
-    """
-    Fetch stock indices data using Alpaca API.
-    """
     try:
         indices = {
             "SPY": fetch_stock_data("SPY"),
@@ -181,8 +171,7 @@ def get_market_data():
             "IWM": fetch_stock_data("IWM"),
             "VIX": fetch_stock_data("VIX"),
         }
-
-        socketio.emit("indices_update", indices)  # Push data to WebSocket clients
+        socketio.emit("indices_update", indices)
         return jsonify(indices)
     except Exception as e:
         logger.error(f"Error fetching market data: {str(e)}")
@@ -190,14 +179,8 @@ def get_market_data():
 
 
 @app.route("/api/portfolio", methods=["GET"])
-# Commenting out login_required for testing
-# @login_required
 def get_portfolio():
-    """
-    Fetch user's Alpaca portfolio data.
-    """
     from services.alpaca_service import get_alpaca_portfolio
-
     try:
         portfolio_data = get_alpaca_portfolio()
         socketio.emit("portfolio_update", portfolio_data)

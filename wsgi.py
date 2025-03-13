@@ -1,7 +1,15 @@
-# This is the entry point for Gunicorn when deploying to Render
-# Import the Flask app and make it available as 'application'
+import os
+import sys
 
-from app import app as application
+# Add project root to Python path
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
+# Import Flask application
+from app import app, socketio
+
+# Gunicorn application
+application = app
+
+# Development run
 if __name__ == "__main__":
-    application.run()
+    socketio.run(app, debug=True)
