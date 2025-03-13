@@ -1,53 +1,68 @@
-import sqlite3
 import os
+import sqlite3
 import logging
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
 def setup_database():
     """
-    Initializes the SQLite database.
+    Initialize the SQLite database and create necessary tables
     """
     try:
-        os.makedirs("logs", exist_ok=True)
-        conn = sqlite3.connect("trades.db")
+        # Ensure logs directory exists
+        os.makedirs('logs', exist_ok=True)
+
+        # Connect to SQLite database
+        conn = sqlite3.connect('trades.db')
         cursor = conn.cursor()
 
-        cursor.execute(
-            """
-            CREATE TABLE IF NOT EXISTS alerts (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                alert TEXT NOT NULL,
-                timestamp TEXT NOT NULL,
-                parsed_data TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-            """
+        # Create trades table
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS trades (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            symbol TEXT NOT NULL,
+            quantity INTEGER NOT NULL,
+            price REAL NOT NULL,
+            trade_type TEXT NOT NULL,  # 'buy' or 'sell'
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )
+        ''')
 
-        cursor.execute(
-            """
-            CREATE TABLE IF NOT EXISTS stock_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                symbol TEXT NOT NULL,
-                price REAL,
-                change_percent REAL,
-                volume INTEGER,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-            """
+        # Create user table
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id TEXT PRIMARY KEY,
+            email TEXT UNIQUE NOT NULL,
+            name TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
+        ''')
 
+        # Commit changes and close connection
         conn.commit()
         conn.close()
+
         logger.info("Database initialized successfully")
     except Exception as e:
         logger.error(f"Database initialization error: {str(e)}")
 
-def get_db_connection():
+def log_trade(symbol, quantity, price, trade_type):
     """
-    Get a connection to the SQLite database.
+    Log a trade to the database
     """
-    conn = sqlite3.connect("trades.db")
-    conn.row_factory = sqlite3.Row
-    return conn
+    try:
+        conn = sqlite3.connect('trades.db')
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+        INSERT INTO trades (symbol, quantity, price, trade_type) 
+        VALUES (?, ?, ?, ?)
+        ''', (symbol, quantity, price, trade_type))
+        
+        conn.commit()
+        conn.close()
+        
+        logger.info(f"Trade logged: {symbol} - {quantity} @ {price}")
+    except Exception as e:
+        logger.error(f"Error logging trade: {str(e)}")

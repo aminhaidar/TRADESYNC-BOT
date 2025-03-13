@@ -1,4 +1,3 @@
-# app.py
 import os
 import json
 import logging
@@ -14,34 +13,17 @@ from flask_dance.contrib.google import make_google_blueprint, google
 from dotenv import load_dotenv
 from routes.stock_routes import stock_routes
 from routes.trade_routes import trade_routes
-from services.alpaca_service import fetch_stock_data
+from services.alpaca_service import fetch_stock_data, get_alpaca_portfolio
 from database import setup_database
 
 # Load environment variables
 load_dotenv()
 
-# Debug print for environment variables
-print("=== ENVIRONMENT VARIABLES DEBUG ===")
-print(f"ALPACA_API_KEY exists: {'ALPACA_API_KEY' in os.environ}")
-print(f"ALPACA_SECRET_KEY exists: {'ALPACA_SECRET_KEY' in os.environ}")
-if 'ALPACA_API_KEY' in os.environ and os.environ['ALPACA_API_KEY']:
-    print(f"ALPACA_API_KEY starts with: {os.environ['ALPACA_API_KEY'][:4]}...")
-else:
-    print("ALPACA_API_KEY is not set or is empty")
-if 'ALPACA_SECRET_KEY' in os.environ and os.environ['ALPACA_SECRET_KEY']:
-    print(f"ALPACA_SECRET_KEY starts with: {os.environ['ALPACA_SECRET_KEY'][:4]}...")
-else:
-    print("ALPACA_SECRET_KEY is not set or is empty")
-print("==================================")
-
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.FileHandler("logs/app.log"),
-        logging.StreamHandler(),
-    ],
+    handlers=[logging.FileHandler("logs/app.log"), logging.StreamHandler()],
 )
 logger = logging.getLogger(__name__)
 
@@ -62,11 +44,10 @@ login_manager.login_view = "login"
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="gevent")
 
 # Register API routes as blueprints
-app.register_blueprint(stock_routes)
-app.register_blueprint(trade_routes)
+app.register_blueprint(stock_routes, url_prefix="/api")
+app.register_blueprint(trade_routes, url_prefix="/api")
 
 ### AUTHENTICATION SETUP ###
-
 google_bp = make_google_blueprint(
     client_id=os.getenv("GOOGLE_CLIENT_ID"),
     client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
@@ -74,13 +55,11 @@ google_bp = make_google_blueprint(
 )
 app.register_blueprint(google_bp, url_prefix="/auth")
 
-
 class User(UserMixin):
     def __init__(self, user_id, name, email):
         self.id = user_id
         self.name = name
         self.email = email
-
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -89,38 +68,29 @@ def load_user(user_id):
     user_data = session["user_data"]
     return User(user_data["id"], user_data["name"], user_data["email"])
 
-
 @app.route("/")
 def index():
     if current_user.is_authenticated:
         return redirect(url_for("dashboard"))
     return render_template("index.html")
 
-
 @app.route("/login")
 def login():
     user = User("test_id", "Test User", "test@example.com")
-    session["user_data"] = {
-        "id": "test_id",
-        "name": "Test User",
-        "email": "test@example.com",
-    }
+    session["user_data"] = {"id": "test_id", "name": "Test User", "email": "test@example.com"}
     login_user(user)
     return redirect(url_for("dashboard"))
-
 
 @app.route("/dashboard")
 def dashboard():
     user_name = current_user.name if current_user.is_authenticated else "Test User"
     return render_template("dashboard.html", user_name=user_name)
 
-
 @app.route("/auth/google/authorized")
 def google_authorized():
     logger.info("Received Google login callback")
     if not google.authorized:
         return redirect(url_for("login"))
-
     try:
         resp = google.get("/oauth2/v1/userinfo")
         if resp.ok:
@@ -133,13 +103,11 @@ def google_authorized():
             }
             login_user(user)
             return redirect(url_for("dashboard"))
-        else:
-            return redirect(url_for("login"))
+        return redirect(url_for("login"))
     except Exception as e:
         logger.error(f"Google login error: {str(e)}")
         traceback.print_exc()
         return redirect(url_for("login"))
-
 
 @app.route("/logout")
 def logout():
@@ -147,20 +115,7 @@ def logout():
     session.clear()
     return redirect(url_for("index"))
 
-
 ### API ENDPOINTS ###
-
-@app.route("/api/stock_data", methods=["GET"])
-def get_stock_data():
-    try:
-        symbol = request.args.get("symbol", "AAPL")
-        stock_data = fetch_stock_data(symbol)
-        return jsonify(stock_data)
-    except Exception as e:
-        logger.error(f"Error fetching stock data: {str(e)}")
-        return jsonify({"error": str(e)}), 500
-
-
 @app.route("/api/market_data", methods=["GET"])
 def get_market_data():
     try:
@@ -177,10 +132,8 @@ def get_market_data():
         logger.error(f"Error fetching market data: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
-
 @app.route("/api/portfolio", methods=["GET"])
 def get_portfolio():
-    from services.alpaca_service import get_alpaca_portfolio
     try:
         portfolio_data = get_alpaca_portfolio()
         socketio.emit("portfolio_update", portfolio_data)
@@ -189,19 +142,15 @@ def get_portfolio():
         logger.error(f"Error fetching portfolio: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
-
 ### WEBSOCKETS ###
-
 @socketio.on("connect")
 def handle_connect():
     logger.info("Client connected")
     emit("status", {"status": "connected"})
 
-
 @socketio.on("disconnect")
 def handle_disconnect():
     logger.info("Client disconnected")
-
 
 @socketio.on("refresh_data")
 def handle_refresh():
@@ -219,18 +168,10 @@ def handle_refresh():
         logger.error(f"Error refreshing data: {str(e)}")
         emit("error", {"message": f"Error refreshing data: {str(e)}"})
 
-
 ### HEALTH CHECK ###
-
 @app.route("/health", methods=["GET"])
 def health_check():
-    return jsonify(
-        {
-            "status": "healthy",
-            "timestamp": datetime.datetime.now().isoformat(),
-        }
-    )
-
+    return jsonify({"status": "healthy", "timestamp": datetime.datetime.now().isoformat()})
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))

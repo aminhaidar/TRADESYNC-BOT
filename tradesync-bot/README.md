@@ -1,70 +1,149 @@
-# Getting Started with Create React App
+# 🤖 TradeSync Bot
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Overview
 
-## Available Scripts
+TradeSync Bot is a sophisticated web application designed to automate and streamline trading operations, providing real-time market insights and trade execution capabilities.
 
-In the project directory, you can run:
+## 🚀 Features
 
-### `npm start`
+- **Real-time Market Data**: Track live market indicators (VIX, SPX, IWM, Bitcoin)
+- **Automated Trade Execution**: Process trade alerts from Discord
+- **Portfolio Management**: Monitor account balance and positions
+- **OAuth Authentication**: Secure Google login
+- **WebSocket Integration**: Real-time updates and communication
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## 📦 Technology Stack
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- **Frontend**: React.js with Tailwind CSS
+- **Backend**: Python Flask
+- **Real-time Communication**: WebSockets
+- **Trading Platform**: Alpaca API
+- **Authentication**: Google OAuth
 
-### `npm test`
+## 🛠️ Prerequisites
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- Python 3.9+
+- Node.js 14+
+- npm
+- Alpaca Trading Account
+- Google OAuth Credentials
 
-### `npm run build`
+## 🔧 Setup and Installation
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 1. Clone the Repository
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```bash
+git clone https://github.com/aminhaidar/TRADESYNC-BOT.git
+cd TRADESYNC-BOT
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### 2. Backend Setup
 
-### `npm run eject`
+#### Create Virtual Environment
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+#### Install Python Dependencies
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```bash
+pip install -r requirements.txt
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+#### Configure Environment Variables
 
-## Learn More
+Create a `.env` file in the project root:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```
+FLASK_SECRET_KEY=your_secure_random_key
+GOOGLE_CLIENT_ID=your_google_oauth_client_id
+GOOGLE_CLIENT_SECRET=your_google_oauth_client_secret
+ALPACA_API_KEY=your_alpaca_api_key
+ALPACA_SECRET_KEY=your_alpaca_secret_key
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### 3. Frontend Setup
 
-### Code Splitting
+```bash
+cd tradesync-bot-frontend
+npm install
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### 4. Running the Application
 
-### Analyzing the Bundle Size
+#### Development Mode
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+Backend:
+```bash
+flask run
+```
 
-### Making a Progressive Web App
+Frontend:
+```bash
+npm start
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+#### Production Deployment
 
-### Advanced Configuration
+```bash
+./run.sh
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## 🔒 Security
 
-### Deployment
+- OAuth authentication
+- Secure environment variable management
+- WebSocket connection security
+- API key protection
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## 📊 Configuration
 
-### `npm run build` fails to minify
+Customize application behavior through:
+- `.env` file
+- `config.py`
+- `tailwind.config.js`
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## 🧪 Testing
+
+### Backend Tests
+
+```bash
+python -m pytest tests/
+```
+
+### Frontend Tests
+
+```bash
+npm test
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📜 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
+
+## 📞 Contact
+
+Amin Haidar - [Your Email or LinkedIn]
+
+Project Link: [https://github.com/aminhaidar/TRADESYNC-BOT](https://github.com/aminhaidar/TRADESYNC-BOT)
+
+## 🙏 Acknowledgements
+
+- [React.js](https://reactjs.org/)
+- [Flask](https://flask.palletsprojects.com/)
+- [Alpaca](https://alpaca.markets/)
+- [Tailwind CSS](https://tailwindcss.com/)
+
+---
+
+**Disclaimer**: Use this bot responsibly. Trading involves financial risk.

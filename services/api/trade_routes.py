@@ -1,31 +1,40 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, jsonify, request
+from services.alpaca_service import get_alpaca_portfolio
 import logging
-import json
-from database import get_db_connection
 
-trade_routes = Blueprint("trade_routes", __name__)
+trade_routes = Blueprint('trade_routes', __name__)
 logger = logging.getLogger(__name__)
 
-@trade_routes.route("/api/trades", methods=["GET"])
-def get_trades():
+@trade_routes.route('/api/portfolio', methods=['GET'])
+def get_portfolio():
     """
-    Fetch recent trades stored in the database.
+    Retrieve user's trading portfolio
     """
     try:
-        conn = get_db_connection()
-        trades = conn.execute("SELECT * FROM alerts ORDER BY id DESC LIMIT 20").fetchall()
-        conn.close()
-
-        result = []
-        for trade in trades:
-            trade_dict = dict(trade)
-            try:
-                trade_dict["parsed_data"] = json.loads(trade_dict["parsed_data"])
-            except json.JSONDecodeError:
-                trade_dict["parsed_data"] = {"error": "Failed to parse"}
-            result.append(trade_dict)
-
-        return jsonify(result)
+        portfolio = get_alpaca_portfolio()
+        return jsonify(portfolio)
     except Exception as e:
-        logger.error(f"Error fetching trades: {str(e)}")
-        return jsonify({"error": str(e)}), 500
+        logger.error(f"Error in portfolio route: {str(e)}")
+        return jsonify({'error': 'Could not fetch portfolio'}), 500
+
+@trade_routes.route('/api/trade', methods=['POST'])
+def execute_trade():
+    """
+    Execute a trade (placeholder for actual trade execution)
+    """
+    try:
+        trade_data = request.json
+        # Validate trade data
+        if not all(key in trade_data for key in ['symbol', 'quantity', 'side']):
+            return jsonify({'error': 'Invalid trade parameters'}), 400
+        
+        # Placeholder for trade execution logic
+        logger.info(f"Trade request: {trade_data}")
+        return jsonify({
+            'status': 'Trade simulation',
+            'message': 'Trade would be executed in a real scenario',
+            'details': trade_data
+        }), 200
+    except Exception as e:
+        logger.error(f"Error in trade execution: {str(e)}")
+        return jsonify({'error': 'Could not process trade'}), 500
