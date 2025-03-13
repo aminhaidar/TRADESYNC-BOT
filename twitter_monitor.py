@@ -30,7 +30,6 @@ most_recent_ids = {}
 
 def get_user_ids():
     """Convert usernames to user IDs and store them"""
-    global user_ids
 
     for username in usernames_to_monitor:
         try:
