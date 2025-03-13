@@ -13,6 +13,7 @@ import requests
 import sys
 import aiohttp
 import backoff
+from functools import wraps
 from dotenv import load_dotenv
 from oauthlib.oauth2.rfc6749.errors import OAuth2Error
 
@@ -51,6 +52,30 @@ ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY")
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
+
+# Development-mode auth bypass decorator
+def dev_login_required(f):
+    """Development version of login_required that bypasses authentication"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # For development: create a fake user session if none exists
+        if not current_user.is_authenticated:
+            # Create a test user
+            test_user = User('test123', 'Test User', 'test@example.com')
+            
+            # Store in session
+            session['user_data'] = {
+                'id': 'test123',
+                'name': 'Test User',
+                'email': 'test@example.com'
+            }
+            
+            # Log in the fake user
+            login_user(test_user)
+            logger.warning("DEV MODE: Auto-logged in as test user")
+            
+        return f(*args, **kwargs)
+    return decorated_function
 
 # Google OAuth Configuration
 # Don't specify a custom redirect_url to use Flask-Dance's default (/auth/google/authorized)
@@ -172,7 +197,7 @@ def logout():
     return redirect(url_for('index'))
 
 @app.route('/dashboard')
-@login_required
+@dev_login_required  # Changed from @login_required to bypass auth
 def dashboard():
     return render_template('dashboard.html', user_name=current_user.name)
 
@@ -611,7 +636,7 @@ def get_alpaca_data():
         }
 
 @app.route('/api/portfolio', methods=['GET'])
-@login_required
+@dev_login_required  # Changed from @login_required to bypass auth
 def get_portfolio():
     try:
         portfolio_data = get_alpaca_data()
@@ -639,7 +664,7 @@ def get_portfolio():
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/trades', methods=['GET'])
-@login_required
+@dev_login_required  # Changed from @login_required to bypass auth
 def get_trades():
     try:
         alpaca_data = get_alpaca_data()
@@ -684,7 +709,7 @@ def get_market_data():
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/discord_trades', methods=['GET'])
-@login_required
+@dev_login_required  # Changed from @login_required to bypass auth
 def get_discord_trades():
     try:
         conn = get_db_connection()
@@ -771,7 +796,8 @@ def health_check():
         "status": "healthy",
         "timestamp": datetime.datetime.now().isoformat(),
         "aiohttp_version": aiohttp.__version__,
-        "python_version": sys.version
+        "python_version": sys.version,
+        "auth_bypass": "enabled"  # Add flag to indicate auth bypass is active
     })
 
 # More detailed error handling for OAuth
