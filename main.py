@@ -146,8 +146,7 @@ async def run_server():
             if "Address already in use" in str(e) and port == 8000:
                 print(f"Port {port} is in use, trying {port + 1}...")
                 continue
-            else:
-                raise
+            raise
 
 async def main():
     # Start the Discord bot and FastAPI server concurrently
