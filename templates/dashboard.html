@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TradeSync Bot - Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/styles.css">
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.13.5/cdn.min.js"></script>
 </head>
 <body class="bg-gray-900 text-white">
@@ -14,16 +14,24 @@
 
         <!-- Stock Data -->
         <div x-data="{ stockData: {} }" x-init="fetch('/api/stock_data')
-            .then(res => res.json())
-            .then(data => stockData = data)">
-            <p>Current Price: <span x-text="'$' + formatNumber(stockData?.price ?? 0)"></span></p>
+            .then(res => {
+                if (!res.ok) throw new Error('Stock API failed');
+                return res.json();
+            })
+            .then(data => stockData = data)
+            .catch(err => console.error('Stock API Error:', err))">
+            <p>Current Price: <span x-text="'$' + (stockData?.price ?? 'N/A')"></span></p>
         </div>
 
         <!-- Recent Trades -->
         <h2 class="text-2xl font-semibold mt-6">Recent Trades</h2>
         <div x-data="{ alerts: [] }" x-init="fetch('/api/trades')
-            .then(res => res.json())
-            .then(data => alerts = data)">
+            .then(res => {
+                if (!res.ok) throw new Error('Trade API failed');
+                return res.json();
+            })
+            .then(data => alerts = data)
+            .catch(err => console.error('Trade API Error:', err))">
 
             <template x-for="alert in alerts">
                 <div class="p-4 bg-gray-800 rounded-lg mb-2">
@@ -38,10 +46,6 @@
     </div>
 
     <script>
-        function formatNumber(value) {
-            return value.toLocaleString();
-        }
-
         function timeAgo(timestamp) {
             if (!timestamp) return 'N/A';
             const date = new Date(timestamp);
@@ -50,16 +54,12 @@
             const now = new Date();
             const seconds = Math.floor((now - date) / 1000);
             if (seconds < 60) return 'just now';
-
             const minutes = Math.floor(seconds / 60);
             if (minutes < 60) return `${minutes}m ago`;
-
             const hours = Math.floor(minutes / 60);
             if (hours < 24) return `${hours}h ago`;
-
             const days = Math.floor(hours / 24);
             if (days < 7) return `${days}d ago`;
-
             return date.toLocaleDateString();
         }
     </script>

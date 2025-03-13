@@ -20,7 +20,6 @@ def process_discord_message(data):
                 "percent_change": None
             }
 
-            # Extract ticker symbol (basic parsing)
             words = message.split()
             ticker = next((word for word in words if word.isupper() and len(word) < 5), None)
 
@@ -30,7 +29,6 @@ def process_discord_message(data):
                     parsed_data["price_at_alert"] = stock_data["price"]
                     parsed_data["percent_change"] = "Pending"
 
-            # Save trade alert to log
             with open("discord_trades.log", "a") as f:
                 f.write(json.dumps(parsed_data) + "\n")
 

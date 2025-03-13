@@ -16,7 +16,7 @@ class MarketDataService:
                 price = data["chart"]["result"][0]["meta"]["regularMarketPrice"]
                 return {"symbol": symbol, "price": price}
             else:
-                return {"error": "Failed to fetch stock data"}
+                return {"error": f"Failed to fetch stock data (Status: {response.status_code})"}
         except Exception as e:
             return {"error": str(e)}
 
