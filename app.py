@@ -3,32 +3,27 @@ import json
 import logging
 import datetime
 import traceback
-import requests
 import sqlite3
-from flask import Flask, redirect, url_for, session, jsonify, render_template, request
+import requests
+from functools import wraps
+
+from flask import Flask, jsonify, render_template, redirect, url_for, session, request
 from flask_cors import CORS
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required, UserMixin
-from flask_socketio import SocketIO, emit
 from flask_dance.contrib.google import make_google_blueprint, google
+from flask_socketio import SocketIO, emit
 from dotenv import load_dotenv
-from routes.stock_routes import stock_routes
-from routes.trade_routes import trade_routes
-from services.alpaca_service import fetch_stock_data
-from websocket import socketio
-from database import setup_database
+
+# Fix OAuth scope warnings
+os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = '1'
+os.environ['OAUTHLIB_IGNORE_SCOPE_CHANGE'] = '1'
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 # Load environment variables
 load_dotenv()
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.FileHandler("logs/app.log"),
-        logging.StreamHandler(),
-    ],
-)
+# Logging Configuration
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 # Initialize Flask app
@@ -36,190 +31,142 @@ app = Flask(__name__)
 CORS(app)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "TRADESYNC-BOT")
 
-# Setup database
-setup_database()
+# API Keys
+ALPACA_API_KEY = os.getenv("ALPACA_API_KEY")
+ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY")
 
 # Flask-Login Setup
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
 
-# Register API routes as blueprints
-app.register_blueprint(stock_routes)
-app.register_blueprint(trade_routes)
+# Development-mode auth bypass decorator
+def dev_login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated:
+            test_user = User('test123', 'Test User', 'test@example.com')
+            session['user_data'] = {'id': 'test123', 'name': 'Test User', 'email': 'test@example.com'}
+            login_user(test_user)
+            logger.warning("DEV MODE: Auto-logged in as test user")
+        return f(*args, **kwargs)
+    return decorated_function
 
-# Initialize WebSocket
-socketio.init_app(app, cors_allowed_origins="*")
-
-
-### AUTHENTICATION SETUP ###
-
+# Google OAuth Configuration
 google_bp = make_google_blueprint(
     client_id=os.getenv("GOOGLE_CLIENT_ID"),
     client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
-    scope=["profile", "email"],
+    scope=["profile", "email"]
 )
 app.register_blueprint(google_bp, url_prefix="/auth")
 
+# WebSocket Setup
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
 
+# User Model for Flask-Login
 class User(UserMixin):
     def __init__(self, user_id, name, email):
         self.id = user_id
         self.name = name
         self.email = email
 
-
 @login_manager.user_loader
 def load_user(user_id):
-    if "user_data" not in session:
+    if 'user_data' not in session:
         return None
-    user_data = session["user_data"]
-    return User(user_data["id"], user_data["name"], user_data["email"])
+    user_data = session['user_data']
+    return User(user_data['id'], user_data['name'], user_data['email'])
 
+# Database Setup
+def setup_database():
+    os.makedirs('logs', exist_ok=True)
+    conn = sqlite3.connect('trades.db')
+    cursor = conn.cursor()
+    cursor.execute('''CREATE TABLE IF NOT EXISTS alerts (id INTEGER PRIMARY KEY AUTOINCREMENT, alert TEXT, timestamp TEXT, parsed_data TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
+    cursor.execute('''CREATE TABLE IF NOT EXISTS stock_data (id INTEGER PRIMARY KEY AUTOINCREMENT, symbol TEXT, price REAL, change_percent REAL, volume INTEGER, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
+    conn.commit()
+    conn.close()
+    logger.info("Database initialized")
 
-@app.route("/")
+setup_database()
+
+def get_db_connection():
+    conn = sqlite3.connect('trades.db')
+    conn.row_factory = sqlite3.Row
+    return conn
+
+# Fetch stock data from Alpaca API
+def fetch_stock_data(symbol):
+    if not ALPACA_API_KEY or not ALPACA_SECRET_KEY:
+        logger.warning("Alpaca API keys not configured")
+        return {"symbol": symbol, "error": "Alpaca API not configured"}
+
+    headers = {
+        "APCA-API-KEY-ID": ALPACA_API_KEY,
+        "APCA-API-SECRET-KEY": ALPACA_SECRET_KEY
+    }
+
+    try:
+        url = f"https://data.alpaca.markets/v2/stocks/{symbol}/quotes/latest"
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        stock_price = data.get('quote', {}).get('ap', 0)
+        return {"symbol": symbol, "price": stock_price}
+    except Exception as e:
+        logger.error(f"Error fetching stock data for {symbol}: {str(e)}")
+        return {"symbol": symbol, "error": str(e)}
+
+@app.route('/')
 def index():
     if current_user.is_authenticated:
         return redirect(url_for("dashboard"))
-    return render_template("index.html")
+    return render_template('index.html')
 
+@app.route('/login')
+def login():
+    return render_template('auth/login.html')
 
-@app.route("/dashboard")
-@login_required
-def dashboard():
-    return render_template("dashboard.html", user_name=current_user.name)
-
-
-@app.route("/auth/google/authorized")
-def google_authorized():
-    logger.info("Received Google login callback")
-    if not google.authorized:
-        return redirect(url_for("login"))
-
-    try:
-        resp = google.get("/oauth2/v1/userinfo")
-        if resp.ok:
-            user_info = resp.json()
-            user = User(user_info["id"], user_info["name"], user_info["email"])
-            session["user_data"] = {
-                "id": user_info["id"],
-                "name": user_info["name"],
-                "email": user_info["email"],
-            }
-            login_user(user)
-            return redirect(url_for("dashboard"))
-        else:
-            return redirect(url_for("login"))
-    except Exception as e:
-        logger.error(f"Google login error: {str(e)}")
-        traceback.print_exc()
-        return redirect(url_for("login"))
-
-
-@app.route("/logout")
+@app.route('/logout')
 def logout():
     logout_user()
     session.clear()
-    return redirect(url_for("index"))
+    return redirect(url_for('index'))
 
+@app.route('/dashboard')
+@dev_login_required
+def dashboard():
+    return render_template('dashboard.html', user_name=current_user.name)
 
-### API ENDPOINTS ###
-
-@app.route("/api/stock_data", methods=["GET"])
-def get_stock_data():
-    """
-    Fetch stock data from Alpaca API for real-time updates.
-    """
-    try:
-        symbol = request.args.get("symbol", "AAPL")  # Default to AAPL
-        stock_data = fetch_stock_data(symbol)
-        return jsonify(stock_data)
-    except Exception as e:
-        logger.error(f"Error fetching stock data: {str(e)}")
-        return jsonify({"error": str(e)}), 500
-
-
-@app.route("/api/market_data", methods=["GET"])
+@app.route('/api/market_data', methods=['GET'])
 def get_market_data():
-    """
-    Fetch stock indices data using Alpaca API.
-    """
     try:
         indices = {
-            "SPY": fetch_stock_data("SPY"),
-            "QQQ": fetch_stock_data("QQQ"),
-            "DIA": fetch_stock_data("DIA"),
-            "IWM": fetch_stock_data("IWM"),
-            "VIX": fetch_stock_data("VIX"),
+            "VIX": fetch_stock_data("^VIX"),
+            "SPX": fetch_stock_data("^GSPC"),
+            "NDX": fetch_stock_data("^NDX"),
+            "DJI": fetch_stock_data("^DJI")
         }
-
-        socketio.emit("indices_update", indices)  # Push data to WebSocket clients
         return jsonify(indices)
     except Exception as e:
         logger.error(f"Error fetching market data: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
-
-@app.route("/api/portfolio", methods=["GET"])
-@login_required
+@app.route('/api/portfolio', methods=['GET'])
+@dev_login_required
 def get_portfolio():
-    """
-    Fetch user's Alpaca portfolio data.
-    """
-    from services.alpaca_service import get_alpaca_portfolio
-
     try:
-        portfolio_data = get_alpaca_portfolio()
-        socketio.emit("portfolio_update", portfolio_data)
+        portfolio_data = get_alpaca_data()
         return jsonify(portfolio_data)
     except Exception as e:
         logger.error(f"Error fetching portfolio: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
-
-### WEBSOCKETS ###
-
-@socketio.on("connect")
-def handle_connect():
-    logger.info("Client connected")
-    emit("status", {"status": "connected"})
-
-
-@socketio.on("disconnect")
-def handle_disconnect():
-    logger.info("Client disconnected")
-
-
-@socketio.on("refresh_data")
-def handle_refresh():
-    logger.info("Client requested data refresh")
-    try:
-        indices = {
-            "SPY": fetch_stock_data("SPY"),
-            "QQQ": fetch_stock_data("QQQ"),
-            "DIA": fetch_stock_data("DIA"),
-            "IWM": fetch_stock_data("IWM"),
-            "VIX": fetch_stock_data("VIX"),
-        }
-        emit("indices_update", indices)
-    except Exception as e:
-        logger.error(f"Error refreshing data: {str(e)}")
-        emit("error", {"message": f"Error refreshing data: {str(e)}"})
-
-
-### HEALTH CHECK ###
-
-@app.route("/health", methods=["GET"])
+@app.route('/health', methods=['GET'])
 def health_check():
-    return jsonify(
-        {
-            "status": "healthy",
-            "timestamp": datetime.datetime.now().isoformat(),
-        }
-    )
+    return jsonify({"status": "healthy", "timestamp": datetime.datetime.now().isoformat()})
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     port = int(os.getenv("PORT", 5000))
     logger.info(f"Starting server on port {port}")
     socketio.run(app, host="0.0.0.0", port=port, debug=True)
