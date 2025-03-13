@@ -1,9 +1,7 @@
 import tweepy
 import requests
 import time
-import json
 import logging
-from datetime import datetime
 
 # Set up logging
 logging.basicConfig(
