@@ -61,9 +61,8 @@ def forward_tweet_to_webhook(username, tweet_id, tweet_text, created_at):
         if response.status_code in (200, 201, 202, 204):
             logger.info(f"Successfully forwarded tweet from @{username} to webhook")
             return True
-        else:
-            logger.error(f"Failed to forward tweet. Status code: {response.status_code}")
-            return False
+        logger.error(f"Failed to forward tweet. Status code: {response.status_code}")
+        return False
     except Exception as e:
         logger.error(f"Error forwarding to webhook: {e}")
         return False
