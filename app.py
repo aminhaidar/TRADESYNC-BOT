@@ -166,7 +166,6 @@ def get_portfolio():
 def health_check():
     return jsonify({"status": "healthy", "timestamp": datetime.datetime.now().isoformat()})
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
-    logger.info(f"Starting server on port {port}")
-    socketio.run(app, host="0.0.0.0", port=port, debug=True)
+    app.run(host="0.0.0.0", port=port, debug=True)
