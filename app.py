@@ -3,6 +3,7 @@ import os
 import logging
 from flask import Flask, request, jsonify
 from alpaca_trade_api.rest import REST
+import sys
 
 # Load environment variables from .env file
 load_dotenv()
@@ -24,7 +25,7 @@ ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY")
 
 if not ALPACA_API_KEY or not ALPACA_SECRET_KEY:
     logger.error("ALPACA_API_KEY or ALPACA_SECRET_KEY not set in environment variables")
-    exit(1)
+    sys.exit(1)
 
 # Initialize Alpaca REST client for paper trading
 try:
@@ -38,7 +39,7 @@ try:
     logger.info(f"Connected to Alpaca account: {account.account_number}")
 except Exception as e:
     logger.error(f"Failed to connect to Alpaca: {e}")
-    exit(1)
+    sys.exit(1)
 
 # Webhook endpoint
 @app.route('/webhook', methods=['POST'])
@@ -97,4 +98,4 @@ if __name__ == "__main__":
         serve(app, host="0.0.0.0", port=5000)
     except Exception as e:
         logger.error(f"Server failed to start: {e}")
-        exit(1)
+        sys.exit(1)
