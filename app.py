@@ -47,7 +47,7 @@ ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY")
 # Set up Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = "index"
+login_manager.login_view = "login"  # Changed from "index" to "login"
 
 # Google OAuth Configuration
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
@@ -144,7 +144,7 @@ def google_login_callback():
         # Save user to database
         conn = sqlite3.connect('trades.db')
         cursor = conn.cursor()
-        cursor.execute("INSERT OR REPLACE INTO users (id, name, email) VALUES (?, ?, ?)",
+        cursor.execute("INSERT OR REPLACE INTO users (id, name, email, created_at) VALUES (?, ?, ?, datetime('now'))",
                     (user_id, user_name, user_email))
         conn.commit()
         conn.close()
@@ -158,6 +158,7 @@ def google_login_callback():
     
     except Exception as e:
         logger.error(f"Google login error: {str(e)}")
+        logger.error(traceback.format_exc())
         return redirect(url_for('index'))
 
 @app.route('/logout')
@@ -185,7 +186,9 @@ def discord_webhook():
             return jsonify({"error": "No alert text"}), 400
 
         conn = sqlite3.connect('trades.db')
-        conn.execute("INSERT INTO alerts (alert, timestamp) VALUES (?, ?)", (alert_text, timestamp))
+        # Added explicit created_at timestamp for better SQLite compatibility
+        conn.execute("INSERT INTO alerts (alert, timestamp, created_at) VALUES (?, ?, datetime('now'))", 
+                    (alert_text, timestamp))
         conn.commit()
         conn.close()
 
@@ -202,6 +205,10 @@ def discord_webhook():
 def get_alerts():
     try:
         limit = request.args.get('limit', 50, type=int)
+        # Added validation for limit parameter
+        if not isinstance(limit, int) or limit <= 0:
+            limit = 50  # Default fallback
+            
         conn = sqlite3.connect('trades.db')
         alerts = conn.execute('SELECT * FROM alerts ORDER BY id DESC LIMIT ?', (limit,)).fetchall()
         conn.close()
