@@ -25,14 +25,14 @@ def fetch_sample_tweets():
             max_results=5,
             tweet_fields=["created_at", "text"]
         )
-        
+
         if tweets_response and tweets_response.data:
             logger.info(f"Found {len(tweets_response.data)} recent tweets:")
             for tweet in tweets_response.data:
                 logger.info(f"ID: {tweet.id} | Created: {tweet.created_at} | Text: {tweet.text}")
         else:
             logger.info("No tweets found.")
-            
+
     except tweepy.TooManyRequests:
         logger.warning("Rate limit exceeded. Waiting automatically...")
     except Exception as e:

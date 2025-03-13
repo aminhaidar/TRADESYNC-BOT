@@ -39,35 +39,35 @@ def parse_tweet(tweet_text):
         "target_price": None,
         "stop_loss": None
     }
-    
+
     text = tweet_text.lower()
-    
+
     if "buying" in text or "long" in text:
         trade_data["action"] = "buy"
     elif "shorting" in text or "short" in text:
         trade_data["action"] = "short"
     elif "closed" in text or "closing" in text:
         trade_data["action"] = "close"
-    
+
     symbol_match = re.search(r'\$[a-zA-Z]+', text)
     if symbol_match:
         trade_data["symbol"] = symbol_match.group(0).upper().replace("$", "")
-    
+
     if "call" in text or "calls" in text:
         trade_data["instrument"] = "call"
     elif "put" in text or "puts" in text:
         trade_data["instrument"] = "put"
     else:
         trade_data["instrument"] = "stock"
-    
+
     strike_match = re.search(r'(\d+)\s*(calls|puts)', text)
     if strike_match:
         trade_data["strike"] = float(strike_match.group(1))
-    
+
     exp_match = re.search(r'exp\s*(\d+/\d+)', text)
     if exp_match:
         trade_data["expiration"] = exp_match.group(1)
-    
+
     price_matches = re.findall(r'at\s*(\d+\.?\d*)|entry\s*(\d+\.?\d*)|target\s*(\d+\.?\d*)|stop\s*(?:loss)?\s*(\d+\.?\d*)', text)
     for match in price_matches:
         if match[0] or match[1]:
@@ -76,7 +76,7 @@ def parse_tweet(tweet_text):
             trade_data["target_price"] = float(match[2])
         elif match[3]:
             trade_data["stop_loss"] = float(match[3])
-    
+
     return trade_data
 
 def execute_trade(trade_data):
@@ -85,7 +85,7 @@ def execute_trade(trade_data):
         if not trade_data["action"] or not trade_data["symbol"]:
             logger.info("No actionable trade data found")
             return
-        
+
         symbol = trade_data["symbol"]
         action = trade_data["action"]
         instrument = trade_data["instrument"]
@@ -106,7 +106,7 @@ def execute_trade(trade_data):
                 )
                 logger.info(f"Placing buy order for {symbol} at {entry_price}")
                 trading_client.submit_order(order)
-            
+
             elif action == "short":
                 order = MarketOrderRequest(
                     symbol=symbol,
@@ -125,7 +125,7 @@ def execute_trade(trade_data):
                         limit_price=target_price
                     )
                     trading_client.submit_order(cover_order)
-            
+
             elif action == "close":
                 logger.info(f"Closing position for {symbol}")
                 trading_client.close_position(symbol)
@@ -169,7 +169,7 @@ def execute_trade(trade_data):
                         stop_price=stop_loss
                     )
                     trading_client.submit_order(stop_order)
-            
+
             elif action == "close":
                 logger.info(f"Closing position for {option_symbol}")
                 trading_client.close_position(option_symbol)
@@ -184,11 +184,11 @@ def webhook():
     if not tweet_data:
         logger.error("No data received in webhook")
         return {"status": "error", "message": "No data"}, 400
-    
+
     username = tweet_data.get("username", "unknown")
     tweet_text = tweet_data.get("content", "")
     tweet_id = tweet_data.get("tweet_id", "unknown")
-    
+
     logger.info(f"Received tweet from @{username} (ID: {tweet_id}): {tweet_text}")
     parsed_data = parse_tweet(tweet_text)
     logger.info(f"Parsed trade data: {parsed_data}")
