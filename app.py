@@ -31,6 +31,9 @@ app = Flask(__name__)
 CORS(app)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "TRADESYNC-BOT")
 
+from routes.stock_routes import stock_routes
+app.register_blueprint(stock_routes, url_prefix="/api")
+
 # API Keys
 ALPACA_API_KEY = os.getenv("ALPACA_API_KEY")
 ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY")
