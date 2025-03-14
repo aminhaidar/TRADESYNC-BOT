@@ -1,187 +1,199 @@
 import os
 import logging
-import datetime
 import threading
-import time
 import sqlite3
-from flask import Flask, jsonify
+import datetime
+from flask import Flask, jsonify, request
+from flask_socketio import SocketIO
 from flask_cors import CORS
-from flask_socketio import SocketIO, emit
-from dotenv import load_dotenv
-from trade_routes import trade_routes
-from fetch_samples import fetch_discord_alerts, parse_trade_alert
-from alpaca_service import fetch_stock_data, get_alpaca_portfolio
-from trade_executor import execute_trade
-from database import get_db_connection
-
-# Load environment variables
-load_dotenv()
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.FileHandler("logs/app.log"),
-        logging.StreamHandler(),
-    ],
-)
-logger = logging.getLogger(__name__)
+from alpaca_service import AlpacaService
+from trade_executor import TradeExecutor
 
 # Initialize Flask app
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "*"}})
-
-# Ensure DATABASE_URI is correctly configured
-app.config['DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///trades.db')
-logger.info(f"Using DATABASE_URI: {app.config['DATABASE_URI']}")
-
-# Initialize WebSocket
+CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-# Register API routes
-app.register_blueprint(trade_routes, url_prefix="/api")
+# Setup logging
+logging.basicConfig(
+    filename="logs/app.log",
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
 
-# Setup database within application context
-with app.app_context():
-    def setup_database():
-        try:
-            logger.info("Setting up the database...")
-            conn = get_db_connection()
-            cursor = conn.cursor()
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS trades (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    symbol TEXT NOT NULL,
-                    action TEXT NOT NULL,
-                    quantity INTEGER NOT NULL,
-                    timestamp TEXT NOT NULL
-                )
-            """)
-            conn.commit()
-            logger.info("Database setup completed successfully: trades table created or verified")
-        except Exception as e:
-            logger.error(f"Error setting up database: {str(e)}")
-            raise  # Fail early if setup fails
-        finally:
-            if 'conn' in locals():
-                conn.close()
+# Initialize services
+alpaca_service = AlpacaService()
+trade_executor = TradeExecutor(alpaca_service)
+db_lock = threading.Lock()
 
-    setup_database()
+# Database setup
+def init_db():
+    with sqlite3.connect("trades.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS trades (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                symbol TEXT NOT NULL,
+                action TEXT NOT NULL,
+                quantity INTEGER NOT NULL,
+                price REAL,
+                status TEXT NOT NULL,
+                timestamp TEXT NOT NULL
+            )
+        """)
+        conn.commit()
 
-
-# API ENDPOINTS
+# API Endpoints
 @app.route("/api/market_data", methods=["GET"])
 def get_market_data():
     try:
-        indices = {
-            "SPY": fetch_stock_data("SPY"),
-            "QQQ": fetch_stock_data("QQQ"),
-            "DIA": fetch_stock_data("DIA"),
-            "IWM": fetch_stock_data("IWM"),
-            "VIX": fetch_stock_data("VIX"),
-        }
-        socketio.emit("indices_update", indices)
-        return jsonify(indices)
+        symbols = ["SPX", "QQQ", "IWM", "VIX"]
+        market_data = {}
+        for symbol in symbols:
+            data = alpaca_service.get_symbol_data(symbol)
+            market_data[symbol] = data
+        return jsonify(market_data)
     except Exception as e:
         logger.error(f"Error fetching market data: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
-
 @app.route("/api/portfolio", methods=["GET"])
 def get_portfolio():
     try:
-        portfolio_data = get_alpaca_portfolio()
-        socketio.emit("portfolio_update", portfolio_data)
-        return jsonify(portfolio_data)
+        portfolio = alpaca_service.get_portfolio()
+        return jsonify(portfolio)
     except Exception as e:
         logger.error(f"Error fetching portfolio: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
-
-# WEBSOCKETS
-@socketio.on("connect")
-def handle_connect():
-    logger.info("Client connected")
-    emit("status", {"status": "connected"})
-
-
-@socketio.on("disconnect")
-def handle_disconnect():
-    logger.info("Client disconnected")
-
-
-@socketio.on("refresh_data")
-def handle_refresh():
-    logger.info("Client requested data refresh")
+@app.route("/api/trades", methods=["GET"])
+def get_trades():
     try:
-        indices = {
-            "SPY": fetch_stock_data("SPY"),
-            "QQQ": fetch_stock_data("QQQ"),
-            "DIA": fetch_stock_data("DIA"),
-            "IWM": fetch_stock_data("IWM"),
-            "VIX": fetch_stock_data("VIX"),
-        }
-        emit("indices_update", indices)
+        conn = sqlite3.connect("trades.db")
+        cursor = conn.cursor()
+        cursor.execute("SELECT symbol, action, quantity, price, status, timestamp FROM trades ORDER BY timestamp DESC LIMIT 5")
+        trades = [
+            {
+                "symbol": row[0],
+                "action": row[1],
+                "quantity": row[2],
+                "price": row[3],
+                "status": row[4],
+                "timestamp": row[5]
+            } for row in cursor.fetchall()
+        ]
+        conn.close()
+        return jsonify(trades)
     except Exception as e:
-        logger.error(f"Error refreshing data: {str(e)}")
-        emit("error", {"message": f"Error refreshing data: {str(e)}"})
+        logger.error(f"Error fetching trades: {str(e)}")
+        return jsonify({"error": str(e)}), 500
 
+@app.route("/webhook", methods=["POST"])
+def webhook():
+    try:
+        data = request.get_json()
+        if not data:
+            logger.error("No JSON payload received")
+            return jsonify({"error": "No JSON payload received"}), 400
 
-# TRADE ALERT FETCHING AND FORWARDING
+        expected_key = os.getenv("WEBHOOK_KEY", "your-secret-key")
+        if data.get("key") != expected_key:
+            logger.error("Invalid webhook key")
+            return jsonify({"error": "Invalid key"}), 403
+
+        symbol = data.get("symbol", "")
+        action = data.get("action", "").upper()
+        contracts = data.get("contracts", "1")
+        price = data.get("price", 0.0)
+
+        if not symbol or not action:
+            logger.error("Missing required fields: symbol or action")
+            return jsonify({"error": "Missing required fields"}), 400
+
+        parsed_alert = {
+            "symbol": symbol,
+            "action": action,
+            "contracts": contracts,
+            "price": float(price) if price else None
+        }
+
+        execution_result = trade_executor.execute_trade(parsed_alert)
+        trade_data = {
+            "symbol": parsed_alert.get("symbol", ""),
+            "action": parsed_alert.get("action", ""),
+            "quantity": int(parsed_alert.get("contracts", "1").split()[0]),
+            "price": parsed_alert.get("price"),
+            "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "status": execution_result["status"]
+        }
+
+        parsed_alert['execution'] = execution_result
+        socketio.emit('trade_alert', parsed_alert, namespace='/')
+        logger.info(f"Forwarded trade alert: {parsed_alert}")
+
+        with db_lock:
+            with app.app_context():
+                conn = sqlite3.connect("trades.db")
+                cursor = conn.cursor()
+                cursor.execute(
+                    "INSERT INTO trades (symbol, action, quantity, price, status, timestamp) VALUES (?, ?, ?, ?, ?, ?)",
+                    (trade_data["symbol"], trade_data["action"], trade_data["quantity"], trade_data["price"], trade_data["status"], trade_data["timestamp"])
+                )
+                conn.commit()
+                logger.info("Stored trade in 'trades' table")
+                conn.close()
+
+        return jsonify({"status": "success", "message": "Webhook processed"}), 200
+
+    except Exception as e:
+        logger.error(f"Error processing webhook: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+# Initialize database
+init_db()
+
+# Start background task for fetching Discord alerts (optional, can be removed if using webhook)
 def fetch_and_forward_alerts():
     while True:
-        logger.info("Starting fetch_and_forward_alerts loop")
         try:
-            logger.info("Attempting to fetch Discord alerts")
-            alert_message = fetch_discord_alerts()
+            alert_message = trade_executor.fetch_discord_alerts()
             if alert_message:
                 logger.info(f"Raw alert fetched: {alert_message}")
-                parsed_alert = parse_trade_alert(alert_message)
+                parsed_alert = trade_executor.parse_trade_alert(alert_message)
                 if parsed_alert:
                     logger.info(f"Parsed alert: {parsed_alert}")
                     trade_data = {
                         "symbol": parsed_alert.get("symbol", ""),
                         "action": parsed_alert.get("action", ""),
                         "quantity": int(parsed_alert.get("contracts", "1").split()[0]) if "contracts" in parsed_alert else 1,
+                        "price": float(parsed_alert.get("price", 0.0)) if parsed_alert.get("price") else None,
                         "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     }
-                    execution_result = execute_trade(parsed_alert)
-                    parsed_alert['execution'] = execution_result
+                    execution_result = trade_executor.execute_trade(parsed_alert)
+                    trade_data["status"] = execution_result["status"]
+                    parsed_alert["execution"] = execution_result
                     socketio.emit('trade_alert', parsed_alert, namespace='/')
                     logger.info(f"Forwarded trade alert: {parsed_alert}")
 
-                    with app.app_context():
-                        conn = get_db_connection()
+                    with db_lock:
+                        conn = sqlite3.connect("trades.db")
                         cursor = conn.cursor()
                         cursor.execute(
-                            "INSERT INTO trades (symbol, action, quantity, timestamp) VALUES (?, ?, ?, ?)",
-                            (trade_data["symbol"], trade_data["action"], trade_data["quantity"], trade_data["timestamp"])
+                            "INSERT INTO trades (symbol, action, quantity, price, status, timestamp) VALUES (?, ?, ?, ?, ?, ?)",
+                            (trade_data["symbol"], trade_data["action"], trade_data["quantity"], trade_data["price"], trade_data["status"], trade_data["timestamp"])
                         )
                         conn.commit()
                         logger.info("Stored trade in 'trades' table")
                         conn.close()
-                else:
-                    logger.warning("Failed to parse alert")
-            else:
-                logger.warning("No alert fetched from Discord")
+
+            socketio.sleep(60)
         except Exception as e:
             logger.error(f"Error in fetch_and_forward_alerts: {str(e)}")
-        logger.info("Sleeping for 10 seconds")
-        time.sleep(10)
+            socketio.sleep(60)
 
+# Start background thread for Discord alerts (optional)
+threading.Thread(target=fetch_and_forward_alerts, daemon=True).start()
 
-# HEALTH CHECK
-@app.route("/health", methods=["GET"])
-def health_check():
-    return jsonify({
-        "status": "healthy",
-        "timestamp": datetime.datetime.now().isoformat(),
-    })
-
-
-if __name__ == "__main__":
-    threading.Thread(target=fetch_and_forward_alerts, daemon=True).start()
-    port = int(os.getenv("PORT", 5000))
-    logger.info(f"Starting server on port {port}")
-    socketio.run(app, host="0.0.0.0", port=port)
+if __name__ == '__main__':
+    socketio.run(app, host='0.0.0.0', port=5000)
