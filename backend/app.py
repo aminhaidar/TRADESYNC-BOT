@@ -1,199 +1,148 @@
+from flask import Flask, jsonify, request
+from flask_socketio import SocketIO, emit
+from flask_cors import CORS
 import os
 import logging
-import threading
-import sqlite3
-import datetime
-from flask import Flask, jsonify, request
-from flask_socketio import SocketIO
-from flask_cors import CORS
-from alpaca_service import AlpacaService
-from trade_executor import TradeExecutor
+from datetime import datetime
+import json
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Initialize Flask app
 app = Flask(__name__)
-CORS(app)
-socketio = SocketIO(app, cors_allowed_origins="*")
+app.config['SECRET_KEY'] = 'tradesync-secret-key'
+CORS(app, resources={r"/*": {"origins": "*"}})
 
-# Setup logging
-logging.basicConfig(
-    filename="logs/app.log",
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
+# Initialize SocketIO
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
 
-# Initialize services
-alpaca_service = AlpacaService()
-trade_executor = TradeExecutor(alpaca_service)
-db_lock = threading.Lock()
+# Mock data for development
+mock_trades = [
+    {
+        "id": 1,
+        "symbol": "AAPL",
+        "action": "buy",
+        "quantity": 1.0,
+        "price": 180.0,
+        "current_price": 185.75,
+        "status": "executed",
+        "timestamp": "2025-03-16 12:00:00",
+        "confidence": 0.85,
+        "source": "AI Insight",
+        "option_details": "155C 04/17"
+    }
+]
 
-# Database setup
-def init_db():
-    with sqlite3.connect("trades.db") as conn:
-        cursor = conn.cursor()
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS trades (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                symbol TEXT NOT NULL,
-                action TEXT NOT NULL,
-                quantity INTEGER NOT NULL,
-                price REAL,
-                status TEXT NOT NULL,
-                timestamp TEXT NOT NULL
-            )
-        """)
-        conn.commit()
+mock_insights = [
+    {"symbol": "AAPL", "recommendation": "Buy", "summary": "Strong upward trend with 85% confidence", "confidence": 0.85, "category": "technical"},
+    {"symbol": "MSFT", "recommendation": "Buy", "summary": "Positive earnings forecast with 90% confidence", "confidence": 0.90, "category": "fundamental"},
+    {"symbol": "TSLA", "recommendation": "Sell", "summary": "Overbought conditions with 75% confidence", "confidence": 0.75, "category": "technical"},
+    {"symbol": "AMZN", "recommendation": "Hold", "summary": "Market uncertainty with 65% confidence", "confidence": 0.65, "category": "news"},
+    {"symbol": "GOOGL", "recommendation": "Buy", "summary": "Breakout pattern with 80% confidence", "confidence": 0.80, "category": "technical"}
+]
 
-# API Endpoints
-@app.route("/api/market_data", methods=["GET"])
-def get_market_data():
+chart_data = {
+    "labels": ["2025-03-09", "2025-03-10", "2025-03-11", "2025-03-12", "2025-03-13", "2025-03-14", "2025-03-15"],
+    "datasets": [
+        {"label": "TradeSync Portfolio", "data": [10562.58, 10634.92, 10689.87, 10742.42, 10798.81, 10845.23, 10921.45], "borderColor": "#3fb950", "backgroundColor": "rgba(63, 185, 80, 0.2)", "tension": 0.4, "fill": True},
+        {"label": "SPY Benchmark", "data": [10532.55, 10578.12, 10615.93, 10650.85, 10695.67, 10728.33, 10785.12], "borderColor": "#8b949e", "backgroundColor": "rgba(139, 148, 158, 0.2)", "tension": 0.4, "fill": True}
+    ]
+}
+
+metrics = {
+    "accountValue": 10921.45,
+    "availableCash": 5243.67,
+    "totalPnl": 375.82,
+    "openPositions": 3,
+    "winRate": 72.5
+}
+
+positions = [
+    {"symbol": "AAPL", "quantity": 1, "avgPrice": 180.00, "currentPrice": 185.75, "pnl": 5.75},
+    {"symbol": "MSFT", "quantity": 2, "avgPrice": 410.25, "currentPrice": 412.50, "pnl": 4.50},
+    {"symbol": "AMZN", "quantity": 1, "avgPrice": 178.50, "currentPrice": 176.80, "pnl": -1.70}
+]
+
+@app.route('/api/dashboard-data', methods=['GET'])
+def get_dashboard_data():
     try:
-        symbols = ["SPX", "QQQ", "IWM", "VIX"]
-        market_data = {}
-        for symbol in symbols:
-            data = alpaca_service.get_symbol_data(symbol)
-            market_data[symbol] = data
-        return jsonify(market_data)
-    except Exception as e:
-        logger.error(f"Error fetching market data: {str(e)}")
-        return jsonify({"error": str(e)}), 500
-
-@app.route("/api/portfolio", methods=["GET"])
-def get_portfolio():
-    try:
-        portfolio = alpaca_service.get_portfolio()
-        return jsonify(portfolio)
-    except Exception as e:
-        logger.error(f"Error fetching portfolio: {str(e)}")
-        return jsonify({"error": str(e)}), 500
-
-@app.route("/api/trades", methods=["GET"])
-def get_trades():
-    try:
-        conn = sqlite3.connect("trades.db")
-        cursor = conn.cursor()
-        cursor.execute("SELECT symbol, action, quantity, price, status, timestamp FROM trades ORDER BY timestamp DESC LIMIT 5")
-        trades = [
-            {
-                "symbol": row[0],
-                "action": row[1],
-                "quantity": row[2],
-                "price": row[3],
-                "status": row[4],
-                "timestamp": row[5]
-            } for row in cursor.fetchall()
-        ]
-        conn.close()
-        return jsonify(trades)
-    except Exception as e:
-        logger.error(f"Error fetching trades: {str(e)}")
-        return jsonify({"error": str(e)}), 500
-
-@app.route("/webhook", methods=["POST"])
-def webhook():
-    try:
-        data = request.get_json()
-        if not data:
-            logger.error("No JSON payload received")
-            return jsonify({"error": "No JSON payload received"}), 400
-
-        expected_key = os.getenv("WEBHOOK_KEY", "your-secret-key")
-        if data.get("key") != expected_key:
-            logger.error("Invalid webhook key")
-            return jsonify({"error": "Invalid key"}), 403
-
-        symbol = data.get("symbol", "")
-        action = data.get("action", "").upper()
-        contracts = data.get("contracts", "1")
-        price = data.get("price", 0.0)
-
-        if not symbol or not action:
-            logger.error("Missing required fields: symbol or action")
-            return jsonify({"error": "Missing required fields"}), 400
-
-        parsed_alert = {
-            "symbol": symbol,
-            "action": action,
-            "contracts": contracts,
-            "price": float(price) if price else None
+        response_data = {
+            "trades": mock_trades,
+            "insights": mock_insights,
+            "chartData": chart_data,
+            "metrics": metrics,
+            "positions": positions
         }
-
-        execution_result = trade_executor.execute_trade(parsed_alert)
-        trade_data = {
-            "symbol": parsed_alert.get("symbol", ""),
-            "action": parsed_alert.get("action", ""),
-            "quantity": int(parsed_alert.get("contracts", "1").split()[0]),
-            "price": parsed_alert.get("price"),
-            "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "status": execution_result["status"]
-        }
-
-        parsed_alert['execution'] = execution_result
-        socketio.emit('trade_alert', parsed_alert, namespace='/')
-        logger.info(f"Forwarded trade alert: {parsed_alert}")
-
-        with db_lock:
-            with app.app_context():
-                conn = sqlite3.connect("trades.db")
-                cursor = conn.cursor()
-                cursor.execute(
-                    "INSERT INTO trades (symbol, action, quantity, price, status, timestamp) VALUES (?, ?, ?, ?, ?, ?)",
-                    (trade_data["symbol"], trade_data["action"], trade_data["quantity"], trade_data["price"], trade_data["status"], trade_data["timestamp"])
-                )
-                conn.commit()
-                logger.info("Stored trade in 'trades' table")
-                conn.close()
-
-        return jsonify({"status": "success", "message": "Webhook processed"}), 200
-
+        logger.info(f"Returning dashboard data")
+        return jsonify(response_data)
     except Exception as e:
-        logger.error(f"Error processing webhook: {str(e)}")
+        logger.error(f"Error in get_dashboard_data: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
-# Initialize database
-init_db()
+@app.route('/api/trigger-trade', methods=['POST'])
+def trigger_trade():
+    try:
+        trade = {
+            "symbol": "AAPL",
+            "action": "buy",
+            "quantity": 1,
+            "price": 185.75,
+            "option_details": "155C 04/17",
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "source": "Manual Trigger",
+            "status": "pending",
+            "confidence": 0.85
+        }
+        socketio.emit('live_trade_update', trade)
+        logger.info(f"Manually triggered trade update: {trade}")
+        return jsonify({"message": "Trade update triggered", "trade": trade})
+    except Exception as e:
+        logger.error(f"Error in trigger_trade: {str(e)}")
+        return jsonify({"error": str(e)}), 500
 
-# Start background task for fetching Discord alerts (optional, can be removed if using webhook)
-def fetch_and_forward_alerts():
-    while True:
-        try:
-            alert_message = trade_executor.fetch_discord_alerts()
-            if alert_message:
-                logger.info(f"Raw alert fetched: {alert_message}")
-                parsed_alert = trade_executor.parse_trade_alert(alert_message)
-                if parsed_alert:
-                    logger.info(f"Parsed alert: {parsed_alert}")
-                    trade_data = {
-                        "symbol": parsed_alert.get("symbol", ""),
-                        "action": parsed_alert.get("action", ""),
-                        "quantity": int(parsed_alert.get("contracts", "1").split()[0]) if "contracts" in parsed_alert else 1,
-                        "price": float(parsed_alert.get("price", 0.0)) if parsed_alert.get("price") else None,
-                        "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    }
-                    execution_result = trade_executor.execute_trade(parsed_alert)
-                    trade_data["status"] = execution_result["status"]
-                    parsed_alert["execution"] = execution_result
-                    socketio.emit('trade_alert', parsed_alert, namespace='/')
-                    logger.info(f"Forwarded trade alert: {parsed_alert}")
+@socketio.on('connect')
+def handle_connect():
+    logger.info(f"Client connected, socket ID: {request.sid}")
+    emit('connection_response', {'status': 'connected'})
 
-                    with db_lock:
-                        conn = sqlite3.connect("trades.db")
-                        cursor = conn.cursor()
-                        cursor.execute(
-                            "INSERT INTO trades (symbol, action, quantity, price, status, timestamp) VALUES (?, ?, ?, ?, ?, ?)",
-                            (trade_data["symbol"], trade_data["action"], trade_data["quantity"], trade_data["price"], trade_data["status"], trade_data["timestamp"])
-                        )
-                        conn.commit()
-                        logger.info("Stored trade in 'trades' table")
-                        conn.close()
+@socketio.on('disconnect')
+def handle_disconnect():
+    logger.info(f"Client disconnected, socket ID: {request.sid}")
 
-            socketio.sleep(60)
-        except Exception as e:
-            logger.error(f"Error in fetch_and_forward_alerts: {str(e)}")
-            socketio.sleep(60)
+@socketio.on('execute_trade')
+def handle_execute_trade(data):
+    logger.info(f"Received execute_trade event: {data}")
+    try:
+        # Create a new trade object based on the received data
+        trade = {
+            "id": len(mock_trades) + 1,
+            "symbol": data.get("symbol", "AAPL"),
+            "action": data.get("action", "buy"),
+            "quantity": data.get("quantity", 1),
+            "price": data.get("price", 185.75),
+            "current_price": data.get("price", 185.75),
+            "option_details": "155C 04/17",
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "status": "executed",
+            "confidence": data.get("confidence", 0.85),
+            "source": data.get("source", "TradeSync Bot")
+        }
+        
+        # Add to mock database
+        mock_trades.append(trade)
+        
+        # Emit the trade update to all connected clients
+        socketio.emit('live_trade_update', trade)
+        logger.info(f"Trade executed and broadcast: {trade}")
+        
+        return {"success": True, "trade": trade}
+    except Exception as e:
+        logger.error(f"Error executing trade: {str(e)}")
+        return {"success": False, "error": str(e)}
 
-# Start background thread for Discord alerts (optional)
-threading.Thread(target=fetch_and_forward_alerts, daemon=True).start()
-
-if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=5000)
+if __name__ == "__main__":
+    port = int(os.getenv("PORT", 5000))
+    logger.info(f"Starting server on port {port}")
+    socketio.run(app, host="0.0.0.0", port=port, debug=True)

@@ -1,0 +1,78 @@
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
+import { io } from 'socket.io-client';
+
+// Create the socket context
+export const SocketContext = createContext();
+
+export const SocketProvider = ({ children, refreshData }) => {
+  const [isConnected, setIsConnected] = useState(false);
+  const socketRef = useRef(null);
+
+  useEffect(() => {
+    // EXPLICITLY use port 5001 here - bypassing any environment variables
+    const SOCKET_SERVER_URL = 'http://localhost:5001';
+    console.log('SocketContext: Attempting to connect to', SOCKET_SERVER_URL);
+    
+    const newSocket = io(SOCKET_SERVER_URL, {
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      autoConnect: true,
+      transports: ['websocket', 'polling']
+    });
+    
+    socketRef.current = newSocket;
+
+    newSocket.on('connect', () => {
+      console.log('SocketContext: Connected to server with ID:', newSocket.id);
+      setIsConnected(true);
+    });
+
+    newSocket.on('disconnect', () => {
+      console.log('SocketContext: Disconnected from server');
+      setIsConnected(false);
+    });
+
+    newSocket.on('connect_error', (err) => {
+      console.error('SocketContext: Connection error:', err.message);
+      setIsConnected(false);
+    });
+
+    newSocket.on('live_trade_update', (data) => {
+      console.log('SocketContext: Received trade update:', data);
+      if (refreshData) {
+        refreshData();
+      }
+    });
+
+    // Cleanup function
+    return () => {
+      console.log('SocketContext: Cleaning up socket connection');
+      newSocket.disconnect();
+    };
+  }, [refreshData]);
+
+  const executeTrade = (tradeData) => {
+    if (socketRef.current && isConnected) {
+      console.log('SocketContext: Executing trade:', tradeData);
+      socketRef.current.emit('execute_trade', tradeData);
+      return true;
+    } else {
+      console.error('SocketContext: Cannot execute trade - socket not connected');
+      return false;
+    }
+  };
+
+  return (
+    <SocketContext.Provider value={{ socket: socketRef.current, isConnected, executeTrade }}>
+      {children}
+    </SocketContext.Provider>
+  );
+};
+
+export const useSocket = () => {
+  const context = useContext(SocketContext);
+  if (!context) {
+    throw new Error('useSocket must be used within a SocketProvider');
+  }
+  return context;
+};

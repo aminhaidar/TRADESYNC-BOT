@@ -1,0 +1,140 @@
+.position-card {
+  background-color: #1e293b;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.position-card.expanded {
+  padding-bottom: 16px;
+}
+
+.position-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-left: 4px solid transparent;
+}
+
+.position-header.profit {
+  border-left-color: #22c55e;
+}
+
+.position-header.loss {
+  border-left-color: #ef4444;
+}
+
+.position-ticker {
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+}
+
+.dte-indicator {
+  font-size: 14px;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.dte-normal {
+  background-color: rgba(59, 130, 246, 0.2);
+  color: #3b82f6;
+}
+
+.dte-warning {
+  background-color: rgba(245, 158, 11, 0.2);
+  color: #f59e0b;
+}
+
+.dte-critical {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.pl-indicator {
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.pl-indicator.profit {
+  background-color: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+}
+
+.pl-indicator.loss {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.position-details {
+  padding: 0 16px;
+  animation: slideDown 0.3s ease;
+}
+
+.price-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  color: #94a3b8;
+  font-size: 15px;
+}
+
+.label {
+  color: #64748b;
+  font-size: 14px;
+  margin-right: 4px;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.btn {
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  outline: none;
+  flex: 1;
+  margin: 0 4px;
+}
+
+.close-btn {
+  background-color: #ef4444;
+  color: white;
+}
+
+.scale-btn {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.roll-btn {
+  background-color: #22c55e;
+  color: white;
+}
+
+.btn:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

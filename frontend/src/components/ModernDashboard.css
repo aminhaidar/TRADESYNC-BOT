@@ -1,0 +1,231 @@
+.app-container {
+  min-height: 100vh;
+  padding: 20px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.app-container.light-theme {
+  background-color: #ffffff;
+  color: #24292e;
+}
+
+.app-container.dark-theme {
+  background-color: #0d1117;
+  color: #c9d1d9;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.app-container.light-theme .app-header {
+  background-color: #f6f8fa;
+  border-bottom-color: #d0d7de;
+}
+
+.app-container.dark-theme .app-header {
+  background-color: #161b22;
+  border-bottom-color: #30363d;
+}
+
+.logo h1 {
+  margin: 0;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+}
+
+.app-container.light-theme .logo h1 {
+  color: #24292e;
+}
+
+.app-container.dark-theme .logo h1 {
+  color: #c9d1d9;
+}
+
+.logo .accent {
+  margin-left: 5px;
+}
+
+.app-container.light-theme .logo .accent {
+  color: #0366d6;
+}
+
+.app-container.dark-theme .logo .accent {
+  color: #58a6ff;
+}
+
+.version-tag {
+  font-size: 12px;
+  margin-left: 5px;
+}
+
+.app-container.light-theme .version-tag {
+  color: #57606a;
+}
+
+.app-container.dark-theme .version-tag {
+  color: #8b949e;
+}
+
+.market-tickers {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.ticker {
+  padding: 5px 10px;
+  border-radius: 4px;
+  display: flex;
+  gap: 5px;
+}
+
+.app-container.light-theme .ticker {
+  background-color: #ffffff;
+}
+
+.app-container.dark-theme .ticker {
+  background-color: #0d1117;
+}
+
+.ticker-name {
+  margin-right: 5px;
+}
+
+.app-container.light-theme .ticker-name {
+  color: #57606a;
+}
+
+.app-container.dark-theme .ticker-name {
+  color: #8b949e;
+}
+
+.app-container.light-theme .ticker-value {
+  color: #24292e;
+}
+
+.app-container.dark-theme .ticker-value {
+  color: #c9d1d9;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.trading-mode-toggle .switch-toggle {
+  position: relative;
+  display: inline-block;
+}
+
+.slider {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100px;
+  padding: 5px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.app-container.light-theme .slider {
+  background-color: #f6f8fa;
+}
+
+.app-container.dark-theme .slider {
+  background-color: #161b22;
+}
+
+.paper-label, .live-label {
+  font-size: 12px;
+}
+
+.app-container.light-theme .paper-label,
+.app-container.light-theme .live-label {
+  color: #57606a;
+}
+
+.app-container.dark-theme .paper-label,
+.app-container.dark-theme .live-label {
+  color: #8b949e;
+}
+
+.connection-status {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.app-container.light-theme .connection-status {
+  color: #57606a;
+}
+
+.app-container.dark-theme .connection-status {
+  color: #8b949e;
+}
+
+.status-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.status-indicator.connected {
+  background-color: #2ea44f;
+}
+
+.status-indicator.disconnected {
+  background-color: #cb2431;
+}
+
+.refresh-btn, .theme-toggle-btn {
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.app-container.light-theme .refresh-btn,
+.app-container.light-theme .theme-toggle-btn {
+  background-color: #0366d6;
+  color: white;
+}
+
+.app-container.dark-theme .refresh-btn,
+.app-container.dark-theme .theme-toggle-btn {
+  background-color: #58a6ff;
+  color: white;
+}
+
+.app-container.light-theme .refresh-btn:hover,
+.app-container.light-theme .theme-toggle-btn:hover {
+  background-color: #005bb5;
+}
+
+.app-container.dark-theme .refresh-btn:hover,
+.app-container.dark-theme .theme-toggle-btn:hover {
+  background-color: #0366d6;
+}
+
+.app-container.light-theme .theme-toggle-btn {
+  background-color: #f6f8fa;
+  color: #24292e;
+  border: 1px solid #d0d7de;
+}
+
+.app-container.dark-theme .theme-toggle-btn {
+  background-color: #161b22;
+  color: #c9d1d9;
+  border: 1px solid #30363d;
+}

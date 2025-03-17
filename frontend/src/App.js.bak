@@ -1,0 +1,19 @@
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { SocketProvider } from './context/SocketContext';
+import TradingDashboard from './components/TradingDashboard';
+import './App.css';
+
+function App() {
+  return (
+    <Router>
+      <SocketProvider>
+        <Routes>
+          <Route path="/" element={<TradingDashboard />} />
+        </Routes>
+      </SocketProvider>
+    </Router>
+  );
+}
+
+export default App;

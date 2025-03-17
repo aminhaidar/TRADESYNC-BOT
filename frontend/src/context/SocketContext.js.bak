@@ -1,0 +1,74 @@
+import React, { createContext, useState, useEffect, useContext } from 'react';
+import io from 'socket.io-client';
+
+const SocketContext = createContext();
+
+const SocketProvider = ({ children }) => {
+  const [socket, setSocket] = useState(null);
+  const [connected, setConnected] = useState(false);
+  const [isOfflineMode, setIsOfflineMode] = useState(false);
+
+  useEffect(() => {
+    // Initialize socket connection
+    const newSocket = io('http://localhost:5000', {
+      transports: ['websocket'],
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+    });
+
+    // Socket event handlers
+    newSocket.on('connect', () => {
+      console.log('Socket connected');
+      setConnected(true);
+      setIsOfflineMode(false);
+    });
+
+    newSocket.on('disconnect', () => {
+      console.log('Socket disconnected');
+      setConnected(false);
+    });
+
+    newSocket.on('connect_error', (error) => {
+      console.error('Socket connection error:', error);
+      setIsOfflineMode(true);
+    });
+
+    // Save socket in state
+    setSocket(newSocket);
+
+    // Cleanup on unmount
+    return () => {
+      console.log('Closing socket connection...');
+      newSocket.close();
+    };
+  }, []);
+
+  // Function to execute trades via socket
+  const executeTrade = (tradeData) => {
+    if (!socket || !connected) {
+      console.error('Cannot execute trade - socket not connected');
+      return false;
+    }
+
+    console.log('Emitting execute_trade event:', tradeData);
+    socket.emit('execute_trade', tradeData);
+    return true;
+  };
+
+  return (
+    <SocketContext.Provider value={{ socket, connected, isOfflineMode, executeTrade }}>
+      {children}
+    </SocketContext.Provider>
+  );
+};
+
+// Custom hook for using the socket context
+const useSocket = () => {
+  const context = useContext(SocketContext);
+  if (!context) {
+    throw new Error('useSocket must be used within a SocketProvider');
+  }
+  return context;
+};
+
+export { SocketProvider, useSocket, SocketContext };
