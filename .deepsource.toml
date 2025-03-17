@@ -3,7 +3,7 @@ version = 1
 [[analyzers]]
 name = "javascript"
 enabled = true
-minimum_version = "16.0"
+minimum_version = "18.0"
   [analyzers.meta]
   languages = ["javascript"]
   files = ["backend/**/*.js"]
