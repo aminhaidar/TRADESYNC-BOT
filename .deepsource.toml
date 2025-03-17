@@ -3,14 +3,11 @@ version = 1
 [[analyzers]]
 name = "javascript"
 enabled = true
-minimum_version = "20.0"
-  [analyzers.meta]
-  languages = ["javascript"]
-  files = ["backend/**/*.js"]
-  skip_dirs = ["node_modules", "frontend/node_modules"]
+minimum_version = "23.0"
+  [analyzers.settings]
+  max_line_length = 100
+  allow_implicit_any = false
 
 [[analyzers]]
 name = "python"
 enabled = false
-  [analyzers.meta]
-  skip_dirs = ["venv", "backend/venv"]
