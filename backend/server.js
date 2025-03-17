@@ -9,7 +9,6 @@ const fs = require('fs').promises;
 const Alpaca = require('@alpacahq/alpaca-trade-api');
 
 // Update the OpenAI key
-process.env.OPENAI_API_KEY = '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';
 
 // Log available environment variables (without exposing full secrets)
 console.log("Environment Check:");
