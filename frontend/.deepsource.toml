@@ -1,0 +1,10 @@
+version = 1
+
+[[analyzers]]
+name = "javascript"
+enabled = true
+minimum_version = "23.0"
+
+[[analyzers]]
+name = "python"
+enabled = false
