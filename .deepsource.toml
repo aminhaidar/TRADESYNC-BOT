@@ -3,7 +3,15 @@ version = 1
 [[analyzers]]
 name = "javascript"
 enabled = true
-
   [analyzers.meta]
   max_line_length = 80
   skip_files = ["node_modules/**"]
+  enabled_linters = ["eslint"]
+
+[[analyzers]]
+name = "python"
+enabled = true
+  [analyzers.meta]
+  max_line_length = 80
+  skip_files = ["venv/**"]
+  enabled_linters = ["pylint"]
