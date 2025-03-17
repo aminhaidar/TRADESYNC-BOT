@@ -17,14 +17,11 @@ load_dotenv()
 DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
 
 def fetch_discord_alerts():
-    """
-    Fetch trade alerts from Discord via webhook (simulated for now).
-    """
     try:
         logger.info("Attempting to fetch Discord alerts")
         if not DISCORD_WEBHOOK_URL:
             logger.warning("DISCORD_WEBHOOK_URL not configured. Returning mock alert.")
-            return "BUY AAPL 1 CALLS EXP 2025-03-20 @ $2.50"  # Reduced to 1 contract
+            return "BUY AAPL 1 CALLS EXP 2025-03-20 @ $2.50"
         response = requests.get(DISCORD_WEBHOOK_URL)
         response.raise_for_status()
         logger.info(f"Discord webhook response: {response.text}")
@@ -34,9 +31,6 @@ def fetch_discord_alerts():
         return None
 
 def parse_trade_alert(message):
-    """
-    Parse trade alert into structured data (simulated for now).
-    """
     try:
         logger.info(f"Parsing alert: {message}")
         parts = message.split()

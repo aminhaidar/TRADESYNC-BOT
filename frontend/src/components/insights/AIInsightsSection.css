@@ -1,0 +1,150 @@
+.insights-section {
+  background-color: var(--card-bg, #161b22);
+  border-radius: 8px;
+  border: 1px solid var(--border-color, #30363d);
+  padding: 1rem;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.section-title {
+  font-size: 1.2rem;
+  margin: 0 0 1rem 0;
+  color: var(--text-primary, #e6edf3);
+}
+
+.insights-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-color, #30363d);
+  overflow-x: auto;
+}
+
+.tab-btn {
+  background: none;
+  border: 1px solid var(--border-color, #30363d);
+  border-radius: 4px;
+  padding: 0.5rem 0.75rem;
+  color: var(--text-secondary, #8b949e);
+  cursor: pointer;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.tab-btn.active {
+  background-color: var(--accent-blue, #388bfd);
+  color: white;
+  border-color: var(--accent-blue, #388bfd);
+}
+
+.insights-list {
+  overflow-y: auto;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.insight-card {
+  background-color: var(--card-bg-alt, #21262d);
+  border-radius: 6px;
+  border: 1px solid var(--border-color, #30363d);
+  padding: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.insight-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.insight-card.selected {
+  border-color: var(--accent-blue, #388bfd);
+  box-shadow: 0 0 0 1px var(--accent-blue, #388bfd);
+}
+
+.insight-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.insight-symbol {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.insight-recommendation {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.insight-recommendation.buy {
+  background-color: rgba(63, 185, 80, 0.2);
+  color: var(--accent-green, #3fb950);
+}
+
+.insight-recommendation.sell {
+  background-color: rgba(248, 81, 73, 0.2);
+  color: var(--accent-red, #f85149);
+}
+
+.insight-recommendation.hold {
+  background-color: rgba(139, 148, 158, 0.2);
+  color: var(--text-secondary, #8b949e);
+}
+
+.insight-summary {
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin-bottom: 0.75rem;
+  color: var(--text-primary, #e6edf3);
+}
+
+.insight-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+}
+
+.insight-confidence {
+  color: var(--text-secondary, #8b949e);
+}
+
+.insight-category {
+  background-color: var(--card-bg, #161b22);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  color: var(--text-secondary, #8b949e);
+}
+
+.execute-btn {
+  background-color: var(--accent-blue, #388bfd);
+  border: none;
+  color: white;
+  padding: 0.35rem 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.execute-btn:hover {
+  background-color: rgba(56, 139, 253, 0.8);
+}
+
+.no-insights {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  color: var(--text-secondary, #8b949e);
+}

@@ -1,0 +1,147 @@
+.ai-analytics-card {
+  background-color: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.ai-metrics {
+  margin-bottom: 1.5rem;
+}
+
+.ai-metric {
+  margin-bottom: 1rem;
+}
+
+.ai-metric-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.ai-metric-value {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.progress-bar {
+  height: 6px;
+  background-color: var(--background-secondary);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: var(--accent-green);
+  border-radius: 3px;
+}
+
+.top-sources {
+  margin-bottom: 1.5rem;
+}
+
+.section-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.source-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.source-item {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.source-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  color: white;
+}
+
+.source-content {
+  flex: 1;
+}
+
+.source-name {
+  font-weight: 500;
+  font-size: 0.875rem;
+  margin-bottom: 0.125rem;
+}
+
+.source-stats {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.strategy-performance {
+  margin-bottom: 1.5rem;
+}
+
+.strategy-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.strategy-card {
+  background-color: var(--background-secondary);
+  border-radius: 6px;
+  padding: 0.75rem;
+  text-align: center;
+}
+
+.strategy-card.best {
+  border: 1px solid var(--accent-green);
+}
+
+.strategy-name {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.strategy-value {
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.strategy-value.positive {
+  color: var(--accent-green);
+}
+
+@media (max-width: 768px) {
+  .ai-analytics-card {
+    padding: 1rem;
+  }
+}

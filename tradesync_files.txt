@@ -1,0 +1,649 @@
+Gathering TradeSync-Bot files and outputs...
+----------------------------------------
+### Backend/app.py
+from flask import Flask, jsonify, request
+from flask_socketio import SocketIO, emit
+from flask_cors import CORS
+from dotenv import load_dotenv
+import os
+import logging
+from datetime import datetime
+import alpaca_service
+import trade_executor
+import database
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+load_dotenv()
+logger.info(f"Loading .env from: {os.path.abspath('.env')}")
+logger.info(f"APCA_API_KEY_ID: {os.getenv('APCA_API_KEY_ID')}")
+logger.info(f"APCA_API_SECRET_KEY: {os.getenv('APCA_API_SECRET_KEY')}")
+logger.info(f"OPENAI_API_KEY: {os.getenv('OPENAI_API_KEY')}")
+
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'your-secret-key'
+CORS(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
+
+DATABASE_URI = os.getenv("DATABASE_URI", "sqlite:///trades.db")
+logger.info(f"Using DATABASE_URI: {DATABASE_URI}")
+database.setup_database(DATABASE_URI)
+logger.info("Database setup completed successfully")
+
+@app.route('/api/dashboard-data', methods=['GET'])
+def get_dashboard_data():
+    try:
+        trades = database.get_trades()
+        for trade in trades:
+            option_symbol = trade_executor.get_option_symbol(trade['symbol'], trade['option_details'])
+            if option_symbol:
+                current_price, _, _, _ = alpaca_service.get_option_quote(option_symbol)
+                trade['current_price'] = current_price
+            else:
+                trade['current_price'] = 1.80
+
+        insights = [
+            {"symbol": "AAPL", "recommendation": "Buy", "summary": "Buy because of strong upward trend with 85% confidence", "confidence": 0.85, "category": "technical"},
+            {"symbol": "AAPL", "recommendation": "Sell", "summary": "Sell because of overbought conditions with 70% confidence", "confidence": 0.70, "category": "technical"},
+            {"symbol": "AAPL", "recommendation": "Buy", "summary": "Buy because of positive earnings with 90% confidence", "confidence": 0.90, "category": "fundamental"},
+            {"symbol": "AAPL", "recommendation": "Hold", "summary": "Hold because of market uncertainty with 60% confidence", "confidence": 0.60, "category": "news"},
+            {"symbol": "AAPL", "recommendation": "Buy", "summary": "Buy because of breakout pattern with 80% confidence", "confidence": 0.80, "category": "technical"},
+        ]
+
+        chart_data = {
+            "labels": ["2025-03-09", "2025-03-10", "2025-03-11", "2025-03-12", "2025-03-13"],
+            "datasets": [
+                {"label": "TradeSync Portfolio", "data": [560.58, 555.92, 558.87, 551.42, 562.81], "borderColor": "#3fb950", "backgroundColor": "rgba(63, 185, 80, 0.2)", "tension": 0.4, "fill": True},
+                {"label": "SPY Benchmark", "data": [532.551, 528.124, 530.9265, 523.849, 534.6695], "borderColor": "#8b949e", "backgroundColor": "rgba(139, 148, 158, 0.2)", "tension": 0.4, "fill": True}
+            ]
+        }
+
+        metrics = {"accountValue": 10000.00, "availableCash": 5000.00, "totalPnl": 250.00, "openPositions": 3, "winRate": 65.5}
+        positions = [
+            {"symbol": "AAPL", "quantity": 10, "avgPrice": 175.00, "currentPrice": 180.00, "pnl": 50.00},
+            {"symbol": "MSFT", "quantity": 5, "avgPrice": 300.00, "currentPrice": 310.00, "pnl": 50.00},
+            {"symbol": "GOOGL", "quantity": 2, "avgPrice": 2500.00, "currentPrice": 2450.00, "pnl": -100.00}
+        ]
+
+        response_data = {"trades": trades, "insights": insights, "chartData": chart_data, "metrics": metrics, "positions": positions}
+        logger.info(f"Returning dashboard data: trades={len(trades)}, insights={len(insights)}, chartData={chart_data}")
+        return jsonify(response_data)
+    except Exception as e:
+        logger.error(f"Error in get_dashboard_data: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/trigger-trade', methods=['POST'])
+def trigger_trade():
+    try:
+        trade = {
+            "symbol": "AAPL",
+            "action": "buy",
+            "contracts": 1,
+            "option_details": "155C 04/17",
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "source": "TestSource",
+            "user": "TestUser",
+            "url": "http://example.com",
+            "status": "pending",
+            "confidence": 0.85
+        }
+        socketio.emit('live_trade_update', trade)
+        logger.info(f"Manually triggered trade update: {trade}")
+        return jsonify({"message": "Trade update triggered", "trade": trade})
+    except Exception as e:
+        logger.error(f"Error in trigger_trade: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+@socketio.on('connect')
+def handle_connect():
+    logger.info(f"Client connected, socket ID: {request.sid}")
+    emit('connection_response', {'status': 'connected'})
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    logger.info(f"Client disconnected, socket ID: {request.sid}")
+
+@socketio.on('error')
+def handle_error(error):
+    logger.error(f"SocketIO error for socket {request.sid}: {str(error)}")
+
+@socketio.on('execute_trade')
+def handle_execute_trade(data):
+    logger.info(f"Received execute_trade event: {data}")
+    trade = {
+        "symbol": data["symbol"],
+        "action": data["action"],
+        "contracts": 1,
+        "option_details": "155C 04/17",
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "status": "pending",
+        "confidence": data["confidence"]
+    }
+    trade_executor.execute_trade(trade)
+    socketio.emit('live_trade_update', trade)
+    logger.info(f"Emitted live_trade_update for executed trade: {trade}")
+
+if __name__ == "__main__":
+    port = int(os.getenv("PORT", 5000))
+    logger.info(f"Starting server on port {port}")
+    socketio.run(app, host="0.0.0.0", port=port)
+
+----------------------------------------
+### Backend/trade_executor.py
+import logging
+from datetime import datetime
+import alpaca_service
+
+logger = logging.getLogger(__name__)
+
+def get_option_symbol(symbol, option_details):
+    try:
+        # Parse option details (e.g., "180C 04/17")
+        parts = option_details.split()
+        if len(parts) != 2:
+            logger.error(f"Invalid option_details format: {option_details}")
+            return None
+
+        strike_part, date_part = parts
+        strike = float(strike_part[:-1])  # Remove 'C' or 'P' to get strike price
+        option_type = 'call' if 'C' in strike_part.upper() else 'put'
+        # Parse "MM/DD" to "YYYY-MM-DD" (assuming year 2025)
+        expiration = datetime.strptime(f"2025-{date_part}", "%Y-%m/%d").date()
+
+        # Fetch option contracts
+        contracts = alpaca_service.get_option_contracts(symbol)
+        if not contracts:
+            logger.warning(f"No option contracts found for {symbol}")
+            return None
+
+        # Log available contracts for debugging
+        logger.info(f"Available contracts for {symbol}:")
+        for contract in contracts:
+            logger.info(f" - Symbol: {contract.symbol}, Strike: {contract.strike_price}, Expiration: {contract.expiration_date}, Type: {contract.option_type}")
+
+        # Find matching contract
+        for contract in contracts:
+            if (abs(contract.strike_price - strike) <= 0.01 and  # Allow small float differences
+                contract.expiration_date == expiration and
+                contract.option_type == option_type):
+                logger.info(f"Valid option symbol found: {contract.symbol}")
+                return contract.symbol
+
+        logger.error(f"No valid option contract for {symbol} with strike ${strike} and expiration {expiration.strftime('%Y%m%d')}")
+        return None
+    except Exception as e:
+        logger.error(f"Error in get_option_symbol: {str(e)}")
+        return None
+
+def execute_trade(trade, entry_price=None):
+    try:
+        # Placeholder for trade execution logic
+        trade["status"] = "executed"
+        logger.info(f"Trade executed successfully: {trade}")
+        return trade
+    except Exception as e:
+        logger.error(f"Error executing trade: {str(e)}")
+        trade["status"] = "rejected"
+        return trade
+
+----------------------------------------
+### Backend/alpaca_service.py
+import os
+import logging
+from datetime import datetime, timedelta
+from dotenv import load_dotenv
+from alpaca.trading.client import TradingClient
+from alpaca.trading.requests import GetOptionContractsRequest
+
+load_dotenv()
+logger = logging.getLogger(__name__)
+
+def get_alpaca_client():
+    key_id = os.getenv("APCA_API_KEY_ID")
+    secret_key = os.getenv("APCA_API_SECRET_KEY")
+    if not key_id or not secret_key:
+        logger.error("Alpaca API credentials not found in environment")
+        raise ValueError("APCA_API_KEY_ID and APCA_API_SECRET_KEY must be set")
+    try:
+        client = TradingClient(
+            api_key=key_id,
+            secret_key=secret_key,
+            paper=True  # Use paper trading
+        )
+        return client
+    except Exception as e:
+        logger.error(f"Failed to initialize Alpaca client: {str(e)}")
+        raise
+
+alpaca_client = get_alpaca_client()
+
+def get_stock_data(symbol, timestamp):
+    try:
+        from alpaca.data import StockHistoricalDataClient
+        from alpaca.data.requests import StockLatestQuoteRequest
+        
+        data_client = StockHistoricalDataClient(
+            api_key=os.getenv("APCA_API_KEY_ID"),
+            secret_key=os.getenv("APCA_API_SECRET_KEY")
+        )
+        request = StockLatestQuoteRequest(symbol_or_symbols=symbol)
+        quote = data_client.get_stock_latest_quote(request)
+        quote = quote[symbol]
+        logger.info(f"Alpaca get_stock_data response for {symbol}: {quote}")
+        return quote.ask_price if quote and quote.ask_price else 0
+    except Exception as e:
+        logger.error(f"Error fetching stock data for {symbol}: {str(e)}")
+        return 0
+
+def get_option_contracts(symbol):
+    try:
+        # Fetch option contracts using alpaca-py
+        expiration_date = (datetime.now() + timedelta(days=30)).strftime('%Y-%m-%d')
+        request = GetOptionContractsRequest(
+            underlying_symbols=[symbol],
+            expiration_date_gte=expiration_date,
+            status='active',
+            limit=10
+        )
+        options = alpaca_client.get_option_contracts(request)
+        contracts = options.option_contracts if options.option_contracts else []
+
+        class OptionContract:
+            def __init__(self, symbol, strike_price, expiration_date, option_type):
+                self.symbol = symbol
+                self.strike_price = strike_price
+                self.expiration_date = expiration_date
+                self.option_type = option_type
+
+        option_contracts = []
+        for contract in contracts:
+            option_contracts.append(OptionContract(
+                symbol=contract.symbol,
+                strike_price=float(contract.strike_price),
+                expiration_date=contract.expiration_date,
+                option_type=contract.type.lower()  # Use type as per alpaca-py
+            ))
+        if not option_contracts:
+            logger.warning(f"No option contracts found for {symbol} with expiration >= {expiration_date}")
+        return option_contracts
+    except Exception as e:
+        logger.error(f"Error fetching option contracts for {symbol}: {str(e)}")
+        return []
+
+def get_option_quote(option_symbol):
+    try:
+        if not option_symbol:
+            raise ValueError("Option symbol cannot be None")
+        from alpaca.data import OptionHistoricalDataClient
+        from alpaca.data.requests import OptionLatestQuoteRequest
+
+        data_client = OptionHistoricalDataClient(
+            api_key=os.getenv("APCA_API_KEY_ID"),
+            secret_key=os.getenv("APCA_API_SECRET_KEY")
+        )
+        request = OptionLatestQuoteRequest(symbol_or_symbols=option_symbol)
+        quote = data_client.get_option_latest_quote(request)
+        quote = quote[option_symbol]
+        logger.info(f"Alpaca get_option_quote response for {option_symbol}: {quote}")
+        last_price = float(quote.last_price) if quote and quote.last_price else 1.80
+        bid_price = float(quote.bid_price) if quote and quote.bid_price else 1.75
+        ask_price = float(quote.ask_price) if quote and quote.ask_price else 1.85
+        spread = ask_price - bid_price
+        return last_price, bid_price, ask_price, spread
+    except Exception as e:
+        logger.error(f"Error fetching quote for {option_symbol}: {str(e)}")
+        return 1.80, 1.75, 1.85, 0.10
+
+----------------------------------------
+### Backend/database.py
+import logging
+from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, Boolean
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from datetime import datetime
+
+logger = logging.getLogger(__name__)
+
+Base = declarative_base()
+
+class Trade(Base):
+    __tablename__ = 'trades'
+    id = Column(Integer, primary_key=True)
+    symbol = Column(String)
+    action = Column(String)
+    quantity = Column(Float)
+    price = Column(Float)
+    status = Column(String)
+    timestamp = Column(DateTime)
+    confidence = Column(Float)
+    source = Column(String)
+    user = Column(String)
+    url = Column(String)
+    option_details = Column(String)
+    closed = Column(Boolean)
+    closed_timestamp = Column(DateTime)
+
+def setup_database(database_uri):
+    try:
+        logger.info(f"Getting connection to database: {database_uri}")
+        engine = create_engine(database_uri)
+        Base.metadata.create_all(engine)
+        logger.info("Successfully connected to database at trades.db")
+        Session = sessionmaker(bind=engine)
+        return Session()
+    except Exception as e:
+        logger.error(f"Error setting up database: {str(e)}")
+        raise
+
+def get_trades():
+    try:
+        session = setup_database('sqlite:///trades.db')
+        trades = session.query(Trade).all()
+        trade_list = [
+            {
+                "id": trade.id,
+                "symbol": trade.symbol,
+                "action": trade.action,
+                "quantity": trade.quantity,
+                "price": trade.price,
+                "status": trade.status,
+                "timestamp": trade.timestamp.strftime('%Y-%m-%d %H:%M:%S') if trade.timestamp else None,
+                "confidence": trade.confidence,
+                "source": trade.source,
+                "user": trade.user,
+                "url": trade.url,
+                "option_details": trade.option_details,
+                "closed": trade.closed,
+                "closed_timestamp": trade.closed_timestamp.strftime('%Y-%m-%d %H:%M:%S') if trade.closed_timestamp else None
+            }
+            for trade in trades
+        ]
+        session.close()
+        return trade_list
+    except Exception as e:
+        logger.error(f"Error fetching trades: {str(e)}")
+        return []
+
+----------------------------------------
+### Backend/trade_routes.py
+from flask import Blueprint
+
+# Define the blueprint
+trade_routes = Blueprint('trade_routes', __name__)
+----------------------------------------
+### Frontend/src/components/Insights.js
+import React from 'react';
+import './Insights.css';
+import { useSocket } from '../context/SocketContext';
+
+const Insights = ({ insights, activeTab }) => {
+  const socket = useSocket();
+  const isConnected = socket.connected; // Check connection status
+
+  const handleExecute = (insight) => {
+    if (isConnected) {
+      socket.emit('execute_trade', {
+        symbol: insight.symbol || 'AAPL',
+        action: insight.recommendation || 'buy',
+        confidence: insight.confidence || 0.85,
+      });
+      console.log('Sent execute_trade event:', { symbol: insight.symbol, action: insight.recommendation, confidence: insight.confidence });
+    } else {
+      console.warn('Cannot execute trade: Socket is not connected');
+    }
+  };
+
+  const filteredInsights = insights.filter(insight => 
+    activeTab === 'all' || insight.category === activeTab
+  );
+
+  return (
+    <div className="insights-container">
+      <h2>Insights</h2>
+      <div className="insights-list">
+        {filteredInsights.length > 0 ? (
+          filteredInsights.map((insight, index) => (
+            <div key={index} className="insight-card">
+              <div className="insight-header">
+                <h3>{insight.symbol || 'N/A'}</h3>
+                <span className="insight-recommendation">
+                  {insight.recommendation || 'No recommendation'}
+                </span>
+              </div>
+              <div className="insight-content">
+                <p>{insight.summary || 'No recommendation available'}</p>
+              </div>
+              <div className="insight-footer">
+                <div className="insight-tags">
+                  <span className="insight-tag">AI Confidence: {((insight.confidence || 0) * 100).toFixed(0)}%</span>
+                  <span className="insight-tag">Short-term</span>
+                </div>
+                <button 
+                  className="btn btn-primary" 
+                  onClick={() => handleExecute(insight)} 
+                  disabled={!isConnected}
+                >
+                  Execute
+                </button>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="no-insights">No insights available for this tab.</div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Insights;
+
+----------------------------------------
+### Frontend/src/context/SocketContext.js
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
+import { io } from 'socket.io-client';
+
+const SocketContext = createContext(null);
+
+export const SocketProvider = ({ children, refreshData }) => {
+  const socketRef = useRef(null);
+  const [isConnected, setIsConnected] = useState(false);
+
+  useEffect(() => {
+    if (!socketRef.current) {
+      console.log('SocketContext: Initializing socket connection...');
+      socketRef.current = io('http://localhost:5000', {
+        transports: ['websocket'],
+        reconnection: true,
+        reconnectionAttempts: 20,
+        reconnectionDelay: 2000,
+        timeout: 20000,
+        autoConnect: false,
+      });
+
+      socketRef.current.on('connect', () => {
+        console.log('Socket.IO connected, socket ID:', socketRef.current.id);
+        setIsConnected(true);
+      });
+
+      socketRef.current.on('connect_error', (error) => {
+        console.error('Socket.IO connect error:', error.message);
+        setIsConnected(false);
+      });
+
+      socketRef.current.on('disconnect', (reason) => {
+        console.log('Socket.IO disconnected, reason:', reason);
+        setIsConnected(false);
+      });
+
+      socketRef.current.on('live_trade_update', (trade) => {
+        console.log('SocketContext: Received live_trade_update:', trade);
+        if (refreshData) refreshData();
+      });
+
+      setTimeout(() => {
+        socketRef.current.connect();
+        console.log('SocketContext: Attempting to connect...');
+      }, 2000);
+    }
+
+    return () => {
+      console.log('SocketContext: Cleaning up socket connection...');
+      if (socketRef.current) {
+        socketRef.current.off();
+        socketRef.current.disconnect();
+        socketRef.current = null;
+      }
+    };
+  }, [refreshData]);
+
+  return (
+    <SocketContext.Provider value={{ socket: socketRef.current, isConnected }}>
+      {children}
+    </SocketContext.Provider>
+  );
+};
+
+export const useSocket = () => {
+  const context = useContext(SocketContext);
+  if (!context) {
+    throw new Error('useSocket must be used within a SocketProvider');
+  }
+  return context;
+};
+
+----------------------------------------
+### Frontend/src/hooks/useTradeData.js
+import { useState, useEffect } from 'react';
+
+const useTradeData = () => {
+  const [dashboardData, setDashboardData] = useState(null);
+  const [error, setError] = useState(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        console.log('useTradeData.js: Fetching dashboard data from http://localhost:5000/api/dashboard-data');
+        const response = await fetch('http://localhost:5000/api/dashboard-data', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        console.log('useTradeData.js: Response status:', response.status);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch dashboard data: ${response.status} ${response.statusText}`);
+        }
+        const data = await response.json();
+        console.log('useTradeData.js: Fetched dashboard data:', data);
+        setDashboardData(data);
+        setError(null);
+      } catch (err) {
+        console.error('useTradeData.js: Error fetching dashboard data:', err);
+        setError(err.message);
+        setDashboardData(null);
+      }
+    };
+
+    fetchData();
+  }, [refreshTrigger]);
+
+  const refreshData = () => {
+    console.log('useTradeData.js: Triggering data refresh');
+    setRefreshTrigger(prev => prev + 1);
+  };
+
+  return { dashboardData, error, refreshData };
+};
+
+export default useTradeData;
+
+----------------------------------------
+### Frontend/src/components/Chart.js
+import React from 'react';
+import { Line } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
+
+// Register Chart.js components and Filler plugin
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
+console.log('ChartJS plugins registered:', ChartJS.registry.plugins.get('filler'));
+
+const Chart = ({ data }) => {
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: { position: 'top' },
+      title: { display: true, text: 'Portfolio Performance' },
+    },
+    scales: {
+      x: { title: { display: true, text: 'Date' } },
+      y: { title: { display: true, text: 'Value ($)' } },
+    },
+  };
+
+  return <Line data={data} options={options} />;
+};
+
+export default Chart;
+
+----------------------------------------
+### Frontend/src/App.js
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import TradingDashboard from './components/TradingDashboard';
+import { SocketProvider } from './context/SocketContext';
+import { ThemeProvider } from './context/ThemeContext';
+import useTradeData from './hooks/useTradeData';
+import './App.css';
+
+function App() {
+  const [loading, setLoading] = useState(true);
+  const { dashboardData, error, refreshData } = useTradeData();
+
+  useEffect(() => {
+    console.log('App.js: loading=', loading, 'error=', error, 'dashboardData=', dashboardData);
+    if (dashboardData || error) {
+      setLoading(false);
+    }
+  }, [dashboardData, error, loading]);
+
+  return (
+    <ThemeProvider>
+      <SocketProvider refreshData={refreshData}>
+        <Router>
+          <div className="App">
+            {loading ? (
+              <div>Loading...</div>
+            ) : error ? (
+              <div>Error: {error}</div>
+            ) : (
+              <Routes>
+                <Route
+                  path="/"
+                  element={
+                    <TradingDashboard
+                      dashboardData={dashboardData}
+                      refreshData={refreshData}
+                      isPaperTrading={true}
+                      layout="default"
+                    />
+                  }
+                />
+              </Routes>
+            )}
+          </div>
+        </Router>
+      </SocketProvider>
+    </ThemeProvider>
+  );
+}
+
+export default App;
+
+----------------------------------------
+### trades.db Query: SELECT * FROM trades;
+17|AAPL|buy|1.0|180.0|pending|2025-03-16 12:00:00|0.85|TestSource|TestUser|http://example.com|180C 04/17|0|
+
+----------------------------------------

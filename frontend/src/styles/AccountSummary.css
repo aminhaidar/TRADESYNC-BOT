@@ -1,0 +1,101 @@
+.account-summary-card {
+  background-color: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.trading-mode {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.trading-mode.paper {
+  background-color: var(--accent-orange);
+  color: white;
+}
+
+.trading-mode.live {
+  background-color: var(--accent-green);
+  color: white;
+}
+
+.balance-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.balance-metric {
+  background-color: var(--background-secondary);
+  border-radius: 6px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.metric-icon {
+  margin: 0 auto 0.5rem;
+  width: 24px;
+  height: 24px;
+  color: var(--text-secondary);
+}
+
+.metric-icon.profit {
+  color: var(--accent-green);
+}
+
+.metric-icon.loss {
+  color: var(--accent-orange);
+}
+
+.metric-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.metric-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.metric-value.positive {
+  color: var(--accent-green);
+}
+
+.metric-value.negative {
+  color: var(--accent-orange);
+}
+
+.account-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+@media (max-width: 768px) {
+  .balance-metrics {
+    grid-template-columns: 1fr;
+  }
+}

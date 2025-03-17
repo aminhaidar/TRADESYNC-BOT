@@ -1,0 +1,76 @@
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
+import io from 'socket.io-client';
+
+// Hardcoded backend URL with port 5001
+const BACKEND_URL = 'http://localhost:5001';
+
+const SocketContext = createContext();
+
+export const useSocket = () => useContext(SocketContext);
+
+export const SocketProvider = ({ children }) => {
+  const [isConnected, setIsConnected] = useState(false);
+  const [lastMessage, setLastMessage] = useState(null);
+  const socket = useRef(null);
+
+  useEffect(() => {
+    console.log("Initializing socket connection to:", BACKEND_URL);
+    
+    socket.current = io(BACKEND_URL, {
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      autoConnect: true,
+      transports: ['websocket', 'polling']
+    });
+
+    socket.current.on('connect', () => {
+      console.log('Socket connected successfully:', socket.current.id);
+      setIsConnected(true);
+    });
+
+    socket.current.on('disconnect', () => {
+      console.log('Socket disconnected');
+      setIsConnected(false);
+    });
+
+    socket.current.on('live_trade_update', (data) => {
+      console.log('Received trade update:', data);
+      setLastMessage(data);
+    });
+
+    socket.current.on('connection_response', (data) => {
+      console.log('Connection response:', data);
+    });
+
+    socket.current.on('connect_error', (err) => {
+      console.error('Socket connection error:', err);
+    });
+
+    return () => {
+      console.log("Cleaning up socket connection");
+      if (socket.current) {
+        socket.current.disconnect();
+      }
+    };
+  }, []);
+
+  const sendMessage = (event, data) => {
+    if (socket.current && isConnected) {
+      console.log(`Sending ${event}:`, data);
+      socket.current.emit(event, data);
+    } else {
+      console.warn('Socket not connected, cannot send message');
+    }
+  };
+
+  const value = {
+    socket: socket.current,
+    isConnected,
+    lastMessage,
+    sendMessage,
+  };
+
+  return <SocketContext.Provider value={value}>{children}</SocketContext.Provider>;
+};
+
+export default SocketContext;

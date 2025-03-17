@@ -1,0 +1,55 @@
+import logging
+from datetime import datetime
+import alpaca_service
+
+logger = logging.getLogger(__name__)
+
+def get_option_symbol(symbol, option_details):
+    try:
+        # Parse option details (e.g., "180C 04/17")
+        parts = option_details.split()
+        if len(parts) != 2:
+            logger.error(f"Invalid option_details format: {option_details}")
+            return None
+
+        strike_part, date_part = parts
+        strike = float(strike_part[:-1])  # Remove 'C' or 'P' to get strike price
+        option_type = 'call' if 'C' in strike_part.upper() else 'put'
+        # Parse "MM/DD" to "YYYY-MM-DD" (assuming year 2025)
+        expiration = datetime.strptime(f"2025-{date_part}", "%Y-%m/%d").date()
+
+        # Fetch option contracts
+        contracts = alpaca_service.get_option_contracts(symbol)
+        if not contracts:
+            logger.warning(f"No option contracts found for {symbol}")
+            return None
+
+        # Log available contracts for debugging
+        logger.info(f"Available contracts for {symbol}:")
+        for contract in contracts:
+            logger.info(f" - Symbol: {contract.symbol}, Strike: {contract.strike_price}, Expiration: {contract.expiration_date}, Type: {contract.option_type}")
+
+        # Find matching contract
+        for contract in contracts:
+            if (abs(contract.strike_price - strike) <= 0.01 and  # Allow small float differences
+                contract.expiration_date == expiration and
+                contract.option_type == option_type):
+                logger.info(f"Valid option symbol found: {contract.symbol}")
+                return contract.symbol
+
+        logger.error(f"No valid option contract for {symbol} with strike ${strike} and expiration {expiration.strftime('%Y%m%d')}")
+        return None
+    except Exception as e:
+        logger.error(f"Error in get_option_symbol: {str(e)}")
+        return None
+
+def execute_trade(trade, entry_price=None):
+    try:
+        # Placeholder for trade execution logic
+        trade["status"] = "executed"
+        logger.info(f"Trade executed successfully: {trade}")
+        return trade
+    except Exception as e:
+        logger.error(f"Error executing trade: {str(e)}")
+        trade["status"] = "rejected"
+        return trade

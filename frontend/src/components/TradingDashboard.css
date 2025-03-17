@@ -1,0 +1,260 @@
+.trading-dashboard {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.app-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.app-title .accent {
+  color: var(--accent-blue);
+}
+
+.app-title .version {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  font-weight: normal;
+  vertical-align: super;
+}
+
+.environment-badge {
+  background-color: var(--accent-green);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.connection-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.status-dot {
+  height: 8px;
+  width: 8px;
+  border-radius: 50%;
+}
+
+.connected .status-dot {
+  background-color: var(--accent-green);
+}
+
+.disconnected .status-dot {
+  background-color: var(--accent-red);
+}
+
+.dashboard-main {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  gap: 1rem;
+  padding: 1rem;
+  height: calc(100vh - 120px);
+  overflow-y: auto;
+}
+
+.dashboard-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-height: 100%;
+}
+
+.dashboard-card {
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.recent-trades {
+  margin-top: 1rem;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.trades-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.trade-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background-color: var(--card-bg-alt);
+  border-radius: 4px;
+}
+
+.trade-symbol {
+  font-weight: 600;
+  min-width: 60px;
+}
+
+.trade-action {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+  min-width: 60px;
+}
+
+.trade-action.buy {
+  background-color: rgba(63, 185, 80, 0.2);
+  color: var(--accent-green);
+}
+
+.trade-action.sell {
+  background-color: rgba(248, 81, 73, 0.2);
+  color: var(--accent-red);
+}
+
+.trade-details {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.875rem;
+}
+
+.trade-option {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+}
+
+.trade-status {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.no-data {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* Market Ticker styles */
+.market-ticker {
+  background-color: var(--card-bg);
+  padding: 0.5rem 1rem;
+  overflow-x: auto;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.ticker-container {
+  display: flex;
+  gap: 2rem;
+  animation: scroll 30s linear infinite;
+}
+
+.ticker-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ticker-symbol {
+  font-weight: 600;
+}
+
+.ticker-price {
+  font-weight: 500;
+}
+
+.ticker-change {
+  font-size: 0.875rem;
+  padding: 0.15rem 0.3rem;
+  border-radius: 4px;
+}
+
+.positive {
+  color: var(--accent-green);
+}
+
+.negative {
+  color: var(--accent-red);
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 1280px) {
+  .dashboard-main {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .left-column {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .center-column {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .right-column {
+    grid-column: 1 / span 2;
+    grid-row: 2;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-main {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .left-column, .center-column, .right-column {
+    grid-column: 1;
+  }
+
+  .left-column {
+    grid-row: 1;
+  }
+
+  .center-column {
+    grid-row: 2;
+  }
+
+  .right-column {
+    grid-row: 3;
+  }
+}

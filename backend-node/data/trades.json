@@ -1,0 +1,15 @@
+[
+  {
+    "id": "trade-1742189816465",
+    "symbol": "TSLA",
+    "action": "sell",
+    "quantity": 1,
+    "price": 0,
+    "current_price": 0,
+    "status": "executed",
+    "timestamp": "2025-03-17T05:36:56.465Z",
+    "confidence": 0.7,
+    "source": "AI Insight",
+    "option_details": "170P 05/17"
+  }
+]
