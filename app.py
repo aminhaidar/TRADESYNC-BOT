@@ -1,20 +1,20 @@
 from flask import Flask, request, jsonify
-@app.route("/")
-def home():
-    return "TradeSync Bot API", 200
 import sqlite3
 import os
-import json
 from datetime import datetime
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)  # Allow frontend to access API
+CORS(app)
 
-# Simulated Grok API call (replace with xAI API later)
+@app.route("/")
+def home():
+    return "TradeSync Bot API", 200
+
 def call_grok_api(post_text, source, timestamp, image_url=None):
     if "$" in post_text:
         ticker = next((word for word in post_text.split() if word.startswith("$")), "N/A")
+        
         if "buy" in post_text.lower() or "sell" in post_text.lower():
             category = "Actionable Trade"
             subcategory = ""
@@ -64,6 +64,7 @@ def webhook():
     db_path = os.environ.get('DB_PATH', '/tmp/tradesync.db')
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
+    
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS insights (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -77,6 +78,7 @@ def webhook():
             timestamp TEXT
         )
     ''')
+    
     cursor.execute('''
         INSERT INTO insights (ticker, category, subcategory, sentiment, summary, confidence, source, timestamp)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -90,6 +92,7 @@ def webhook():
         insight_data['source'],
         insight_data['timestamp']
     ))
+    
     conn.commit()
     conn.close()
 
