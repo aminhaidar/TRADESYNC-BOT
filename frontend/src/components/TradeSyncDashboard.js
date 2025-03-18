@@ -5,12 +5,12 @@ const TradeSyncDashboard = () => {
   const [expandedPosition, setExpandedPosition] = useState(null);
   const wsRef = useRef(null);
   const cryptoWsRef = useRef(null);
-  
+
   // API key references - hardcoded for development only
   // IMPORTANT: For production, these should be secure environment variables
   const API_KEY = 'PKJ4SXESMNL2TC496B2J';
   const API_SECRET = 'ehqd4WyctmQzjI7qsNL2lo9fQsu5d3jFUd1UReK4';
-  
+
   // Initialize data states
   const [marketData, setMarketData] = useState({
     SPY: { symbol: 'SPY', price: 483.58, change: 1.8 },
@@ -19,46 +19,46 @@ const TradeSyncDashboard = () => {
     AAPL: { symbol: 'AAPL', price: 213.18, change: 0.8 },
     BTC: { symbol: 'BTC', price: 68474, change: 2.5 }
   });
-  
+
   const [positions, setPositions] = useState([
-    { 
-      id: 'aapl', 
-      symbol: 'AAPL', 
-      type: 'stock', 
-      quantity: 10, 
-      entryPrice: 211.80, 
-      currentPrice: 213.25, 
-      costBasis: 2118.00, 
-      plValue: 14.50, 
-      plPercent: 0.7, 
+    {
+      id: 'aapl',
+      symbol: 'AAPL',
+      type: 'stock',
+      quantity: 10,
+      entryPrice: 211.80,
+      currentPrice: 213.25,
+      costBasis: 2118.00,
+      plValue: 14.50,
+      plPercent: 0.7,
       dayChange: 0.8
     },
-    { 
-      id: 'tsla', 
-      symbol: 'TSLA', 
-      type: 'stock', 
-      quantity: 15, 
-      entryPrice: 180.50, 
+    {
+      id: 'tsla',
+      symbol: 'TSLA',
+      type: 'stock',
+      quantity: 15,
+      entryPrice: 180.50,
       currentPrice: 177.82,
-      costBasis: 2707.50, 
-      plValue: -40.20, 
-      plPercent: -1.5, 
+      costBasis: 2707.50,
+      plValue: -40.20,
+      plPercent: -1.5,
       dayChange: -1.6
     },
-    { 
-      id: 'spy', 
-      symbol: 'SPY 490C 03/29/25', 
-      type: 'option', 
-      quantity: 5, 
-      entryPrice: 4.30, 
-      currentPrice: 4.88, 
-      costBasis: 2150.00, 
-      plValue: 290.00, 
-      plPercent: 13.5, 
+    {
+      id: 'spy',
+      symbol: 'SPY 490C 03/29/25',
+      type: 'option',
+      quantity: 5,
+      entryPrice: 4.30,
+      currentPrice: 4.88,
+      costBasis: 2150.00,
+      plValue: 290.00,
+      plPercent: 13.5,
       dayChange: 6.2
     }
   ]);
-  
+
   const [accountSummary, setAccountSummary] = useState({
     totalValue: 52490.40,
     availableCash: 37886.99,
@@ -66,19 +66,42 @@ const TradeSyncDashboard = () => {
     closedPL: 774.51
   });
 
+  // State for WebSocket connection status and theme (unused but kept for future use)
+  // eslint-disable-next-line no-unused-vars
+  const [isConnected, setIsConnected] = useState('connected');
+  // eslint-disable-next-line no-unused-vars
+  const toggleTheme = () => {
+    console.log('Theme toggle clicked');
+  };
+
   const [connectionStatus, setConnectionStatus] = useState('connected');
+
+  const [insights, setInsights] = useState([]);
+
+  useEffect(() => {
+    const fetchInsights = async () => {
+      try {
+        const response = await fetch('https://tradesync-bot-service.onrender.com/api/insights');
+        if (!response.ok) throw new Error('Failed to fetch insights');
+        const data = await response.json();
+        setInsights(data);
+      } catch (error) {
+        console.error('Error fetching insights:', error);
+      }
+    };
+    fetchInsights();
+    const intervalId = setInterval(fetchInsights, 60000); // Refresh every minute
+    return () => clearInterval(intervalId);
+  }, []);
 
   const togglePosition = (id) => {
     setExpandedPosition(expandedPosition === id ? null : id);
   };
 
-  // Function to handle scaling a position
   const handleScale = (positionId, percentage) => {
     console.log(`Scaling position ${positionId} by ${percentage}%`);
-    // Here you would implement the actual scaling logic
   };
 
-  // Helper function for formatting currency
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -88,7 +111,6 @@ const TradeSyncDashboard = () => {
     }).format(value);
   };
 
-  // Helper function for formatting percentages
   const formatPercentage = (value) => {
     return new Intl.NumberFormat('en-US', {
       style: 'percent',
@@ -98,59 +120,50 @@ const TradeSyncDashboard = () => {
     }).format(value / 100);
   };
 
-  // Function to connect to Alpaca API for account data
   useEffect(() => {
     const fetchAlpacaData = async () => {
       try {
-        // Using hardcoded API keys
         if (!API_KEY || !API_SECRET) {
           console.warn('Alpaca API keys not found');
           return;
         }
-        
+
         const response = await fetch('https://paper-api.alpaca.markets/v2/account', {
           headers: {
             'APCA-API-KEY-ID': API_KEY,
             'APCA-API-SECRET-KEY': API_SECRET
           }
         });
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
+
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
         const accountData = await response.json();
         console.log('Account data:', accountData);
-        
-        // Update account summary with real data
+
         setAccountSummary({
           totalValue: parseFloat(accountData.portfolio_value),
           availableCash: parseFloat(accountData.cash),
           openPL: parseFloat(accountData.equity) - parseFloat(accountData.last_equity),
           closedPL: parseFloat(accountData.realized_pl || 0)
         });
-        
-        // Fetch positions
+
         const positionsResponse = await fetch('https://paper-api.alpaca.markets/v2/positions', {
           headers: {
             'APCA-API-KEY-ID': API_KEY,
             'APCA-API-SECRET-KEY': API_SECRET
           }
         });
-        
-        if (!positionsResponse.ok) {
-          throw new Error(`HTTP error! status: ${positionsResponse.status}`);
-        }
-        
+
+        if (!positionsResponse.ok) throw new Error(`HTTP error! status: ${positionsResponse.status}`);
+
         const positionsData = await positionsResponse.json();
         console.log('Positions data:', positionsData);
-        
-        // Transform positions data to our format
+
         if (Array.isArray(positionsData)) {
           const formattedPositions = positionsData.map(position => ({
             id: position.asset_id || position.symbol.toLowerCase(),
             symbol: position.symbol,
-            type: 'stock', // Alpaca doesn't provide this directly, so we assume stock
+            type: 'stock',
             quantity: parseFloat(position.qty),
             entryPrice: parseFloat(position.avg_entry_price),
             currentPrice: parseFloat(position.current_price),
@@ -159,86 +172,71 @@ const TradeSyncDashboard = () => {
             plPercent: parseFloat(position.unrealized_plpc) * 100,
             dayChange: parseFloat(position.unrealized_intraday_plpc) * 100
           }));
-          
+
           setPositions(formattedPositions);
         }
-        
       } catch (error) {
         console.error('Error fetching data from Alpaca:', error);
         setConnectionStatus('error');
       }
     };
-    
+
     fetchAlpacaData();
-    
-    // Set up a timer to periodically refresh data
-    const intervalId = setInterval(fetchAlpacaData, 60000); // Refresh every minute
-    
+    const intervalId = setInterval(fetchAlpacaData, 60000);
     return () => clearInterval(intervalId);
   }, []);
-  
-  // Connect to Alpaca WebSocket for real-time market data
+
   useEffect(() => {
     const connectWebSocket = () => {
-      // Using hardcoded API keys
       if (!API_KEY || !API_SECRET) {
         console.warn('Alpaca API keys not found');
         return;
       }
-      
-      // Close existing connection if any
+
       if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
         wsRef.current.close();
       }
-      
-      // Connect to Alpaca WebSocket
+
       const ws = new WebSocket('wss://stream.data.alpaca.markets/v2/iex');
       wsRef.current = ws;
-      
-      // Define symbols to track
+
       const symbols = ['SPY', 'QQQ', 'VIX', 'AAPL'];
-      
+
       ws.onopen = () => {
         console.log('Connected to Alpaca WebSocket');
         setConnectionStatus('connected');
-        
-        // Authenticate
+
         ws.send(JSON.stringify({
           action: 'auth',
           key: API_KEY,
           secret: API_SECRET
         }));
-        
-        // Subscribe to trade updates for our symbols
+
         ws.send(JSON.stringify({
           action: 'subscribe',
           trades: symbols,
           quotes: symbols
         }));
       };
-      
+
       ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        
-        // Handle authentication confirmation
+
         if (data[0] && data[0].T === 'success' && data[0].msg === 'authenticated') {
           console.log('Successfully authenticated with Alpaca WebSocket');
         }
-        
-        // Handle trade updates
-        if (data[0] && data[0].T === 'q') { // Quote update
+
+        if (data[0] && data[0].T === 'q') {
           const quote = data[0];
           const symbol = quote.S;
-          
-          // Update marketData state with new price info
+
           setMarketData(prevData => {
-            // Skip if we don't have this symbol in our state
             if (!prevData[symbol]) return prevData;
-            
-            const newPrice = (quote.ap + quote.bp) / 2; // Midpoint of ask/bid
+
+            const newPrice = (quote.ap + quote.bp) / 2;
             const prevPrice = prevData[symbol].price;
             const changePercent = ((newPrice - prevPrice) / prevPrice) * 100;
-            
+
             return {
               ...prevData,
               [symbol]: {
@@ -248,15 +246,14 @@ const TradeSyncDashboard = () => {
               }
             };
           });
-          
-          // Also update positions if the symbol matches
+
           setPositions(prevPositions => {
             return prevPositions.map(position => {
               if (position.symbol === symbol) {
                 const newPrice = (quote.ap + quote.bp) / 2;
                 const plValue = (newPrice - position.entryPrice) * position.quantity;
                 const plPercent = ((newPrice / position.entryPrice) - 1) * 100;
-                
+
                 return {
                   ...position,
                   currentPrice: newPrice,
@@ -269,35 +266,32 @@ const TradeSyncDashboard = () => {
           });
         }
       };
-      
+
       ws.onerror = (error) => {
         console.error('WebSocket error:', error);
         setConnectionStatus('error');
-        
-        // Try to reconnect after a short delay
+
         setTimeout(() => {
           console.log('Attempting to reconnect...');
           connectWebSocket();
         }, 5000);
       };
-      
+
       ws.onclose = () => {
         console.log('Disconnected from Alpaca WebSocket');
         setConnectionStatus('disconnected');
-        
-        // Try to reconnect after a short delay
+
         setTimeout(() => {
           console.log('Attempting to reconnect...');
           connectWebSocket();
         }, 5000);
       };
-      
+
       return ws;
     };
-    
+
     const ws = connectWebSocket();
-    
-    // Clean up on unmount
+
     return () => {
       if (ws && ws.readyState === WebSocket.OPEN) {
         ws.close();
@@ -305,60 +299,52 @@ const TradeSyncDashboard = () => {
     };
   }, []);
 
-  // Using the unified WebSocket endpoint for crypto data
   useEffect(() => {
     const connectCryptoWebSocket = () => {
-      // Using hardcoded API keys
       if (!API_KEY || !API_SECRET) {
         console.warn('Alpaca API keys not found');
         return;
       }
-      
-      // Close existing connection
+
       if (cryptoWsRef.current && cryptoWsRef.current.readyState === WebSocket.OPEN) {
         cryptoWsRef.current.close();
       }
-      
-      // Connect to Alpaca's unified WebSocket endpoint for crypto
+
       const ws = new WebSocket('wss://stream.data.alpaca.markets/v2/iex');
       cryptoWsRef.current = ws;
-      
+
       ws.onopen = () => {
         console.log('Connected to Alpaca Crypto WebSocket');
-        
-        // Authenticate
+
         ws.send(JSON.stringify({
           action: 'auth',
           key: API_KEY,
           secret: API_SECRET
         }));
-        
-        // Subscribe to BTC updates - using the symbol format Alpaca expects
+
         ws.send(JSON.stringify({
           action: 'subscribe',
           symbols: ['BTC/USD'],
           quotes: ['BTC/USD']
         }));
       };
-      
+
       ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        
-        // Handle authentication confirmation
+
         if (data[0] && data[0].T === 'success' && data[0].msg === 'authenticated') {
           console.log('Successfully authenticated with Crypto WebSocket');
         }
-        
-        // Handle crypto updates
-        if (data[0] && data[0].T === 'q') { // Quote update
+
+        if (data[0] && data[0].T === 'q') {
           const quote = data[0];
-          
+
           if (quote.S === 'BTC/USD') {
             setMarketData(prevData => {
-              const newPrice = (quote.ap + quote.bp) / 2; // Midpoint of ask/bid
+              const newPrice = (quote.ap + quote.bp) / 2;
               const prevPrice = prevData.BTC.price;
               const changePercent = ((newPrice - prevPrice) / prevPrice) * 100;
-              
+
               return {
                 ...prevData,
                 BTC: {
@@ -371,33 +357,30 @@ const TradeSyncDashboard = () => {
           }
         }
       };
-      
+
       ws.onerror = (error) => {
         console.error('Crypto WebSocket error:', error);
-        
-        // Try to reconnect after a short delay
+
         setTimeout(() => {
           console.log('Attempting to reconnect crypto...');
           connectCryptoWebSocket();
         }, 5000);
       };
-      
+
       ws.onclose = () => {
         console.log('Disconnected from Alpaca Crypto WebSocket');
-        
-        // Try to reconnect after a short delay
+
         setTimeout(() => {
           console.log('Attempting to reconnect crypto...');
           connectCryptoWebSocket();
         }, 5000);
       };
-      
+
       return ws;
     };
-    
+
     const ws = connectCryptoWebSocket();
-    
-    // Clean up on unmount
+
     return () => {
       if (ws && ws.readyState === WebSocket.OPEN) {
         ws.close();
@@ -413,7 +396,7 @@ const TradeSyncDashboard = () => {
           <div className="logo-circle">T</div>
           <span>TradeSync</span>
         </div>
-        
+
         <nav className="nav-menu">
           <ul>
             <li className="active">
@@ -448,7 +431,7 @@ const TradeSyncDashboard = () => {
             </li>
           </ul>
         </nav>
-        
+
         <div className="user-profile">
           <div className="user-avatar">JP</div>
           <div className="user-info">
@@ -577,7 +560,7 @@ const TradeSyncDashboard = () => {
                           <span className="toggle-icon">{expandedPosition === position.id ? '▲' : '▼'}</span>
                         </div>
                       </div>
-                      
+
                       {expandedPosition === position.id && (
                         <div className="position-expanded">
                           <div className="scale-buttons">
@@ -602,14 +585,14 @@ const TradeSyncDashboard = () => {
               {/* AI Trade Insights Section */}
               <section className="insights-section">
                 <h2>AI Trade Insights</h2>
-                
+
                 <div className="insights-tabs">
                   <button className="tab-btn active">All Insights</button>
                   <button className="tab-btn">Technical</button>
                   <button className="tab-btn">News</button>
                   <button className="tab-btn">Fundamental</button>
                 </div>
-                
+
                 <div className="sentiment-filter">
                   <span>Sentiment:</span>
                   <div className="sentiment-tags">
@@ -618,46 +601,57 @@ const TradeSyncDashboard = () => {
                     <button className="sentiment-tag neutral">Neutral</button>
                   </div>
                 </div>
-                
-                <div className="insight-card">
-                  <div className="insight-header">
-                    <div className="symbol-container">
-                      <span className="insight-symbol">HOOD</span>
-                      <span className="insight-type">Actionable Trade</span>
+
+                {insights.length > 0 ? (
+                  insights.map((insight) => (
+                    <div key={insight.id} className="insight-card">
+                      <div className="insight-header">
+                        <div className="symbol-container">
+                          <span className="insight-symbol">{insight.ticker}</span>
+                          <span className="insight-type">{insight.category}</span>
+                        </div>
+                        <div className="confidence-score">{insight.confidence}%</div>
+                      </div>
+                      <div className="insight-content">
+                        <p>{insight.summary}</p>
+                        {insight.sentiment && <p>Sentiment: {insight.sentiment}</p>}
+                      </div>
+                      <div className="insight-footer">
+                        <div className="source-info">
+                          <div className="source-avatar">{insight.source[1]}</div>
+                          <span className="source-name">{insight.source}</span>
+                          <span className="timestamp">{insight.timestamp}</span>
+                        </div>
+                        <div className="insight-actions">
+                          {insight.category === "Actionable Trade" && (
+                            <>
+                              <button className="buy-now-btn">Buy Now</button>
+                              <button className="sell-now-btn">Sell Now</button>
+                            </>
+                          )}
+                          <button className="details-btn">View Details</button>
+                        </div>
+                      </div>
                     </div>
-                    <div className="confidence-score">85%</div>
-                  </div>
-                  <div className="insight-content">
-                    <p>Buy above $24.5, stop below today's low. Looking for a move to $28 based on volume pattern and support levels. Watching for a breakout above the daily resistance.</p>
-                  </div>
-                  <div className="insight-footer">
-                    <div className="source-info">
-                      <div className="source-avatar">SN</div>
-                      <span className="source-name">@ripster47</span>
-                      <span className="timestamp">47 min ago</span>
-                    </div>
-                    <div className="insight-actions">
-                      <button className="buy-now-btn">Buy Now</button>
-                      <button className="sell-now-btn">Sell Now</button>
-                      <button className="details-btn">View Details</button>
-                    </div>
-                  </div>
-                </div>
+                  ))
+                ) : (
+                  <p>No insights available.</p>
+                )}
               </section>
             </div>
-            
+
             {/* Right Column */}
             <div className="column-right">
               {/* Account Summary */}
               <section className="account-summary">
                 <h2>Account Summary</h2>
                 <div className="account-value">{formatCurrency(accountSummary.totalValue)}</div>
-                
+
                 <div className="cash-container">
                   <div className="cash-label">Available Cash</div>
                   <div className="cash-value">{formatCurrency(accountSummary.availableCash)}</div>
                 </div>
-                
+
                 <div className="pl-grid">
                   <div className="pl-item">
                     <div className="pl-label">Open P/L</div>
@@ -673,11 +667,11 @@ const TradeSyncDashboard = () => {
                   </div>
                 </div>
               </section>
-              
+
               {/* Performance */}
               <section className="performance-section">
                 <h2>Performance</h2>
-                
+
                 <div className="performance-tabs">
                   <button className="performance-tab active">1D</button>
                   <button className="performance-tab">1W</button>
@@ -685,22 +679,22 @@ const TradeSyncDashboard = () => {
                   <button className="performance-tab">3M</button>
                   <button className="performance-tab">1Y</button>
                 </div>
-                
+
                 <div className="chart-container">
                   <div className="chart-placeholder"></div>
                   <div className="performance-value">+2.45%</div>
                 </div>
               </section>
-              
+
               {/* Trading Stats */}
               <section className="trading-stats">
                 <h2>Trading Stats</h2>
-                
+
                 <div className="win-rate">
                   <div className="stat-label">Win Rate</div>
                   <div className="stat-value">78% (21/27)</div>
                 </div>
-                
+
                 <div className="average-stats">
                   <div className="stat-item">
                     <div className="stat-label">Average Gain</div>
