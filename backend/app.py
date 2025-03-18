@@ -6,13 +6,8 @@ from datetime import datetime
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)  # Allow frontend to access API
+CORS(app)
 
-@app.route("/")
-def home():
-    return "TradeSync Bot API", 200
-
-# Simulated Grok API call (replace with xAI API later)
 def call_grok_api(post_text, source, timestamp, image_url=None):
     if "$" in post_text:
         ticker = next((word for word in post_text.split() if word.startswith("$")), "N/A")
@@ -62,7 +57,7 @@ def webhook():
 
     insight_data = call_grok_api(post_text, source, timestamp)
 
-    db_path = os.environ.get('DB_PATH', '/tmp/tradesync.db')
+    db_path = os.environ.get('DB_PATH', 'tradesync.db')
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute('''
@@ -98,7 +93,7 @@ def webhook():
 
 @app.route('/api/insights', methods=['GET'])
 def get_insights():
-    db_path = os.environ.get('DB_PATH', '/tmp/tradesync.db')
+    db_path = os.environ.get('DB_PATH', 'tradesync.db')
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM insights ORDER BY id DESC LIMIT 10')
