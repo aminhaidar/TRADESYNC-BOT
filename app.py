@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 import sqlite3
 import os
+import json
 from datetime import datetime
 from flask_cors import CORS
 
@@ -14,7 +15,6 @@ def home():
 def call_grok_api(post_text, source, timestamp, image_url=None):
     if "$" in post_text:
         ticker = next((word for word in post_text.split() if word.startswith("$")), "N/A")
-
         if "buy" in post_text.lower() or "sell" in post_text.lower():
             category = "Actionable Trade"
             subcategory = ""
@@ -64,24 +64,22 @@ def webhook():
     db_path = os.environ.get('DB_PATH', '/tmp/tradesync.db')
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
-    
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS insights (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            ticker TEXT,
-            category TEXT,
-            subcategory TEXT,
-            sentiment TEXT,
-            summary TEXT,
-            confidence REAL,
-            source TEXT,
-            timestamp TEXT
-        )
+    CREATE TABLE IF NOT EXISTS insights (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        ticker TEXT,
+        category TEXT,
+        subcategory TEXT,
+        sentiment TEXT,
+        summary TEXT,
+        confidence REAL,
+        source TEXT,
+        timestamp TEXT
+    )
     ''')
-    
     cursor.execute('''
-        INSERT INTO insights (ticker, category, subcategory, sentiment, summary, confidence, source, timestamp)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO insights (ticker, category, subcategory, sentiment, summary, confidence, source, timestamp)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     ''', (
         insight_data['ticker'],
         insight_data['category'],
@@ -92,7 +90,6 @@ def webhook():
         insight_data['source'],
         insight_data['timestamp']
     ))
-    
     conn.commit()
     conn.close()
 
