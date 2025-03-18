@@ -1,7 +1,4 @@
 from flask import Flask, request, jsonify
-@app.route("/")
-def home():
-    return "TradeSync Bot API", 200
 import sqlite3
 import os
 import json
@@ -10,6 +7,10 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)  # Allow frontend to access API
+
+@app.route("/")
+def home():
+    return "TradeSync Bot API", 200
 
 # Simulated Grok API call (replace with xAI API later)
 def call_grok_api(post_text, source, timestamp, image_url=None):
@@ -122,3 +123,4 @@ def get_insights():
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5001))
     app.run(host='0.0.0.0', port=port, debug=False)
+EOF
