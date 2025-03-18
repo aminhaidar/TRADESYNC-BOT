@@ -1,5 +1,7 @@
 from flask import Flask, request, jsonify
-import sqlite3
+@app.route("/")
+def home():
+    return "TradeSync Bot API", 200import sqlite3
 import os
 import json
 from datetime import datetime
