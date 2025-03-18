@@ -14,7 +14,7 @@ def home():
 def call_grok_api(post_text, source, timestamp, image_url=None):
     if "$" in post_text:
         ticker = next((word for word in post_text.split() if word.startswith("$")), "N/A")
-        
+
         if "buy" in post_text.lower() or "sell" in post_text.lower():
             category = "Actionable Trade"
             subcategory = ""
