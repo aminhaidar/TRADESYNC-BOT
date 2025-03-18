@@ -1,0 +1,115 @@
+@use '@carbon/styles/scss/spacing' as *;
+@use '@carbon/styles/scss/type' as *;
+@use '@carbon/themes/scss/tokens' as *;
+
+.trading-sidebar {
+  background-color: var(--cds-layer-01);
+  border-right: 1px solid var(--cds-border-subtle-00);
+  width: var(--sidebar-width);
+  
+  // Logo styling
+  .trading-logo {
+    display: flex;
+    align-items: center;
+    padding: $spacing-05 $spacing-05 $spacing-07;
+    
+    .logo-circle {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background-color: var(--cds-interactive);
+      margin-right: $spacing-04;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      &::before, &::after {
+        content: '';
+        position: absolute;
+        background-color: white;
+      }
+      
+      &::before {
+        width: 2px;
+        height: 16px;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+      
+      &::after {
+        width: 16px;
+        height: 2px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+    }
+    
+    .logo-text {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px;
+      letter-spacing: -0.01em;
+    }
+    
+    .logo-highlight {
+      color: var(--cds-interactive);
+    }
+  }
+  
+  // Override Carbon default spacing
+  .cds--side-nav__items {
+    padding: 0;
+  }
+  
+  // Style the active navigation item
+  a.cds--side-nav__link--current, 
+  a.cds--side-nav__link[aria-current=page] {
+    background-color: var(--cds-background-selected);
+    
+    &::before {
+      background-color: var(--cds-interactive);
+    }
+  }
+  
+  // User profile section at bottom of sidebar
+  .user-profile {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: $spacing-05;
+    display: flex;
+    align-items: center;
+    background-color: var(--cds-background-selected-hover);
+    border-top: 1px solid var(--cds-border-subtle-01);
+    
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background-color: var(--cds-support-info);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 14px;
+      color: white;
+      margin-right: $spacing-04;
+    }
+    
+    .user-info {
+      display: flex;
+      flex-direction: column;
+      
+      .user-name {
+        @include type-style('body-compact-01');
+        font-weight: 600;
+      }
+      
+      .user-role {
+        @include type-style('label-01');
+        color: var(--cds-text-secondary);
+      }
+    }
+  }
+}

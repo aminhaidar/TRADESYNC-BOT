@@ -1,0 +1,13 @@
+/* AI Insights Styles */
+.ai-insights-card {
+  background-color: #161b22;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.insight-card {
+  background-color: #1c2129;
+  padding: 0.75rem;
+  border-left: 3px solid #3fb950;
+  margin-bottom: 0.5rem;
+}

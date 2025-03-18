@@ -1,0 +1,91 @@
+.connection-status {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  border-radius: 20px;
+  background: rgba(10, 14, 20, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  font-size: 13px;
+  font-weight: 500;
+  z-index: 1000;
+  transition: all 0.3s ease;
+  border: 1px solid var(--border-subtle);
+}
+
+.connection-status.hidden {
+  transform: translateY(100px);
+  opacity: 0;
+}
+
+.connection-status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.connection-status.connected .connection-status-indicator {
+  background-color: var(--success-green);
+  box-shadow: 0 0 8px var(--success-green);
+}
+
+.connection-status.connecting .connection-status-indicator,
+.connection-status.reconnecting .connection-status-indicator {
+  background-color: var(--warning-orange);
+  box-shadow: 0 0 8px var(--warning-orange);
+  animation: pulse 1.5s infinite;
+}
+
+.connection-status.disconnected .connection-status-indicator,
+.connection-status.error .connection-status-indicator,
+.connection-status.failed .connection-status-indicator {
+  background-color: var(--danger-red);
+  box-shadow: 0 0 8px var(--danger-red);
+}
+
+.connection-status-text {
+  color: var(--text-primary);
+}
+
+.connection-status-subtext {
+  color: var(--text-tertiary);
+  margin-left: 8px;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.6;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 0.6;
+    transform: scale(0.8);
+  }
+}
+
+.reconnect-button {
+  background-color: var(--brand-blue);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 4px 12px;
+  margin-left: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.reconnect-button:hover {
+  background-color: var(--brand-blue-hover);
+  transform: translateY(-1px);
+}

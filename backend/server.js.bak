@@ -1,0 +1,172 @@
+require('dotenv').config();
+const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
+const cors = require('cors');
+const path = require('path');
+const fs = require('fs').promises;
+const Alpaca = require('@alpacahq/alpaca-trade-api');
+
+console.log("Environment Check:");
+console.log(`APCA_API_KEY_ID: ${process.env.APCA_API_KEY_ID ? "✓ Found" : "✗ Missing"}`);
+console.log(`APCA_API_SECRET_KEY: ${process.env.APCA_API_SECRET_KEY ? "✓ Found" : "✗ Missing"}`);
+
+const alpaca = new Alpaca({
+  keyId: process.env.APCA_API_KEY_ID,
+  secretKey: process.env.APCA_API_SECRET_KEY,
+  paper: true,
+  baseUrl: 'https://paper-api.alpaca.markets',
+});
+
+const app = express();
+app.use(cors({ origin: '*' }));
+app.use(express.json());
+
+const server = http.createServer(app);
+const io = new Server(server, { cors: { origin: '*' } });
+
+const DATA_DIR = path.join(__dirname, 'data');
+const TRADES_FILE = path.join(DATA_DIR, 'trades.json');
+const INSIGHTS_DIR = path.join(DATA_DIR, 'insights');
+
+async function ensureDataDirs() {
+  try {
+    await fs.mkdir(DATA_DIR, { recursive: true });
+    await fs.mkdir(INSIGHTS_DIR, { recursive: true });
+    try { await fs.access(TRADES_FILE); } catch { await fs.writeFile(TRADES_FILE, JSON.stringify([]), 'utf8'); }
+  } catch (error) { console.error('Error creating data directories:', error); }
+}
+ensureDataDirs();
+
+async function loadTrades() { return JSON.parse(await fs.readFile(TRADES_FILE, 'utf8') || '[]'); }
+async function saveTrades(trades) { await fs.writeFile(TRADES_FILE, JSON.stringify(trades, null, 2), 'utf8'); }
+async function addTrade(trade) { const trades = await loadTrades(); trades.unshift(trade); await saveTrades(trades); return trade; }
+
+async function getMarketData() {
+  try {
+    const snapshots = {};
+    for (const symbol of ['SPY', 'QQQ', 'AAPL', 'MSFT', 'TSLA', 'AMZN', 'NVDA', 'GOOGL']) {
+      try {
+        const bars = await alpaca.getBars({ symbol, timeframe: '1Min', limit: 1 });
+        if (bars[symbol]?.length) snapshots[symbol] = { price: bars[symbol][0].c, change: bars[symbol][0].c - bars[symbol][0].o, changePercent: ((bars[symbol][0].c - bars[symbol][0].o) / bars[symbol][0].o) * 100 };
+      } catch (err) { console.error(`Error fetching ${symbol}:`, err); }
+    }
+    return Object.keys(snapshots).map(symbol => ({ symbol, ...snapshots[symbol] }));
+  } catch (error) {
+    console.error('Error getting market data:', error);
+    return [
+      { symbol: 'SPY', price: 538.72, change: 1.24, changePercent: 0.23 },
+      { symbol: 'QQQ', price: 461.35, change: 2.18, changePercent: 0.47 },
+      { symbol: 'AAPL', price: 178.45, change: -0.86, changePercent: -0.48 },
+      { symbol: 'MSFT', price: 428.80, change: 3.25, changePercent: 0.76 },
+      { symbol: 'TSLA', price: 173.60, change: -1.45, changePercent: -0.83 },
+      { symbol: 'AMZN', price: 180.35, change: 1.28, changePercent: 0.71 },
+      { symbol: 'NVDA', price: 920.14, change: 15.65, changePercent: 1.73 },
+      { symbol: 'GOOGL', price: 155.87, change: 0.54, changePercent: 0.35 },
+    ];
+  }
+}
+
+async function getAccountInfo() {
+  try {
+    const account = await alpaca.getAccount();
+    return { balance: parseFloat(account.equity), totalPnl: parseFloat(account.equity) - parseFloat(account.last_equity), dayPnl: 0, openPositions: 0 };
+  } catch (error) {
+    console.error('Error getting account info:', error);
+    return { balance: 25000, totalPnl: 1500, dayPnl: 250, openPositions: 3 };
+  }
+}
+
+async function getPositions() {
+  try {
+    const positions = await alpaca.getPositions();
+    return positions.map(position => ({
+      symbol: position.symbol,
+      quantity: parseFloat(position.qty),
+      averagePrice: parseFloat(position.avg_entry_price),
+      currentPrice: parseFloat(position.current_price),
+      pnl: parseFloat(position.unrealized_pl),
+      changePercent: parseFloat(position.unrealized_plpc) * 100
+    }));
+  } catch (error) {
+    console.error('Error getting positions:', error);
+    return [
+      { symbol: 'AAPL', quantity: 10, averagePrice: 175.50, currentPrice: 185.75, pnl: 102.50, changePercent: 5.84 },
+      { symbol: 'MSFT', quantity: 5, averagePrice: 350.25, currentPrice: 370.00, pnl: 98.75, changePercent: 5.64 },
+      { symbol: 'TSLA', quantity: 8, averagePrice: 180.10, currentPrice: 173.60, pnl: -52.00, changePercent: -3.61 }
+    ];
+  }
+}
+
+app.get('/api/dashboard-data', async (req, res) => {
+  try {
+    const [accountInfo, positions, marketData, trades] = await Promise.all([getAccountInfo(), getPositions(), getMarketData(), loadTrades()]);
+    const chartData = { labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'], datasets: [{ label: 'Trade Performance', data: [1000, 1200, 900, 1500, 1300, 1700], borderColor: '#388bfd', backgroundColor: 'rgba(56, 139, 253, 0.1)', fill: true, tension: 0.4 }] };
+    let insights = [];
+    try {
+      const files = await fs.readdir(INSIGHTS_DIR);
+      for (const file of files) {
+        try {
+          const content = await fs.readFile(path.join(INSIGHTS_DIR, file), 'utf8');
+          const data = JSON.parse(content);
+          if (data.analysis?.insights) insights.push(...data.analysis.insights);
+        } catch (error) { console.error(`Error reading ${file}:`, error); }
+      }
+      insights.sort((a, b) => b.confidence - a.confidence);
+    } catch (error) {
+      console.error('Error fetching insights:', error);
+      insights = [
+        { symbol: "AAPL", recommendation: "Buy", summary: "Bullish momentum", confidence: 0.85, category: "technical" },
+        { symbol: "TSLA", recommendation: "Sell", summary: "Bearish divergence", confidence: 0.75, category: "technical" }
+      ];
+    }
+    accountInfo.openPositions = positions.length;
+    res.json({ trades, insights, chartData, metrics: accountInfo, positions, marketData });
+  } catch (error) {
+    console.error('Dashboard error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+io.on('connection', (socket) => {
+  console.log('Client connected:', socket.id);
+  const interval = setInterval(async () => {
+    const marketData = await getMarketData();
+    console.log('Emitting marketData:', marketData);
+    socket.emit('marketData', marketData);
+  }, 5000);
+  socket.on('disconnect', () => {
+    console.log('Client disconnected:', socket.id);
+    clearInterval(interval);
+  });
+});
+
+server.listen(process.env.PORT || 5001, () => {
+  console.log(`Server running on port ${process.env.PORT || 5001}`);
+});
+const io = require('socket.io')(server);
+io.on('connection', (socket) => {
+  console.log('Client connected');
+  setInterval(() => {
+    socket.emit('marketData', { symbol: 'SPY', price: Math.random() * 500 + 400, change: (Math.random() * 4 - 2) });
+    socket.emit('marketData', { symbol: 'QQQ', price: Math.random() * 450 + 350, change: (Math.random() * 4 - 2) });
+    socket.emit('marketData', { symbol: 'VIX', price: Math.random() * 20 + 10, change: (Math.random() * 4 - 2) });
+    socket.emit('marketData', { symbol: 'AAPL', price: Math.random() * 220 + 190, change: (Math.random() * 4 - 2) });
+    socket.emit('marketData', { symbol: 'BTC', price: Math.random() * 70000 + 60000, change: (Math.random() * 4 - 2) });
+    socket.emit('positions', [
+      { symbol: 'AAPL', quantity: 10, entryPrice: 211.80, currentPrice: 211.61 + Math.random() * 2 - 1, costBasis: 2118.00, pl: 171 + Math.random() * 10 - 5, plPercent: 8.1 + Math.random() * 1 - 0.5 },
+      { symbol: 'TSLA', quantity: 15, entryPrice: 180.50, currentPrice: 177.82 + Math.random() * 2 - 1, costBasis: 2707.50, pl: -40.20 + Math.random() * 5 - 2.5, plPercent: -1.5 + Math.random() * 0.5 - 0.25 },
+      { symbol: 'SPY', type: 'option', expiration: '03/29/25', quantity: 5, entryPrice: 4.30, currentPrice: 4.85 + Math.random() * 0.5 - 0.25, costBasis: 2150.00, pl: 275 + Math.random() * 10 - 5, plPercent: 12.8 + Math.random() * 1 - 0.5 }
+    ]);
+    socket.emit('tradePerformance', {
+      labels: ['1D', '2D', '3D', '4D', '5D'],
+      values: [1000, 1050 + Math.random() * 10, 1100 + Math.random() * 20, 1080 + Math.random() * 30, 1150 + Math.random() * 40]
+    });
+    socket.emit('accountSummary', {
+      totalValue: 52456.83 + Math.random() * 100 - 50,
+      availableCash: 37892 + Math.random() * 50 - 25,
+      openPL: 511 + Math.random() * 20 - 10,
+      closedPL: 774 + Math.random() * 20 - 10
+    });
+  }, 2000);
+});

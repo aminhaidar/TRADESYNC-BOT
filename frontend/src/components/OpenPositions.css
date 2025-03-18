@@ -1,0 +1,275 @@
+@import url('../App.css');
+
+.open-positions {
+  background: linear-gradient(135deg, rgba(20, 26, 36, 0.95) 0%, rgba(30, 37, 54, 0.95) 100%);
+  border-radius: var(--card-radius);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-subtle);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-lg);
+}
+
+.header h2 {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.new-trade {
+  height: 40px;
+  padding: 0 var(--space-lg);
+  background: linear-gradient(135deg, var(--brand-blue) 0%, #5D81F9 100%);
+  border-radius: 20px;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-default);
+  box-shadow: var(--shadow-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.new-trade:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(45, 127, 249, 0.3);
+}
+
+.new-trade:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 10px rgba(45, 127, 249, 0.2);
+}
+
+.position-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.05) 100%);
+  border-radius: var(--card-radius-sm);
+  margin-bottom: var(--space-md);
+  padding: var(--space-lg);
+  position: relative;
+  border: 1px solid var(--border-subtle);
+  transition: all var(--transition-default);
+  overflow: hidden;
+}
+
+.position-card:hover {
+  transform: translateY(-5px) scale(1.01);
+  box-shadow: var(--shadow-md);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.08) 100%);
+  border-color: rgba(255, 255, 255, 0.12);
+  z-index: 1;
+}
+
+.position-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  border-radius: 2px 0 0 2px;
+}
+
+.position-card.positive::before {
+  background: linear-gradient(to bottom, var(--success-green), rgba(24, 193, 111, 0.6));
+  box-shadow: 0 0 15px rgba(24, 193, 111, 0.4);
+}
+
+.position-card.negative::before {
+  background: linear-gradient(to bottom, var(--danger-red), rgba(249, 55, 94, 0.6));
+  box-shadow: 0 0 15px rgba(249, 55, 94, 0.4);
+}
+
+.position-header {
+  margin-bottom: var(--space-md);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.position-type {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 16px;
+  border-radius: 24px;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+}
+
+.position-type.stock {
+  background: linear-gradient(135deg, var(--brand-blue-muted) 0%, rgba(45, 127, 249, 0.05) 100%);
+  color: var(--brand-blue);
+  border: 1px solid rgba(45, 127, 249, 0.2);
+}
+
+.position-type.option {
+  background: linear-gradient(135deg, var(--warning-orange-muted) 0%, rgba(255, 149, 0, 0.05) 100%);
+  color: var(--warning-orange);
+  border: 1px solid rgba(255, 149, 0, 0.2);
+}
+
+.position-type::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 4px;
+  margin-right: 8px;
+}
+
+.position-type.stock::before {
+  background-color: var(--brand-blue);
+  box-shadow: 0 0 5px var(--brand-blue);
+}
+
+.position-type.option::before {
+  background-color: var(--warning-orange);
+  box-shadow: 0 0 5px var(--warning-orange);
+}
+
+.position-details {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: var(--space-md);
+}
+
+.detail-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.detail-label {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  letter-spacing: -0.01em;
+}
+
+.detail-value {
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+}
+
+.detail-value.positive {
+  color: var(--success-green);
+}
+
+.detail-value.negative {
+  color: var(--danger-red);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--space-md);
+}
+
+.action-menu {
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.06) 100%);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-default);
+}
+
+.action-menu:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.1) 100%);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.action-menu::before, .action-menu::after {
+  content: '';
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: var(--text-secondary);
+}
+
+.action-menu::before {
+  transform: translateX(-5px);
+}
+
+.action-menu::after {
+  transform: translateX(5px);
+}
+
+.no-positions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  text-align: center;
+  color: var(--text-tertiary);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.04) 100%);
+  border-radius: var(--card-radius-sm);
+  border: 1px dashed var(--border-subtle);
+  gap: var(--space-md);
+}
+
+.no-positions-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.08) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.no-positions-icon::before {
+  content: '';
+  width: 24px;
+  height: 24px;
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 12H2'/%3E%3Cpath d='M12 2v20'/%3E%3C/svg%3E");
+  mask-size: contain;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 12H2'/%3E%3Cpath d='M12 2v20'/%3E%3C/svg%3E");
+  -webkit-mask-size: contain;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  background-color: var(--text-tertiary);
+}
+
+.no-positions-text {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.no-positions-subtext {
+  font-size: 13px;
+  max-width: 240px;
+}
+
+@media (max-width: 992px) {
+  .position-details {
+    grid-template-columns: repeat(3, 1fr);
+    row-gap: var(--space-md);
+  }
+}
+
+@media (max-width: 576px) {
+  .position-details {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

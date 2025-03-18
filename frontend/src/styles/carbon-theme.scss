@@ -1,0 +1,90 @@
+// Carbon Design System customizations
+@use '@carbon/themes/scss/themes' as carbonThemes;
+@use '@carbon/themes' as theme;
+@use '@carbon/styles/scss/config' with (
+  $prefix: 'cds'
+);
+@use '@carbon/styles';
+
+// Create a custom dark theme for trading
+$trading-colors: (
+  background: #0A0C14,
+  background-active: #1C2030,
+  background-selected: #1E2536,
+  background-selected-hover: #272E3F,
+  background-hover: #131722,
+  layer-01: #131722,
+  layer-active-01: #1C2030,
+  layer-hover-01: #1C2030,
+  layer-selected-01: #1E2536,
+  layer-selected-hover-01: #272E3F,
+  layer-02: #1E2536,
+  layer-active-02: #272E3F,
+  layer-hover-02: #272E3F,
+  layer-selected-02: #313A4F,
+  layer-selected-hover-02: #3A4359,
+  layer-03: #272E3F,
+  field-01: #131722,
+  field-02: #1E2536,
+  field-hover-01: #1C2030,
+  field-hover-02: #272E3F,
+  interactive: #2C7BE5,
+  border-subtle-00: rgba(255, 255, 255, 0.07),
+  border-subtle-01: rgba(255, 255, 255, 0.1),
+  border-subtle-selected-01: rgba(255, 255, 255, 0.15),
+  border-strong-01: rgba(255, 255, 255, 0.3),
+  text-primary: #FFFFFF,
+  text-secondary: rgba(255, 255, 255, 0.7),
+  text-placeholder: rgba(255, 255, 255, 0.4),
+  icon-primary: #FFFFFF,
+  icon-secondary: rgba(255, 255, 255, 0.7),
+  icon-on-color: #FFFFFF,
+  support-error: #FF5757,
+  support-success: #00CF92,
+  support-warning: #FF9F1C,
+  support-info: #7B61FF,
+  focus: #FFFFFF,
+  inverse-focus-ui: #0F62FE,
+);
+
+// Create custom theme based on Carbon's g100 (dark) theme
+$trading-theme: carbonThemes.$g100;
+@each $token, $value in $trading-colors {
+  $trading-theme: map-merge($trading-theme, ($token: $value));
+}
+
+// Apply the custom theme
+@include theme.theme($trading-theme);
+
+// Global styles that build on Carbon
+:root {
+  // Trading-specific variables
+  --sidebar-width: 240px;
+  --card-radius: 8px;
+  --transition-fast: 0.15s ease;
+  --transition-default: 0.25s ease;
+}
+
+body {
+  background-color: var(--cds-background);
+  color: var(--cds-text-primary);
+}
+
+// Custom class for trading cards
+.trading-card {
+  background-color: var(--cds-layer-01);
+  border-radius: var(--card-radius);
+  border: 1px solid var(--cds-border-subtle-00);
+  transition: all var(--transition-default);
+  
+  &:hover {
+    transform: translateY(-2px);
+    border-color: var(--cds-border-subtle-01);
+  }
+}
+
+// Custom class for dashboard layout
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+}

@@ -1,0 +1,42 @@
+.positions-container {
+  background-color: #111827;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.positions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.positions-header h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: white;
+  margin: 0;
+}
+
+.positions-summary {
+  font-size: 14px;
+  color: #94a3b8;
+  padding: 4px 12px;
+  background-color: rgba(59, 130, 246, 0.1);
+  border-radius: 18px;
+}
+
+.positions-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.no-positions {
+  text-align: center;
+  padding: 24px;
+  color: #64748b;
+  background-color: rgba(30, 41, 59, 0.5);
+  border-radius: 8px;
+  font-size: 15px;
+}

@@ -1,0 +1,82 @@
+.trading-dashboard {
+  padding: 2rem;
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: 1.5rem;
+  background-color: var(--background-primary);
+}
+
+.layout-controls {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  justify-content: flex-end;
+  background-color: var(--background-secondary);
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+}
+
+.layout-btn,
+.refresh-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: var(--card-background-alt);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.layout-btn.active {
+  background-color: var(--accent-blue);
+  border-color: var(--accent-blue);
+  color: white;
+}
+
+.layout-btn:hover,
+.refresh-btn:hover {
+  background-color: var(--background-secondary);
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  min-height: 400px;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+  .trading-dashboard {
+    padding: 1rem;
+    grid-template-columns: 1fr;
+  }
+  .layout-controls {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .main-content {
+    order: 1;
+  }
+  .sidebar {
+    order: 2;
+    gap: 0.5rem;
+  }
+  .dashboard-content.focus .sidebar {
+    display: none;
+  }
+}

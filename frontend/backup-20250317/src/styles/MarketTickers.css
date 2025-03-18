@@ -1,0 +1,57 @@
+.market-tickers-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.market-tickers {
+  display: flex;
+  gap: 1rem;
+}
+
+.ticker {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 14px;
+}
+
+.ticker-name {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.ticker-value {
+  color: var(--text-secondary);
+}
+
+.ticker-change {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.ticker-change.positive {
+  color: var(--accent-green);
+}
+
+.ticker-change.negative {
+  color: var(--accent-orange);
+}
+
+.expand-tickers-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+.expand-tickers-btn:hover {
+  color: var(--accent-blue);
+}
+
+@media (max-width: 768px) {
+  .market-tickers {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}

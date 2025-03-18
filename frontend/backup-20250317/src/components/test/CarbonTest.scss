@@ -1,0 +1,24 @@
+.carbon-test {
+  padding: 2rem;
+  
+  h1 {
+    margin-bottom: 2rem;
+  }
+  
+  .test-tile {
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .button-row {
+    display: flex;
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+  
+  .tag-row {
+    display: flex;
+    gap: 0.5rem;
+    margin: 2rem 0;
+  }
+}
