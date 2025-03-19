@@ -28,6 +28,7 @@ import {
   InputAdornment,
   Snackbar
 } from '@mui/material';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const TradeSyncDashboard = () => {
   // State for insights and dashboard
@@ -149,6 +150,61 @@ const TradeSyncDashboard = () => {
     
     return () => clearInterval(intervalId);
   }, []);
+
+  // Update performance data when tab changes
+  useEffect(() => {
+    // This would typically fetch data based on the selected timeframe
+    const timeframes = ['1D', '1W', '1M', '3M', '1Y'];
+    const selectedTimeframe = timeframes[activeTab];
+    
+    // Simulate fetching data for different timeframes
+    const fetchPerformanceData = () => {
+      let newData = [];
+      
+      switch (selectedTimeframe) {
+        case '1D':
+          newData = Array.from({ length: a = 8 }, (_, i) => ({
+            date: `${9 + i}:00`,
+            equity: 52000 + (Math.random() * 1000 - 500),
+            profit: (Math.random() * 800 - 400)
+          }));
+          break;
+        case '1W':
+          newData = Array.from({ length: 7 }, (_, i) => ({
+            date: `03/${12 + i}/2025`,
+            equity: 51000 + (i * 300) + (Math.random() * 200 - 100),
+            profit: -500 + (i * 250) + (Math.random() * 100 - 50)
+          }));
+          break;
+        case '1M':
+          // Default data we already have
+          break;
+        case '3M':
+          newData = Array.from({ length: 12 }, (_, i) => ({
+            date: `${['Jan', 'Feb', 'Mar'][Math.floor(i/4)]} ${(i % 4) * 7 + 1}`,
+            equity: 48000 + (i * 500) + (Math.random() * 300 - 150),
+            profit: -3000 + (i * 400) + (Math.random() * 200 - 100)
+          }));
+          break;
+        case '1Y':
+          newData = Array.from({ length: 12 }, (_, i) => ({
+            date: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][i],
+            equity: 40000 + (i * 1200) + (Math.random() * 500 - 250),
+            profit: -10000 + (i * 1000) + (Math.random() * 300 - 150)
+          }));
+          break;
+        default:
+          // Use existing data as fallback
+          return;
+      }
+      
+      if (selectedTimeframe !== '1M') {
+        setPerformanceData(newData);
+      }
+    };
+    
+    fetchPerformanceData();
+  }, [activeTab]);
 
   // Fetch insights data on component mount and set up polling
   useEffect(() => {
@@ -351,12 +407,30 @@ const TradeSyncDashboard = () => {
                 <Tab label="1Y" />
               </Tabs>
             </Box>
-            {/* Chart placeholder - we'll add recharts after fixing the dependency */}
-            <Box sx={{ height: 200, bgcolor: 'action.hover', borderRadius: 1 }}>
-              <Typography variant="body2" sx={{ p: 2 }}>
-                Performance chart will appear here after recharts installation
-              </Typography>
-            </Box>
+            <ResponsiveContainer width="100%" height={200}>
+              <LineChart data={performanceData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <Tooltip 
+                  formatter={(value) => [`$${value.toLocaleString()}`, 'Value']}
+                />
+                <Legend />
+                <Line 
+                  type="monotone" 
+                  dataKey="equity" 
+                  stroke="#1F6FEB" 
+                  activeDot={{ r: 8 }} 
+                  name="Portfolio Value"
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="profit" 
+                  stroke="#3FB950" 
+                  name="Profit/Loss" 
+                />
+              </LineChart>
+            </ResponsiveContainer>
           </Paper>
 
           {/* AI Insights Section */}
