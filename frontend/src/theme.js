@@ -1,6 +1,6 @@
 import { createTheme } from '@mui/material/styles';
 
-// Modern dark theme with deep blues and vibrant accents
+// Modern truly dark theme with higher contrast
 const theme = createTheme({
   palette: {
     mode: 'dark',
@@ -35,10 +35,10 @@ const theme = createTheme({
       dark: '#059669',
     },
     background: {
-      default: '#0f172a', // Deep blue-black
-      paper: '#1e293b', // Navy blue
-      card: '#1e293b',
-      lighter: '#334155', // Lighter slate for hover states
+      default: '#0a0c10', // Very dark, almost black
+      paper: '#121418', // Dark charcoal
+      card: '#16181d', // Slightly lighter charcoal
+      lighter: '#21242c', // Lighter shade for hover
     },
     text: {
       primary: '#f8fafc',
@@ -54,6 +54,9 @@ const theme = createTheme({
     h4: { fontWeight: 600 },
     h5: { fontWeight: 600 },
     h6: { fontWeight: 600 },
+    subtitle1: { fontWeight: 500 },
+    subtitle2: { fontWeight: 500 },
+    button: { fontWeight: 600, textTransform: 'none' },
   },
   shape: {
     borderRadius: 8,
@@ -72,8 +75,29 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           backgroundImage: 'none',
-          boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.15)',
-          border: '1px solid rgba(148, 163, 184, 0.08)',
+          boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.2)',
+          border: '1px solid rgba(255, 255, 255, 0.05)',
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          backgroundImage: 'none',
+        },
+      },
+    },
+    MuiDrawer: {
+      styleOverrides: {
+        paper: {
+          borderRight: 'none',
+        },
+      },
+    },
+    MuiTableCell: {
+      styleOverrides: {
+        root: {
+          borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
         },
       },
     },
