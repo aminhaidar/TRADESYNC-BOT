@@ -1,65 +1,63 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { Card, CardContent, Typography, Grid, Box, alpha, useTheme } from '@mui/material';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
-const MarketTicker = () => {
-  const [marketData, setMarketData] = useState([
-    { symbol: 'SPY', price: 538.72, change: 1.24, changePercent: 0.23 },
-    { symbol: 'QQQ', price: 461.35, change: 2.18, changePercent: 0.47 },
-    { symbol: 'AAPL', price: 178.45, change: -0.86, changePercent: -0.48 },
-    { symbol: 'MSFT', price: 428.80, change: 3.25, changePercent: 0.76 },
-    { symbol: 'TSLA', price: 173.60, change: -1.45, changePercent: -0.83 },
-    { symbol: 'AMZN', price: 180.35, change: 1.28, changePercent: 0.71 },
-    { symbol: 'NVDA', price: 920.14, change: 15.65, changePercent: 1.73 },
-    { symbol: 'GOOGL', price: 155.87, change: 0.54, changePercent: 0.35 },
-  ]);
-
-  // In a real implementation, this would fetch live data
-  useEffect(() => {
-    const interval = setInterval(() => {
-      // Simulate small price changes
-      setMarketData(prevData => 
-        prevData.map(item => {
-          const changeAmount = (Math.random() - 0.5) * 2;
-          const newPrice = parseFloat((item.price + changeAmount).toFixed(2));
-          const newChange = parseFloat((item.change + changeAmount).toFixed(2));
-          const newChangePercent = parseFloat((newChange / newPrice * 100).toFixed(2));
-          
-          return {
-            ...item,
-            price: newPrice,
-            change: newChange,
-            changePercent: newChangePercent
-          };
-        })
-      );
-    }, 5000);
-    
-    return () => clearInterval(interval);
-  }, []);
-
+const MarketTicker = ({ marketData }) => {
+  const theme = useTheme();
+  
   return (
-    <div className="market-ticker">
-      <div className="ticker-container">
-        {marketData.map((item, index) => (
-          <div key={index} className="ticker-item">
-            <span className="ticker-symbol">{item.symbol}</span>
-            <span className="ticker-price">${item.price.toFixed(2)}</span>
-            <span className={`ticker-change ${item.change >= 0 ? 'positive' : 'negative'}`}>
-              {item.change >= 0 ? '+' : ''}{item.change.toFixed(2)} ({item.change >= 0 ? '+' : ''}{item.changePercent.toFixed(2)}%)
-            </span>
-          </div>
-        ))}
-        {/* Duplicate items for endless scrolling effect */}
-        {marketData.map((item, index) => (
-          <div key={`dup-${index}`} className="ticker-item">
-            <span className="ticker-symbol">{item.symbol}</span>
-            <span className="ticker-price">${item.price.toFixed(2)}</span>
-            <span className={`ticker-change ${item.change >= 0 ? 'positive' : 'negative'}`}>
-              {item.change >= 0 ? '+' : ''}{item.change.toFixed(2)} ({item.change >= 0 ? '+' : ''}{item.changePercent.toFixed(2)}%)
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
+    <Grid container spacing={2} sx={{ mb: 3 }}>
+      {Object.entries(marketData).map(([key, data]) => (
+        <Grid item xs={6} sm={3} key={key}>
+          <Card 
+            elevation={0}
+            sx={{ 
+              borderRadius: 2,
+              height: '100%',
+              position: 'relative',
+              overflow: 'hidden',
+              transition: 'transform 0.2s',
+              '&:hover': {
+                transform: 'translateY(-2px)'
+              },
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                bottom: 0,
+                width: 4,
+                backgroundColor: parseFloat(data.change) >= 0 ? theme.palette.success.main : theme.palette.error.main,
+              }
+            }}
+          >
+            <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+              <Typography variant="subtitle2" color="text.secondary" gutterBottom>{data.symbol}</Typography>
+              <Typography variant="h5" sx={{ fontWeight: 700, my: 1 }}>
+                ${typeof data.price === 'number' && data.price > 1000 ? data.price.toLocaleString() : data.price}
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                {parseFloat(data.change) >= 0 ? (
+                  <ArrowDropUpIcon sx={{ color: theme.palette.success.main, mr: -0.5 }} />
+                ) : (
+                  <ArrowDropDownIcon sx={{ color: theme.palette.error.main, mr: -0.5 }} />
+                )}
+                <Typography 
+                  variant="body2" 
+                  sx={{ 
+                    color: parseFloat(data.change) >= 0 ? theme.palette.success.main : theme.palette.error.main,
+                    fontWeight: 600
+                  }}
+                >
+                  {Math.abs(parseFloat(data.change)).toFixed(2)}%
+                </Typography>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+      ))}
+    </Grid>
   );
 };
 
