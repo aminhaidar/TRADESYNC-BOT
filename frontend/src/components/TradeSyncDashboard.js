@@ -4,7 +4,7 @@ import {
   Button, Drawer, AppBar, Toolbar, Avatar, Divider, IconButton,
   List, ListItem, ListItemButton, ListItemIcon, ListItemText,
   Tabs, Tab, Chip, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, Alert, CircularProgress, Snackbar, alpha,
+  TableHead, TableRow, CircularProgress, Snackbar, alpha,
   useTheme, useMediaQuery, Collapse, Menu, MenuItem, CssBaseline
 } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -33,9 +33,8 @@ const TradeSyncDashboard = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [drawerOpen, setDrawerOpen] = useState(!isMobile);
   const [activeTab, setActiveTab] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false); // Removed setLoading as it's unused
   const [notification, setNotification] = useState({ open: false, message: '', type: 'info' });
-  const [openTradeDialog, setOpenTradeDialog] = useState(false);
   const [expandedPosition, setExpandedPosition] = useState(null);
   const [userMenuAnchor, setUserMenuAnchor] = useState(null);
   
@@ -66,7 +65,7 @@ const TradeSyncDashboard = () => {
   };
   
   // Market data
-  const [marketData, setMarketData] = useState({
+  const [marketData] = useState({
     SPY: { symbol: 'SPY', price: 483.58, change: 1.8 },
     QQQ: { symbol: 'QQQ', price: 418.27, change: 1.7 },
     AAPL: { symbol: 'AAPL', price: 213.18, change: 0.8 },
@@ -483,7 +482,6 @@ const TradeSyncDashboard = () => {
             color="primary" 
             size="small" 
             startIcon={<AddIcon />}
-            onClick={() => setOpenTradeDialog(true)}
             sx={{
               borderRadius: '20px',
               boxShadow: '0 4px 10px rgba(58, 142, 255, 0.3)'
