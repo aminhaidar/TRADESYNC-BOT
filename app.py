@@ -55,6 +55,8 @@ def call_grok_api(post_text, source, timestamp, image_url=None):
 @app.route('/webhook', methods=['POST'])
 def webhook():
     data = request.get_json()
+    if not data or 'text' not in data or 'source' not in data or 'timestamp' not in data:
+        return jsonify({"error": "Invalid payload"}), 400
     post_text = data.get('text', '')
     source = data.get('source', 'Unknown')
     timestamp = data.get('timestamp', datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
@@ -65,21 +67,21 @@ def webhook():
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     cursor.execute('''
-    CREATE TABLE IF NOT EXISTS insights (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        ticker TEXT,
-        category TEXT,
-        subcategory TEXT,
-        sentiment TEXT,
-        summary TEXT,
-        confidence REAL,
-        source TEXT,
-        timestamp TEXT
-    )
+        CREATE TABLE IF NOT EXISTS insights (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            ticker TEXT,
+            category TEXT,
+            subcategory TEXT,
+            sentiment TEXT,
+            summary TEXT,
+            confidence REAL,
+            source TEXT,
+            timestamp TEXT
+        )
     ''')
     cursor.execute('''
-    INSERT INTO insights (ticker, category, subcategory, sentiment, summary, confidence, source, timestamp)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO insights (ticker, category, subcategory, sentiment, summary, confidence, source, timestamp)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     ''', (
         insight_data['ticker'],
         insight_data['category'],
