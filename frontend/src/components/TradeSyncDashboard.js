@@ -5,7 +5,7 @@ import {
   List, ListItem, ListItemButton, ListItemIcon, ListItemText,
   Tabs, Tab, Chip, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, Alert, CircularProgress, Snackbar, alpha,
-  useTheme, useMediaQuery, Collapse, Menu, MenuItem
+  useTheme, useMediaQuery, Collapse, Menu, MenuItem, CssBaseline
 } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
@@ -26,6 +26,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const drawerWidth = 240;
+const headerHeight = 64;
 
 const TradeSyncDashboard = () => {
   const theme = useTheme();
@@ -960,7 +961,160 @@ const TradeSyncDashboard = () => {
   );
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+    <Box sx={{ display: 'flex' }}>
+      <CssBaseline />
+      
+      {/* App Bar */}
+      <AppBar 
+        position="fixed" 
+        sx={{ 
+          width: '100%',
+          boxShadow: 'none',
+          bgcolor: theme.palette.background.default,
+          borderBottom: '1px solid',
+          borderColor: alpha(theme.palette.divider, 0.1),
+          backdropFilter: 'blur(8px)',
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+        }}
+      >
+        <Toolbar>
+          {/* Menu Toggle (Mobile) */}
+          {isMobile && (
+            <IconButton 
+              color="inherit" 
+              onClick={() => setDrawerOpen(!drawerOpen)} 
+              edge="start"
+              sx={{ mr: 2 }}
+            >
+              <MenuIcon />
+            </IconButton>
+          )}
+          
+          {/* Logo and App Name */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Avatar 
+              sx={{ 
+                bgcolor: theme.palette.primary.main, 
+                width: 32, 
+                height: 32,
+                boxShadow: '0 0 10px rgba(58, 142, 255, 0.3)'
+              }}
+            >
+              T
+            </Avatar>
+            <Typography variant="h6" sx={{ fontWeight: 700, letterSpacing: '0.5px' }}>
+              TradeSync
+            </Typography>
+          </Box>
+          
+          <Box sx={{ flexGrow: 1, textAlign: 'center' }}>
+            <Typography variant="h5" component="h1" sx={{ fontWeight: 700 }}>
+              Dashboard
+            </Typography>
+          </Box>
+          
+          {/* Header Controls */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            {/* Refresh Button */}
+            <Button 
+              variant="outlined" 
+              color="inherit" 
+              startIcon={<RefreshIcon />}
+              size="small"
+              sx={{ 
+                borderRadius: '20px',
+                textTransform: 'none'
+              }}
+            >
+              Refresh
+            </Button>
+            
+            {/* Notifications */}
+            <IconButton 
+              size="small" 
+              sx={{ 
+                ml: 1,
+                position: 'relative'
+              }}
+            >
+              <NotificationsIcon fontSize="small" />
+              <Box 
+                sx={{ 
+                  width: 8, 
+                  height: 8, 
+                  borderRadius: '50%', 
+                  bgcolor: theme.palette.error.main,
+                  position: 'absolute',
+                  top: 6,
+                  right: 6
+                }} 
+              />
+            </IconButton>
+            
+            {/* User Profile Menu */}
+            <Button 
+              onClick={handleOpenUserMenu}
+              sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 1, 
+                ml: 1,
+                textTransform: 'none',
+                color: theme.palette.text.primary,
+                '&:hover': {
+                  bgcolor: alpha(theme.palette.background.paper, 0.3)
+                }
+              }}
+            >
+              <Avatar sx={{ width: 32, height: 32, bgcolor: alpha(theme.palette.primary.main, 0.2) }}>JP</Avatar>
+              <Box sx={{ textAlign: 'left', display: { xs: 'none', sm: 'block' } }}>
+                <Typography variant="body2" sx={{ fontWeight: 500, lineHeight: 1.2 }}>John Parker</Typography>
+                <Typography variant="caption" color="text.secondary">Bot Builder</Typography>
+              </Box>
+              <KeyboardArrowDownIcon fontSize="small" sx={{ ml: 0.5 }} />
+            </Button>
+            <Menu
+              anchorEl={userMenuAnchor}
+              open={Boolean(userMenuAnchor)}
+              onClose={handleCloseUserMenu}
+              transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+              anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+              PaperProps={{
+                sx: {
+                  mt: 1,
+                  minWidth: 180,
+                  borderRadius: 2,
+                  bgcolor: theme.palette.background.paper,
+                  border: '1px solid',
+                  borderColor: alpha(theme.palette.divider, 0.1),
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
+                }
+              }}
+            >
+              <MenuItem onClick={handleCloseUserMenu}>
+                <ListItemIcon>
+                  <AccountCircleIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>My Profile</ListItemText>
+              </MenuItem>
+              <MenuItem onClick={handleCloseUserMenu}>
+                <ListItemIcon>
+                  <SettingsIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>Settings</ListItemText>
+              </MenuItem>
+              <Divider sx={{ my: 1, opacity: 0.1 }} />
+              <MenuItem onClick={handleCloseUserMenu}>
+                <ListItemIcon>
+                  <LogoutIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>Logout</ListItemText>
+              </MenuItem>
+            </Menu>
+          </Box>
+        </Toolbar>
+      </AppBar>
+
       {/* Sidebar */}
       <Drawer
         variant={isMobile ? "temporary" : "permanent"}
@@ -972,11 +1126,13 @@ const TradeSyncDashboard = () => {
           '& .MuiDrawer-paper': {
             width: drawerWidth,
             boxSizing: 'border-box',
-            backgroundColor: theme.palette.background.default,
+            bgcolor: theme.palette.background.default,
             backgroundImage: 'linear-gradient(to bottom, rgba(10, 12, 16, 0.9), rgba(10, 12, 16, 0.95))',
             backdropFilter: 'blur(10px)',
             borderRight: '1px solid',
             borderColor: alpha(theme.palette.divider, 0.1),
+            pt: `${headerHeight}px`,
+            overflowX: 'hidden'
           },
         }}
       >
@@ -988,199 +1144,47 @@ const TradeSyncDashboard = () => {
         component="main" 
         sx={{ 
           flexGrow: 1, 
-          p: 0,
+          pt: `${headerHeight + 24}px`,
+          pb: 3,
+          px: 3,
           bgcolor: theme.palette.background.default,
           backgroundImage: 'radial-gradient(at 30% 20%, rgba(19, 24, 32, 0.4) 0px, transparent 70%), radial-gradient(at 70% 80%, rgba(25, 30, 40, 0.3) 0px, transparent 70%)',
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
-          ml: { sm: `${drawerWidth}px` }
+          minHeight: '100vh'
         }}
       >
-        {/* App Header */}
-        <AppBar 
-          position="sticky" 
-          color="transparent" 
-          elevation={0} 
+        {/* Notification Snackbar */}
+        <Snackbar
+          open={notification.open}
+          autoHideDuration={6000}
+          onClose={() => setNotification({...notification, open: false})}
+          message={notification.message}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
           sx={{ 
-            borderBottom: '1px solid',
-            borderColor: alpha(theme.palette.divider, 0.1),
-            backdropFilter: 'blur(8px)',
-            bgcolor: alpha(theme.palette.background.default, 0.8),
-            zIndex: 10
+            '& .MuiSnackbarContent-root': {
+              bgcolor: notification.type === 'success' ? theme.palette.success.dark : theme.palette.primary.dark,
+              borderRadius: 2
+            }
           }}
-        >
-          <Toolbar>
-            {isMobile && (
-              <IconButton 
-                color="inherit" 
-                onClick={() => setDrawerOpen(!drawerOpen)} 
-                edge="start"
-                sx={{ mr: 2 }}
-              >
-                <MenuIcon />
-              </IconButton>
-            )}
-            
-            {/* Logo and App Name */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Avatar 
-                sx={{ 
-                  bgcolor: theme.palette.primary.main, 
-                  width: 32, 
-                  height: 32,
-                  boxShadow: '0 0 10px rgba(58, 142, 255, 0.3)'
-                }}
-              >
-                T
-              </Avatar>
-              <Typography variant="h6" sx={{ fontWeight: 700, letterSpacing: '0.5px' }}>
-                TradeSync
-              </Typography>
-            </Box>
-            
-            <Box sx={{ flexGrow: 1, textAlign: 'center' }}>
-              <Typography variant="h5" component="h1" sx={{ fontWeight: 700 }}>
-                Dashboard
-              </Typography>
-            </Box>
-            
-            {/* Header Controls */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              {/* Refresh Button */}
-              <Button 
-                variant="outlined" 
-                color="inherit" 
-                startIcon={<RefreshIcon />}
-                size="small"
-                sx={{ 
-                  borderRadius: '20px',
-                  textTransform: 'none'
-                }}
-              >
-                Refresh
-              </Button>
-              
-              {/* Notifications */}
-              <IconButton 
-                size="small" 
-                sx={{ 
-                  ml: 1,
-                  position: 'relative'
-                }}
-              >
-                <NotificationsIcon fontSize="small" />
-                <Box 
-                  sx={{ 
-                    width: 8, 
-                    height: 8, 
-                    borderRadius: '50%', 
-                    bgcolor: theme.palette.error.main,
-                    position: 'absolute',
-                    top: 6,
-                    right: 6
-                  }} 
-                />
-              </IconButton>
-              
-              {/* User Profile Menu */}
-              <Button 
-                onClick={handleOpenUserMenu}
-                sx={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: 1, 
-                  ml: 1,
-                  textTransform: 'none',
-                  color: theme.palette.text.primary,
-                  '&:hover': {
-                    bgcolor: alpha(theme.palette.background.paper, 0.3)
-                  }
-                }}
-              >
-                <Avatar sx={{ width: 32, height: 32, bgcolor: alpha(theme.palette.primary.main, 0.2) }}>JP</Avatar>
-                <Box sx={{ textAlign: 'left', display: { xs: 'none', sm: 'block' } }}>
-                  <Typography variant="body2" sx={{ fontWeight: 500, lineHeight: 1.2 }}>John Parker</Typography>
-                  <Typography variant="caption" color="text.secondary">Bot Builder</Typography>
-                </Box>
-                <KeyboardArrowDownIcon fontSize="small" sx={{ ml: 0.5 }} />
-              </Button>
-              <Menu
-                anchorEl={userMenuAnchor}
-                open={Boolean(userMenuAnchor)}
-                onClose={handleCloseUserMenu}
-                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-                PaperProps={{
-                  sx: {
-                    mt: 1,
-                    minWidth: 180,
-                    borderRadius: 2,
-                    bgcolor: theme.palette.background.paper,
-                    border: '1px solid',
-                    borderColor: alpha(theme.palette.divider, 0.1),
-                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
-                  }
-                }}
-              >
-                <MenuItem onClick={handleCloseUserMenu}>
-                  <ListItemIcon>
-                    <AccountCircleIcon fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText>My Profile</ListItemText>
-                </MenuItem>
-                <MenuItem onClick={handleCloseUserMenu}>
-                  <ListItemIcon>
-                    <SettingsIcon fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText>Settings</ListItemText>
-                </MenuItem>
-                <Divider sx={{ my: 1, opacity: 0.1 }} />
-                <MenuItem onClick={handleCloseUserMenu}>
-                  <ListItemIcon>
-                    <LogoutIcon fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText>Logout</ListItemText>
-                </MenuItem>
-              </Menu>
-            </Box>
-          </Toolbar>
-        </AppBar>
+        />
+
+        {/* Market Ticker */}
+        <MarketTicker />
         
-        {/* Dashboard Content */}
-        <Box sx={{ p: { xs: 2, sm: 3 } }}>
-          {/* Notification Snackbar */}
-          <Snackbar
-            open={notification.open}
-            autoHideDuration={6000}
-            onClose={() => setNotification({...notification, open: false})}
-            message={notification.message}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            sx={{ 
-              '& .MuiSnackbarContent-root': {
-                bgcolor: notification.type === 'success' ? theme.palette.success.dark : theme.palette.primary.dark,
-                borderRadius: 2
-              }
-            }}
-          />
-  
-          {/* Market Ticker */}
-          <MarketTicker />
-          
-          {/* Main Dashboard Grid */}
-          <Grid container spacing={3}>
-            {/* Left Column - 2/3 width */}
-            <Grid item xs={12} lg={8}>
-              <OpenPositions />
-              <PerformanceChart />
-              <AIInsights />
-            </Grid>
-            
-            {/* Right Column - 1/3 width */}
-            <Grid item xs={12} lg={4}>
-              <AccountSummary />
-              <TradingStats />
-            </Grid>
+        {/* Main Dashboard Grid */}
+        <Grid container spacing={3}>
+          {/* Left Column - 2/3 width */}
+          <Grid item xs={12} lg={8}>
+            <OpenPositions />
+            <PerformanceChart />
+            <AIInsights />
           </Grid>
-        </Box>
+          
+          {/* Right Column - 1/3 width */}
+          <Grid item xs={12} lg={4}>
+            <AccountSummary />
+            <TradingStats />
+          </Grid>
+        </Grid>
       </Box>
     </Box>
   );
