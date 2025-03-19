@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   Box, 
   Drawer, 
@@ -12,24 +12,12 @@ import {
   ListItemText,
   Paper, 
   Grid, 
-  Card, 
-  CardContent, 
-  CardHeader,
   Divider,
   Button,
   Avatar,
   Chip,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  IconButton,
   Tab,
-  Tabs,
-  CircularProgress,
-  Alert
+  Tabs
 } from '@mui/material';
 
 // Import icons
@@ -49,7 +37,7 @@ const TradeSyncDashboard = () => {
   const wsRef = useRef(null);
   
   // Initialize data states
-  const [marketData, setMarketData] = useState({
+  const [marketData] = useState({
     SPY: { symbol: 'SPY', price: 483.58, change: 1.8 },
     QQQ: { symbol: 'QQQ', price: 418.27, change: 1.7 },
     VIX: { symbol: 'VIX', price: 14.77, change: -5.2 },
@@ -57,7 +45,7 @@ const TradeSyncDashboard = () => {
     BTC: { symbol: 'BTC', price: 68474, change: 2.5 }
   });
   
-  const [positions, setPositions] = useState([
+  const [positions] = useState([
     { 
       id: 'aapl', 
       symbol: 'AAPL', 
@@ -96,14 +84,14 @@ const TradeSyncDashboard = () => {
     }
   ]);
   
-  const [accountSummary, setAccountSummary] = useState({
+  const [accountSummary] = useState({
     totalValue: 52490.40,
     availableCash: 37886.99,
     openPL: 509.59,
     closedPL: 774.51
   });
 
-  const [connectionStatus, setConnectionStatus] = useState('connected');
+  const [connectionStatus] = useState('connected');
   const [insightTab, setInsightTab] = useState(0);
   const [performanceTab, setPerformanceTab] = useState(0);
 
@@ -416,7 +404,7 @@ const TradeSyncDashboard = () => {
                   size="small"
                   color="success" 
                   variant="outlined"
-                  sx={{ bgcolor: 'success.main', bgcolor: 'rgba(63, 185, 80, 0.1)' }}
+                  sx={{ bgcolor: 'rgba(63, 185, 80, 0.1)' }}
                 />
                 <Chip 
                   label="Bearish" 
