@@ -3,17 +3,41 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import TradeSyncDashboard from './components/TradeSyncDashboard';
 
-// Create a theme instance
+// Create a dark theme for Material UI
 const theme = createTheme({
   palette: {
+    mode: 'dark',
     primary: {
-      main: '#1976d2',
+      main: '#1F6FEB',
     },
     secondary: {
-      main: '#dc004e',
+      main: '#3FB950',
+    },
+    error: {
+      main: '#F85149',
+    },
+    warning: {
+      main: '#F5A623',
     },
     background: {
-      default: '#f5f5f5',
+      default: '#0D1117',
+      paper: '#161B22',
+    },
+    text: {
+      primary: '#F6F8FA',
+      secondary: '#8B949E',
+    },
+  },
+  typography: {
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif',
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          textTransform: 'none',
+        },
+      },
     },
   },
 });
