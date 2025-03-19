@@ -1,21 +1,16 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify
 import sqlite3
 import os
 import json
 from datetime import datetime
 from flask_cors import CORS
 
-# Set up the Flask app
-app = Flask(__name__, static_folder='frontend/build', static_url_path='')
+app = Flask(__name__)
 CORS(app)
 
-@app.route("/api")
-def api_home():
+@app.route("/")
+def home():
     return "TradeSync Bot API", 200
-
-@app.route('/')
-def serve():
-    return send_from_directory(app.static_folder, 'index.html')
 
 def call_grok_api(post_text, source, timestamp, image_url=None):
     if "$" in post_text:
@@ -45,7 +40,7 @@ def call_grok_api(post_text, source, timestamp, image_url=None):
         sentiment = ""
         summary = "General trading discussion."
         confidence = 60.0 if "means" in post_text.lower() else 10.0
-    
+
     return {
         "ticker": ticker,
         "category": category,
@@ -59,81 +54,138 @@ def call_grok_api(post_text, source, timestamp, image_url=None):
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
-    data = request.get_json()
-    post_text = data.get('text', '')
-    source = data.get('source', 'Unknown')
-    timestamp = data.get('timestamp', datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-    
-    insight_data = call_grok_api(post_text, source, timestamp)
-    
-    db_path = os.environ.get('DB_PATH', '/tmp/tradesync.db')
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-    
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS insights (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        ticker TEXT,
-        category TEXT,
-        subcategory TEXT,
-        sentiment TEXT,
-        summary TEXT,
-        confidence REAL,
-        source TEXT,
-        timestamp TEXT
-    )
-    ''')
-    
-    cursor.execute('''
-    INSERT INTO insights (ticker, category, subcategory, sentiment, summary, confidence, source, timestamp)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (
-        insight_data['ticker'],
-        insight_data['category'],
-        insight_data.get('subcategory', ''),
-        insight_data.get('sentiment', ''),
-        insight_data['summary'],
-        insight_data['confidence'],
-        insight_data['source'],
-        insight_data['timestamp']
-    ))
-    
-    conn.commit()
-    conn.close()
-    
-    return 'Webhook received', 200
+    try:
+        data = request.get_json()
+        if not data or 'text' not in data or 'source' not in data or 'timestamp' not in data:
+            return jsonify({"error": "Invalid payload"}), 400
+        post_text = data.get('text', '')
+        source = data.get('source', 'Unknown')
+        timestamp = data.get('timestamp', datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+
+        insight_data = call_grok_api(post_text, source, timestamp)
+
+        db_path = os.environ.get('DB_PATH', '/tmp/tradesync.db')
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS insights (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                ticker TEXT,
+                category TEXT,
+                subcategory TEXT,
+                sentiment TEXT,
+                summary TEXT,
+                confidence REAL,
+                source TEXT,
+                timestamp TEXT,
+                closed INTEGER DEFAULT 0
+            )
+        ''')
+        cursor.execute('''
+            INSERT INTO insights (ticker, category, subcategory, sentiment, summary, confidence, source, timestamp)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (
+            insight_data['ticker'],
+            insight_data['category'],
+            insight_data.get('subcategory', ''),
+            insight_data.get('sentiment', ''),
+            insight_data['summary'],
+            insight_data['confidence'],
+            insight_data['source'],
+            insight_data['timestamp']
+        ))
+        conn.commit()
+        conn.close()
+        return 'Webhook received', 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/api/insights', methods=['GET'])
 def get_insights():
-    db_path = os.environ.get('DB_PATH', '/tmp/tradesync.db')
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-    
-    cursor.execute('SELECT * FROM insights ORDER BY id DESC LIMIT 10')
-    rows = cursor.fetchall()
-    
-    conn.close()
-    
-    insights = [
-        {
-            "id": row[0],
-            "ticker": row[1],
-            "category": row[2],
-            "subcategory": row[3],
-            "sentiment": row[4],
-            "summary": row[5],
-            "confidence": row[6],
-            "source": row[7],
-            "timestamp": row[8]
-        } for row in rows
-    ]
-    
-    return jsonify(insights)
+    try:
+        db_path = os.environ.get('DB_PATH', '/tmp/tradesync.db')
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        
+        # Check if closed column exists, add it if it doesn't
+        cursor.execute("PRAGMA table_info(insights)")
+        columns = [column[1] for column in cursor.fetchall()]
+        if 'closed' not in columns:
+            cursor.execute('ALTER TABLE insights ADD COLUMN closed INTEGER DEFAULT 0')
+            conn.commit()
+        
+        cursor.execute('SELECT * FROM insights WHERE closed = 0 OR closed IS NULL ORDER BY id DESC LIMIT 10')
+        rows = cursor.fetchall()
+        conn.close()
 
-# This catches all routes not caught by other route handlers and returns the React app
-@app.route('/<path:path>')
-def catch_all(path):
-    return send_from_directory(app.static_folder, 'index.html')
+        insights = [
+            {
+                "id": row[0],
+                "ticker": row[1],
+                "category": row[2],
+                "subcategory": row[3],
+                "sentiment": row[4],
+                "summary": row[5],
+                "confidence": row[6],
+                "source": row[7],
+                "timestamp": row[8],
+                "closed": row[9] if len(row) > 9 else 0
+            } for row in rows
+        ]
+        return jsonify(insights)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/insights/close/<int:insight_id>', methods=['POST'])
+def close_insight(insight_id):
+    try:
+        db_path = os.environ.get('DB_PATH', '/tmp/tradesync.db')
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        
+        # Check if the insight exists
+        cursor.execute('SELECT id FROM insights WHERE id = ?', (insight_id,))
+        if not cursor.fetchone():
+            conn.close()
+            return jsonify({"error": "Insight not found"}), 404
+        
+        # Update the insight to mark it as closed
+        cursor.execute('UPDATE insights SET closed = 1 WHERE id = ?', (insight_id,))
+        conn.commit()
+        conn.close()
+        
+        return jsonify({"success": True, "message": f"Insight {insight_id} closed successfully"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/insights/closed', methods=['GET'])
+def get_closed_insights():
+    try:
+        db_path = os.environ.get('DB_PATH', '/tmp/tradesync.db')
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        
+        cursor.execute('SELECT * FROM insights WHERE closed = 1 ORDER BY id DESC LIMIT 10')
+        rows = cursor.fetchall()
+        conn.close()
+
+        insights = [
+            {
+                "id": row[0],
+                "ticker": row[1],
+                "category": row[2],
+                "subcategory": row[3],
+                "sentiment": row[4],
+                "summary": row[5],
+                "confidence": row[6],
+                "source": row[7],
+                "timestamp": row[8],
+                "closed": row[9] if len(row) > 9 else 0
+            } for row in rows
+        ]
+        return jsonify(insights)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5001))
