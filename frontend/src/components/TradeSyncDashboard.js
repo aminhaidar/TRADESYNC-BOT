@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Box, 
   Container,
@@ -28,7 +28,6 @@ import {
   InputAdornment,
   Snackbar
 } from '@mui/material';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const TradeSyncDashboard = () => {
   // State for insights and dashboard
@@ -60,43 +59,6 @@ const TradeSyncDashboard = () => {
     { date: '03/17/2025', equity: 52300, profit: 800 },
     { date: '03/18/2025', equity: 52490, profit: 990 }
   ]);
-  
-  // WebSocket reference
-  const wsRef = useRef(null);
-
-const TradeSyncDashboard = () => {
-  // State for insights and dashboard
-  const [insights, setInsights] = useState([]);
-  const [closedInsights, setClosedInsights] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  
-  // State for trading UI
-  const [openTradeDialog, setOpenTradeDialog] = useState(false);
-  const [notification, setNotification] = useState({ open: false, message: '', type: 'info' });
-  const [activeTab, setActiveTab] = useState(0);
-  
-  // State for market data
-  const [marketData, setMarketData] = useState({
-    SPY: { symbol: 'SPY', price: 483.58, change: 1.8 },
-    QQQ: { symbol: 'QQQ', price: 418.27, change: 1.7 },
-    AAPL: { symbol: 'AAPL', price: 213.18, change: 0.8 },
-    BTC: { symbol: 'BTC', price: 68474, change: 2.5 }
-  });
-  
-  // State for performance data
-  const [performanceData, setPerformanceData] = useState([
-    { date: '03/12/2025', equity: 51000, profit: -500 },
-    { date: '03/13/2025', equity: 51200, profit: -300 },
-    { date: '03/14/2025', equity: 51500, profit: 0 },
-    { date: '03/15/2025', equity: 51800, profit: 300 },
-    { date: '03/16/2025', equity: 52100, profit: 600 },
-    { date: '03/17/2025', equity: 52300, profit: 800 },
-    { date: '03/18/2025', equity: 52490, profit: 990 }
-  ]);
-  
-  // WebSocket reference
-  const wsRef = useRef(null);
 
   // Fetch insights from the API
   const fetchInsights = async () => {
@@ -163,7 +125,7 @@ const TradeSyncDashboard = () => {
     }
   };
 
-  // Connect to Alpaca WebSocket for real-time data
+  // Connect to Alpaca WebSocket for real-time data - simplified simulation
   useEffect(() => {
     // Simulate WebSocket data with setInterval
     const intervalId = setInterval(() => {
@@ -330,36 +292,6 @@ const TradeSyncDashboard = () => {
         return '#757575';
     }
   };
-  
-  // Render performance chart
-  const renderPerformanceChart = () => {
-    return (
-      <ResponsiveContainer width="100%" height={200}>
-        <LineChart data={performanceData}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="date" />
-          <YAxis />
-          <Tooltip 
-            formatter={(value) => [`$${value.toLocaleString()}`, 'Value']}
-          />
-          <Legend />
-          <Line 
-            type="monotone" 
-            dataKey="equity" 
-            stroke="#1F6FEB" 
-            activeDot={{ r: 8 }} 
-            name="Portfolio Value"
-          />
-          <Line 
-            type="monotone" 
-            dataKey="profit" 
-            stroke="#3FB950" 
-            name="Profit/Loss" 
-          />
-        </LineChart>
-      </ResponsiveContainer>
-    );
-  };
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
@@ -419,8 +351,14 @@ const TradeSyncDashboard = () => {
                 <Tab label="1Y" />
               </Tabs>
             </Box>
-            {renderPerformanceChart()}
+            {/* Chart placeholder - we'll add recharts after fixing the dependency */}
+            <Box sx={{ height: 200, bgcolor: 'action.hover', borderRadius: 1 }}>
+              <Typography variant="body2" sx={{ p: 2 }}>
+                Performance chart will appear here after recharts installation
+              </Typography>
+            </Box>
           </Paper>
+
           {/* AI Insights Section */}
           <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -488,6 +426,7 @@ const TradeSyncDashboard = () => {
               </TableContainer>
             )}
           </Paper>
+
           {/* Closed Trades Section */}
           <Paper elevation={3} sx={{ p: 3 }}>
             <Typography variant="h6" sx={{ mb: 2 }}>Closed Trades</Typography>
